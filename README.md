@@ -1,0 +1,1 @@
+fashion-dashboard-package.git
