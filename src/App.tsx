@@ -46,7 +46,7 @@ function App() {
         {
           id: 'llm_1',
           type: 'llm',
-          position: { x: 200, y: 150 },
+          position: { x: 400, y: 300 },
           data: { name: 'LM Studio Chat' },
           inputs: [{ id: 'input', type: 'text', label: 'Input' }],
           outputs: [{ id: 'output', type: 'text', label: 'Output' }]
@@ -54,7 +54,7 @@ function App() {
         {
           id: 'image_1',
           type: 'image',
-          position: { x: 450, y: 100 },
+          position: { x: 600, y: 200 },
           data: { name: 'ComfyUI Generator' },
           inputs: [{ id: 'prompt', type: 'text', label: 'Prompt' }],
           outputs: [{ id: 'image', type: 'image', label: 'Image' }]
@@ -62,7 +62,7 @@ function App() {
         {
           id: 'data_1',
           type: 'data',
-          position: { x: 350, y: 250 },
+          position: { x: 500, y: 400 },
           data: { name: 'Data Processor' },
           inputs: [{ id: 'input', type: 'any', label: 'Input' }],
           outputs: [{ id: 'output', type: 'any', label: 'Output' }]

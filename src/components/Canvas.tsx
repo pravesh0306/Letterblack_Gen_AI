@@ -392,6 +392,7 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(({
               onDelete={() => onNodeDelete(node.id)}
               onConnectionStart={handleConnectionStart}
               onConnectionEnd={handleConnectionEnd}
+              style={{ zIndex: 10 }}
             />
           ))}
 

@@ -194,8 +194,12 @@ export function WorkflowNode({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
+      onMouseLeave={() => {
+        setShowTooltip(false);
+        handleMouseUp();
+      }}
       onContextMenu={handleContextMenu}
+      style={{ zIndex: 10 }}
     >
       {/* Connection Points */}
       <div className="absolute inset-0 pointer-events-none">
@@ -226,42 +230,32 @@ export function WorkflowNode({
       <div
         className={`w-full h-full rounded-full border-2 transition-all duration-200 relative overflow-hidden ${
           selected 
-            ? 'border-white shadow-node-selected' 
-            : 'border-[#4a4a4a] hover:border-[#6a6a6a] hover:shadow-node-hover'
+            ? 'border-white' 
+            : 'border-[#666666] hover:border-[#888888]'
         }`}
         style={{
-          backgroundColor: config.color,
-          background: `radial-gradient(circle at 30% 30%, ${config.color}, #1a1a1a)`,
+          backgroundColor: '#dc2626',
+          background: `radial-gradient(circle at 30% 30%, #dc2626, #b91c1c)`,
           borderColor: selected ? '#ffffff' : '#4a4a4a'
         }}
       >
-        {/* Status indicator ring */}
-        <div
-          className="absolute inset-0 rounded-full border-2 opacity-60"
-          style={{
-            borderColor: getStatusColor(),
-            borderStyle: config.status === 'warning' ? 'dashed' : 'solid'
-          }}
-        />
-
         {/* Node content */}
         <div className="absolute inset-0 flex items-center justify-center">
           <Icon 
-            className="text-white" 
+            className="text-white drop-shadow-lg" 
             size={size.iconSize}
-            style={{ color: config.color }}
           />
         </div>
 
         {/* Status dot */}
         <div
           className="absolute top-1 right-1 w-2 h-2 rounded-full"
-          style={{ backgroundColor: getStatusColor() }}
+          style={{ backgroundColor: '#00ff00' }}
         />
 
         {/* Selection indicator */}
         {selected && (
-          <div className="absolute inset-0 rounded-full border border-white opacity-50 animate-pulse" />
+          <div className="absolute inset-0 rounded-full border-2 border-white opacity-75 animate-pulse" />
         )}
       </div>
 
