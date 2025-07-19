@@ -75,16 +75,16 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               return (
                 <div
                   key={index}
-                  className={`flex items-center space-x-2 px-2 py-1.5 rounded text-xs cursor-pointer transition-colors relative ${
+                  className={`flex items-center space-x-3 px-3 py-2 rounded text-xs cursor-pointer transition-colors relative ${
                     item.active 
                       ? 'bg-[#dc2626]/20 text-white border-l-2 border-[#dc2626]' 
                       : 'text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a]'
                   }`}
                 >
-                  <Icon className="w-3 h-3 flex-shrink-0" />
+                  <Icon className="w-4 h-4 flex-shrink-0" />
                   <span className="truncate">{item.label}</span>
                   {item.hasAlert && (
-                    <div className="absolute right-2 top-1 w-2 h-2 bg-[#dc2626] rounded-full"></div>
+                    <div className="absolute right-3 top-2 w-2 h-2 bg-[#dc2626] rounded-full"></div>
                   )}
                 </div>
               );
@@ -92,7 +92,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           </div>
 
           <div className="border-t border-[#dc2626]/30 mt-2 pt-2">
-            <div className="px-2 py-1">
+            <div className="px-3 py-2">
               <div className="flex items-center space-x-2 text-xs text-[#707070]">
                 <div className="w-3 h-3 bg-[#dc2626] rounded-sm flex items-center justify-center">
                   <span className="text-white text-xs font-bold">4</span>
@@ -105,22 +105,22 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       )}
 
       {collapsed && (
-        <div className="flex-1 overflow-y-auto p-1">
+        <div className="flex-1 overflow-y-auto p-2">
           {menuItems.slice(0, 6).map((item, index) => {
             const Icon = item.icon;
             return (
               <div
                 key={index}
-                className={`flex items-center justify-center p-2 rounded mb-1 cursor-pointer transition-colors relative ${
+                className={`flex items-center justify-center p-3 rounded mb-2 cursor-pointer transition-colors relative ${
                   item.active 
                     ? 'bg-[#dc2626]/20 text-white' 
                     : 'text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a]'
                 }`}
                 title={item.label}
               >
-                <Icon className="w-3 h-3" />
+                <Icon className="w-4 h-4" />
                 {item.hasAlert && (
-                  <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#dc2626] rounded-full"></div>
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-[#dc2626] rounded-full"></div>
                 )}
               </div>
             );

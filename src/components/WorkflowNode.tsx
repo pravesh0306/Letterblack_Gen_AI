@@ -230,8 +230,8 @@ export function WorkflowNode({
             : 'border-[#4a4a4a] hover:border-[#6a6a6a] hover:shadow-node-hover'
         }`}
         style={{
-          backgroundColor: '#1e1e1e',
-          background: `radial-gradient(circle at 30% 30%, #2a2a2a, #1a1a1a)`,
+          backgroundColor: config.color,
+          background: `radial-gradient(circle at 30% 30%, ${config.color}, #1a1a1a)`,
           borderColor: selected ? '#ffffff' : '#4a4a4a'
         }}
       >

@@ -143,60 +143,13 @@ export function ScalableLayout({
           />
         </div>
 
-        {/* Viewport Scale Control */}
-        <div className="flex items-center space-x-3 bg-[#2a2a2a] rounded-lg px-4 py-2 border border-[#333333]">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleViewportScaleChange(viewportScale - 0.1)}
-            disabled={viewportScale <= 0.5}
-            className="w-8 h-8 p-0"
-          >
-            <Minus className="w-4 h-4" />
-          </Button>
-          
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-[#a0a0a0] min-w-[3rem]">Zoom:</span>
-            <input
-              type="range"
-              min="0.5"
-              max="2"
-              step="0.1"
-              value={viewportScale}
-              onChange={(e) => handleViewportScaleChange(parseFloat(e.target.value))}
-              className="w-32 h-2 bg-[#333333] rounded-lg appearance-none cursor-pointer slider"
-            />
-            <span className="text-xs font-mono min-w-[3rem] text-right">
-              {Math.round(viewportScale * 100)}%
-            </span>
-          </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleViewportScaleChange(viewportScale + 0.1)}
-            disabled={viewportScale >= 2}
-            className="w-8 h-8 p-0"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-          
-          <div className="ml-3 flex items-center">
-            <WifiIcon />
-          </div>
+        {/* WiFi Status */}
+        <div className="flex items-center">
+          <WifiIcon />
         </div>
 
-        {/* Reset Controls */}
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleViewportScaleChange(1)}
-            className="text-xs px-2 py-1"
-          >
-            Reset Zoom
-          </Button>
-        </div>
+        {/* Empty space for balance */}
+        <div></div>
       </header>
 
       {/* Main Layout - Fixed dimensions, only content scales */}

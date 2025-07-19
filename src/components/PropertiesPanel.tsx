@@ -78,14 +78,14 @@ export function PropertiesPanel({ selectedNode, collapsed, onToggle, onNodeUpdat
                 <Input
                   defaultValue={`${selectedNode.type} Node`}
                   placeholder="Enter node name"
-                  className="h-5"
+                  className="h-6 w-full"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium mb-1">Description</label>
                 <textarea
-                  className="w-full h-10 px-2 py-1 border border-[#333333] rounded bg-[#1a1a1a] text-white text-xs resize-none transition-colors focus:ring-1 focus:ring-[#4a9eff] focus:border-transparent"
+                  className="w-full h-16 px-2 py-1 border border-[#333333] rounded bg-[#1a1a1a] text-white text-xs resize-none transition-colors focus:ring-1 focus:ring-[#4a9eff] focus:border-transparent"
                   placeholder="Describe what this node does"
                 />
               </div>
@@ -94,7 +94,7 @@ export function PropertiesPanel({ selectedNode, collapsed, onToggle, onNodeUpdat
                 <>
                   <div>
                     <label className="block text-xs font-medium mb-1">Model</label>
-                    <select className="w-full px-2 py-1 border border-[#333333] rounded bg-[#1a1a1a] text-white text-xs transition-colors focus:ring-1 focus:ring-[#4a9eff] focus:border-transparent">
+                    <select className="w-full h-6 px-2 py-1 border border-[#333333] rounded bg-[#1a1a1a] text-white text-xs transition-colors focus:ring-1 focus:ring-[#4a9eff] focus:border-transparent">
                       <option>GPT-4</option>
                       <option>GPT-3.5 Turbo</option>
                       <option>Claude 3</option>
@@ -102,13 +102,13 @@ export function PropertiesPanel({ selectedNode, collapsed, onToggle, onNodeUpdat
                   </div>
                   <div>
                     <label className="block text-xs font-medium mb-1">Temperature</label>
-                    <Input type="number" min="0" max="2" step="0.1" defaultValue="0.7" className="h-5" />
+                    <Input type="number" min="0" max="2" step="0.1" defaultValue="0.7" className="h-6 w-full" />
                   </div>
                 </>
               )}
 
               <div className="pt-2 border-t border-[#333333]">
-                <Button variant="primary" className="w-full h-5 text-xs">
+                <Button variant="primary" className="w-full h-6 text-xs">
                   <Play className="w-3 h-3 mr-1" />
                   Test Node
                 </Button>
