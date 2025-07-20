@@ -196,7 +196,7 @@ function App() {
           {chatMode ? (
             <ChatInterface />
           ) : (
-            <div className="flex-1 relative">
+            <div className="flex-1 relative" style={{ zIndex: 1 }}>
               <Canvas
                 nodes={nodes}
                 connections={connections}
