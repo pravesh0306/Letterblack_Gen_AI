@@ -53,6 +53,13 @@ export function QuickSearch({ open, onClose, nodes, onNodeSelect }: QuickSearchP
 
   const handleNodeClick = (node: Node) => {
     onNodeSelect(node);
+    
+    // Center the canvas on the selected node
+    const event = new CustomEvent('centerOnNode', { 
+      detail: { nodeId: node.id, position: node.position } 
+    });
+    window.dispatchEvent(event);
+    
     onClose();
   };
 

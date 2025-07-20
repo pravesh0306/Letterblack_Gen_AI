@@ -199,7 +199,7 @@ export function WorkflowNode({
         handleMouseUp();
       }}
       onContextMenu={handleContextMenu}
-      style={{ zIndex: 10 }}
+      style={{ zIndex: selected ? 20 : 10 }}
     >
       {/* Connection Points */}
       <div className="absolute inset-0 pointer-events-none">

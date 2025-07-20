@@ -46,6 +46,23 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(({
   const canvasRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
 
+  // Listen for center on node events
+  useEffect(() => {
+    const handleCenterOnNode = (e: CustomEvent) => {
+      const { position } = e.detail;
+      if (canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        setPan({
+          x: rect.width / 2 - position.x * zoom,
+          y: rect.height / 2 - position.y * zoom
+        });
+      }
+    };
+
+    window.addEventListener('centerOnNode', handleCenterOnNode as EventListener);
+    return () => window.removeEventListener('centerOnNode', handleCenterOnNode as EventListener);
+  }, [zoom]);
+
   // Enhanced zoom with smooth transitions and bounds
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
