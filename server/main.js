@@ -11,6 +11,17 @@ class LocalServerOrchestrator {
   constructor() {
     this.app = express();
     this.server = http.createServer(this.app);
+    
+    // Add error handling for the HTTP server
+    this.server.on('error', (error) => {
+      console.error('❌ HTTP Server error:', error);
+    });
+    
+    this.server.on('clientError', (err, socket) => {
+      console.error('❌ Client error:', err);
+      socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    });
+    
     this.io = socketIo(this.server, {
       path: '/socket.io/',
       cors: {
@@ -27,6 +38,15 @@ class LocalServerOrchestrator {
         },
         methods: ["GET", "POST"]
       }
+    });
+    
+    // Add error handling for Socket.IO
+    this.io.on('error', (error) => {
+      console.error('❌ Socket.IO error:', error);
+    });
+    
+    this.io.engine.on('connection_error', (err) => {
+      console.error('❌ Socket.IO connection error:', err.req, err.code, err.message, err.context);
     });
     
     this.services = {
