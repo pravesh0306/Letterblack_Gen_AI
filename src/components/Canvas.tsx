@@ -373,7 +373,7 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(({
           {/* Render connections */}
           {connections.map((connection) => (
             <Connection
-              key={connection.id}
+              key={`connection-${connection.id}`}
               connection={connection}
               nodes={nodes}
               selected={selectedConnection === connection.id}
@@ -384,7 +384,7 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(({
           {/* Render nodes */}
           {nodes.map((node) => (
             <WorkflowNode
-              key={node.id}
+              key={`node-${node.id}`}
               node={node}
               selected={selectedNode?.id === node.id}
               onSelect={() => onNodeSelect(node)}
