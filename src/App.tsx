@@ -40,7 +40,10 @@ function App() {
 
   // Initialize with sample nodes and connections
   React.useEffect(() => {
-    if (nodes.length === 0) {
+    // Only initialize once when the component mounts and there are no nodes
+    const initializeOnce = () => {
+      if (nodes.length > 0) return; // Prevent re-initialization
+      
       // Add sample nodes
       const sampleNodes = [
         {
@@ -89,8 +92,10 @@ function App() {
 
       sampleNodes.forEach(node => addNode(node));
       sampleConnections.forEach(connection => addConnection(connection));
-    }
-  }, [nodes.length, addNode, addConnection]);
+    };
+    
+    initializeOnce();
+  }, []); // Empty dependency array to run only once on mount
   const { 
     sidebarOpen: chatSidebarOpen, 
     toggleSidebar: toggleChatSidebar,
