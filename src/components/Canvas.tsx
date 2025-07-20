@@ -362,7 +362,7 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(({
   } : {};
 
   return (
-    <div className="flex-1 relative overflow-hidden bg-[#0d0d0d]">
+    <div className="flex-1 relative bg-[#0d0d0d]">
       <div
         ref={canvasRef}
         className="w-full h-full cursor-default select-none"
