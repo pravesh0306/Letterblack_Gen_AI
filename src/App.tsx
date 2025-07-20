@@ -196,16 +196,18 @@ function App() {
           {chatMode ? (
             <ChatInterface />
           ) : (
-            <Canvas
-              nodes={nodes}
-              connections={connections}
-              selectedNode={selectedNodeData || null}
-              onNodeAdd={handleNodeAdd}
-              onNodeSelect={handleNodeSelect}
-              onNodeUpdate={updateNode}
-              onNodeDelete={deleteNode}
-              onConnectionAdd={addConnection}
-            />
+            <div className="flex-1 relative">
+              <Canvas
+                nodes={nodes}
+                connections={connections}
+                selectedNode={selectedNodeData || null}
+                onNodeAdd={handleNodeAdd}
+                onNodeSelect={handleNodeSelect}
+                onNodeUpdate={updateNode}
+                onNodeDelete={deleteNode}
+                onConnectionAdd={addConnection}
+              />
+            </div>
           )}
         </div>
         
