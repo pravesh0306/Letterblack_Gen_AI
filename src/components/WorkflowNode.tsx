@@ -14,7 +14,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
-import { Node } from '../types/workflow';
+import { Node } from '../types/workfl ow';
 import { Button } from './ui/Button';
 import { useContextMenu } from './ContextMenu';
 
