@@ -185,7 +185,7 @@ function App() {
         <div className="flex-1 overflow-hidden relative">
           {/* Transparent Left Panel in Workspace */}
           {!chatMode && (
-            <div className="absolute top-4 left-4 z-30 bg-[#1a1a1a]/85 backdrop-blur-sm border border-[#dc2626]/30 rounded-lg shadow-lg">
+            <div className="absolute top-4 left-4 z-10 bg-[#1a1a1a]/85 backdrop-blur-sm border border-[#dc2626]/30 rounded-lg shadow-lg pointer-events-auto">
               <Sidebar 
                 collapsed={sidebarCollapsed} 
                 onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
