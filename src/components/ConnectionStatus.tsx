@@ -66,7 +66,7 @@ export function ConnectionStatus() {
     // Initialize socket connection
     const newSocket = io(getSocketUrl(), {
       path: '/socket.io/',
-      transports: ['websocket', 'polling'],
+      transports: ['polling'],
       timeout: 5000,
       reconnection: true,
       reconnectionAttempts: 5,
