@@ -46,7 +46,7 @@ export function ConnectionStatus() {
     // Dynamically construct the WebSocket server URL for webcontainer compatibility
     const getSocketUrl = () => {
       const hostname = window.location.hostname;
-      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      const protocol = 'http:'; // Force HTTP protocol for WebSocket connection
       
       // Check if we're in a webcontainer environment (hostname contains port pattern)
       if (hostname.includes('--') && hostname.includes('webcontainer')) {
@@ -55,12 +55,12 @@ export function ConnectionStatus() {
         if (parts.length >= 3) {
           parts[1] = '3001'; // Replace port with 3001
           const newHostname = parts.join('--');
-          return `${window.location.protocol}//${newHostname}`;
+          return `${protocol}//${newHostname}`;
         }
       }
       
       // Fallback for local development
-      return `${window.location.protocol}//${hostname}:3001`;
+      return `${protocol}//${hostname}:3001`;
     };
 
     // Initialize socket connection
