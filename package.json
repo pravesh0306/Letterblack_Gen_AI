@@ -15,7 +15,12 @@
     "test": "node tests/settings-manager.test.js && node tests/prompt-builder.test.js",
     "release": "node scripts/release.js",
     "clean": "rimraf node_modules package-lock.json",
-    "reinstall": "npm run clean && npm install"
+    "reinstall": "npm run clean && npm install",
+    "git:status": "git status",
+    "git:sync": "git add . && git commit -m \"Auto sync workspace\" && git push",
+    "git:save": "git add . && git commit -m",
+    "git:push": "git push",
+    "git:pull": "git pull"
   },
   "devDependencies": {
     "archiver": "^7.0.1",
