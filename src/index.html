@@ -281,12 +281,12 @@
         .composer {
             background-color: #1e1e1e;
             border-top: 1px solid #3c3c3c;
-            padding: 16px 20px; /* Increased padding */
+            padding: 6px 8px;
         }
         
         .composer-main {
             display: flex;
-            gap: 12px; /* Increased gap */
+            gap: 6px;
             align-items: flex-end;
         }
 
@@ -295,13 +295,12 @@
             background-color: #3c3c3c;
             border: 1px solid #5a5a5a;
             color: #d4d4d4;
-            padding: 12px 16px; /* Increased padding */
-            border-radius: 6px; /* Slightly larger radius */
+            padding: 6px;
+            border-radius: 4px;
             resize: none;
-            overflow-y: auto; /* Allow scrolling for long text */
-            font-size: 15px; /* Larger font */
+            overflow: hidden;
+            font-size: 11px;
             line-height: 1.5;
-            min-height: 80px; /* Minimum height for better visibility */
         }
         
         .composer-actions {
@@ -313,13 +312,10 @@
             background-color: #3c3c3c;
             border: none;
             color: #888;
-            padding: 12px 16px; /* Increased padding */
-            border-radius: 6px; /* Larger radius */
+            padding: 6px;
+            border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s ease, color 0.2s ease;
-            font-size: 14px; /* Larger font */
-            min-width: 44px; /* Minimum touch target */
-            min-height: 44px; /* Minimum touch target */
         }
         
         .composer-btn.primary {
@@ -344,9 +340,9 @@
         .composer-footer {
             display: flex;
             justify-content: space-between;
-            font-size: 12px; /* Slightly larger font */
+            font-size: 9px;
             color: #666;
-            margin-top: 8px; /* More margin */
+            margin-top: 4px;
         }
         
         .footer-btn {
@@ -548,20 +544,23 @@
             position: absolute;
             top: 40px;
             right: 0;
-            width: 400px;
-            max-height: 70vh;
+            width: 320px;
+            max-height: 400px;
             background-color: #252526;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
             z-index: 1000;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transform: none;
+            border: 1px solid #3c3c3c;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
         .command-palette.hidden {
-            display: none;
+            display: none !important;
         }
         
         .command-palette-input {
@@ -855,7 +854,7 @@
                 </div>
                 <div class="composer">
                     <div class="composer-main">
-                        <textarea id="chat-input" class="composer-input" placeholder="Ask me about After Effects scripting, expressions, or get help with your project..." rows="3" maxlength="2000"></textarea>
+                        <textarea id="chat-input" class="composer-input" placeholder="Send a message..." rows="1" maxlength="1000"></textarea>
                         <div class="composer-actions">
                             <button id="analyze-youtube" class="composer-btn" title="Analyze YouTube Tutorial">
                                 <i class="fa-brands fa-youtube"></i>
@@ -866,7 +865,7 @@
                         </div>
                     </div>
                     <div class="composer-footer">
-                        <span class="char-count">0/2000</span>
+                        <span class="char-count">0/1000</span>
                         <span class="shortcut-hint">Ctrl+Enter to send</span>
                     </div>
                 </div>
@@ -895,6 +894,10 @@
                         <button class="tab-btn" data-tab="project-tools" role="tab" aria-selected="false" aria-controls="project-tools-tab" id="tab-btn-project-tools">
                             <i class="fa-solid fa-tools"></i>
                             Project Tools
+                        </button>
+                        <button class="tab-btn" data-tab="ai-status" role="tab" aria-selected="false" aria-controls="ai-status-tab" id="tab-btn-ai-status">
+                            <i class="fa-solid fa-brain"></i>
+                            AI Status
                         </button>
                     </div>
                     <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Toggle Script Library">
@@ -994,6 +997,100 @@
                             <div class="report-section hidden"></div>
                         </div>
                     </div>
+                    <div id="ai-status-tab" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-ai-status" tabindex="0">
+                        <div class="ai-status-container">
+                            <h3><i class="fa-solid fa-brain"></i> AI System Status</h3>
+                            
+                            <div class="status-grid">
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h4><i class="fa-solid fa-plug"></i> AI Providers</h4>
+                                        <span class="status-indicator" id="ai-providers-status">⚡</span>
+                                    </div>
+                                    <div class="status-details" id="ai-providers-details">
+                                        <div class="provider-status">
+                                            <span class="provider-name">OpenAI GPT-4</span>
+                                            <span class="provider-indicator" id="openai-status">🟡</span>
+                                        </div>
+                                        <div class="provider-status">
+                                            <span class="provider-name">Google Gemini</span>
+                                            <span class="provider-indicator" id="gemini-status">🟡</span>
+                                        </div>
+                                        <div class="provider-status">
+                                            <span class="provider-name">Claude</span>
+                                            <span class="provider-indicator" id="claude-status">🟡</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h4><i class="fa-solid fa-cogs"></i> Core Modules</h4>
+                                        <span class="status-indicator" id="modules-status">⚡</span>
+                                    </div>
+                                    <div class="status-details" id="modules-details">
+                                        <div class="module-status">
+                                            <span class="module-name">AI Learning System</span>
+                                            <span class="module-indicator" id="learning-status">🔄</span>
+                                        </div>
+                                        <div class="module-status">
+                                            <span class="module-name">Smart Suggestions</span>
+                                            <span class="module-indicator" id="suggestions-status">🔄</span>
+                                        </div>
+                                        <div class="module-status">
+                                            <span class="module-name">Template Engine</span>
+                                            <span class="module-indicator" id="template-status">🔄</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h4><i class="fa-solid fa-chart-line"></i> Performance</h4>
+                                        <span class="status-indicator" id="performance-status">📊</span>
+                                    </div>
+                                    <div class="status-details" id="performance-details">
+                                        <div class="performance-metric">
+                                            <span class="metric-name">Response Time</span>
+                                            <span class="metric-value" id="response-time">-- ms</span>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <span class="metric-name">Success Rate</span>
+                                            <span class="metric-value" id="success-rate">--%</span>
+                                        </div>
+                                        <div class="performance-metric">
+                                            <span class="metric-name">Learning Quality</span>
+                                            <span class="metric-value" id="learning-quality">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="status-card">
+                                    <div class="status-header">
+                                        <h4><i class="fa-solid fa-lightbulb"></i> AI Suggestions</h4>
+                                        <span class="status-indicator" id="suggestions-indicator">💡</span>
+                                    </div>
+                                    <div class="status-details" id="ai-suggestions-list">
+                                        <div class="suggestion-item">
+                                            <i class="fa-solid fa-star"></i>
+                                            <span>Ready to provide intelligent coding assistance</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ai-controls">
+                                <button class="toolbar-btn secondary" onclick="AppModules.refreshAIStatus()">
+                                    <i class="fa-solid fa-refresh"></i>
+                                    Refresh Status
+                                </button>
+                                <button class="toolbar-btn primary" onclick="AppModules.runAIDiagnostics()">
+                                    <i class="fa-solid fa-stethoscope"></i>
+                                    Run Diagnostics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -1049,6 +1146,9 @@
     <!-- Project Management Modules -->
     <script src="js/utils/project-tools.js"></script>
     <script src="js/utils/saved-scripts.js"></script>
+
+    <!-- Advanced Module Initializer - Relinks all modules -->
+    <script src="js/core/advanced-module-initializer.js"></script>
 
     <!-- Mascot Animator: load and initialize the reusable mascot system -->
     <script src="assets/mascot-animator.js"></script>
@@ -1193,6 +1293,55 @@
             }
 
             console.log('🎉 Enhanced Systems initialization complete');
+            
+            // Command Palette Toggle Functionality
+            const commandTrigger = document.getElementById('command-menu-trigger');
+            const commandPanel = document.getElementById('command-menu-panel');
+            const commandSearch = document.getElementById('command-search');
+            
+            if (commandTrigger && commandPanel) {
+                // Toggle command palette on button click
+                commandTrigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isHidden = commandPanel.classList.contains('hidden');
+                    
+                    if (isHidden) {
+                        commandPanel.classList.remove('hidden');
+                        // Focus the search input when opened
+                        setTimeout(() => {
+                            if (commandSearch) commandSearch.focus();
+                        }, 100);
+                    } else {
+                        commandPanel.classList.add('hidden');
+                    }
+                });
+                
+                // Hide command palette when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!commandPanel.contains(e.target) && !commandTrigger.contains(e.target)) {
+                        commandPanel.classList.add('hidden');
+                    }
+                });
+                
+                // Hide on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && !commandPanel.classList.contains('hidden')) {
+                        commandPanel.classList.add('hidden');
+                    }
+                });
+                
+                // Ctrl+K to toggle command palette
+                document.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'k') {
+                        e.preventDefault();
+                        commandTrigger.click();
+                    }
+                });
+                
+                console.log('✅ Command Palette functionality initialized');
+            }
         })();
     </script>
 </body>

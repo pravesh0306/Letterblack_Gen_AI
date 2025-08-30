@@ -47,7 +47,7 @@
 	flex-shrink: 0;
 	background: var(--vscode-bg-secondary);
 	border-top: 1px solid var(--vscode-border);
-	padding: 16px 20px; /* Increased padding for better spacing */
+	padding: 12px;
 }
 
 /* Input Footer with Settings Toggle */
@@ -442,7 +442,7 @@
 
 /* Chat Input - VS Code Style */
 .chat-input-container {
-	padding: 16px 20px; /* Increased padding for more space */
+	padding: 8px 12px;
 	border-top: 1px solid var(--vscode-border);
 	background: var(--vscode-bg-secondary);
 	flex-shrink: 0;
@@ -460,17 +460,17 @@
 	background: var(--vscode-bg-primary);
 	border: 1px solid var(--vscode-border);
 	border-radius: var(--vscode-border-radius);
-	padding: 12px 16px; /* Increased padding for better feel */
+	padding: 8px 12px;
 	color: var(--vscode-text-primary);
-	font-size: 15px; /* Slightly larger font */
+	font-size: 14px;
 	font-family: inherit;
 	resize: none;
 	outline: none;
 	transition: var(--vscode-transition);
-	line-height: 1.5;
-	min-height: calc(1.5em * 3 + 24px); /* 3 lines + padding (larger) */
-	max-height: calc(1.5em * 8 + 24px); /* 8 lines + padding (much larger) */
-	overflow-y: auto; /* Allow scrolling for very long text */
+	line-height: 1.4;
+	min-height: calc(1.4em * 2 + 16px); /* 2 lines + padding */
+	max-height: calc(1.4em * 4 + 16px); /* 4 lines + padding */
+	overflow-y: hidden; /* Initially hidden, will be set by JS */
 }
 
 #chat-input:focus {
@@ -483,8 +483,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 36px; /* Increased from 28px */
-	height: 36px; /* Increased from 28px */
+	width: 28px;
+	height: 28px;
 	background: var(--vscode-button-primary-bg);
 	border: none;
 	border-radius: var(--vscode-border-radius);
@@ -492,7 +492,6 @@
 	color: white;
 	transition: var(--vscode-transition);
 	flex-shrink: 0;
-	font-size: 16px; /* Larger icon */
 }
 
 .send-button:hover {
