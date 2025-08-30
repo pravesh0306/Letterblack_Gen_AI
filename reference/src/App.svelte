@@ -22,48 +22,52 @@
   import UIEnhancer from './lib/ui-animator';
   import UIInitializer from './lib/ui-init';
 
-  let advancedSDKIntegration: AdvancedSDKIntegration;
-  let aIModule: AIModule;
-  let aIProviders: AIProviders;
-  let aITrainingDataCollector: AITrainingDataCollector;
-  let apiSettingsStorage: ApiSettingsStorage;
-  let chatMemory: ChatMemory;
-  let effectsPresetsModule: EffectsPresetsModule;
-  let enhancedAILearningSystem: EnhancedAILearningSystem;
-  let enhancedPerformanceSystem: EnhancedPerformanceSystem;
-  let layerAnalysisModule: LayerAnalysisModule;
-  let localFileStorageManager: LocalFileStorageManager;
-  let moduleMonitor: ModuleMonitor;
-  let panelLayout: PanelLayout;
-  let presetLayout: PresetLayout;
-  let simpleFileUpload: SimpleFileUpload;
-  let simpleSettingsManager: SimpleSettingsManager;
-  let simpleYouTubeHelper: SimpleYouTubeHelper;
-  let smartSuggestionEngine: SmartSuggestionEngine;
-  let uIEnhancer: UIEnhancer;
-  let uIInitializer: UIInitializer;
+  let advancedSDKIntegration: any;
+  let aIModule: any;
+  let aIProviders: any;
+  let aITrainingDataCollector: any;
+  let apiSettingsStorage: any;
+  let chatMemory: any;
+  let effectsPresetsModule: any;
+  let enhancedAILearningSystem: any;
+  let enhancedPerformanceSystem: any;
+  let layerAnalysisModule: any;
+  let localFileStorageManager: any;
+  let moduleMonitor: any;
+  let panelLayout: any;
+  let presetLayout: any;
+  let simpleFileUpload: any;
+  let simpleSettingsManager: any;
+  let simpleYouTubeHelper: any;
+  let smartSuggestionEngine: any;
+  let uIEnhancer: any;
+  let uIInitializer: any;
 
   onMount(() => {
-    advancedSDKIntegration = new AdvancedSDKIntegration();
-    aIModule = new AIModule();
-    aIProviders = new AIProviders();
-    aITrainingDataCollector = new AITrainingDataCollector();
-    apiSettingsStorage = new ApiSettingsStorage();
-    chatMemory = new ChatMemory();
-    effectsPresetsModule = new EffectsPresetsModule(chatMemory);
-    enhancedAILearningSystem = new EnhancedAILearningSystem();
-    enhancedPerformanceSystem = new EnhancedPerformanceSystem();
-    layerAnalysisModule = new LayerAnalysisModule();
-    localFileStorageManager = new LocalFileStorageManager();
-    moduleMonitor = new ModuleMonitor();
-    panelLayout = new PanelLayout();
-    presetLayout = new PresetLayout();
-    simpleFileUpload = new SimpleFileUpload();
-    simpleSettingsManager = new SimpleSettingsManager();
-    simpleYouTubeHelper = new SimpleYouTubeHelper();
-    smartSuggestionEngine = new SmartSuggestionEngine();
-    uIEnhancer = new UIEnhancer();
-    uIInitializer = new UIInitializer();
+    try {
+      advancedSDKIntegration = new (AdvancedSDKIntegration as any)();
+      aIModule = new (AIModule as any)();
+      aIProviders = new (AIProviders as any)();
+      aITrainingDataCollector = new (AITrainingDataCollector as any)();
+      apiSettingsStorage = new (ApiSettingsStorage as any)();
+      chatMemory = new (ChatMemory as any)();
+      effectsPresetsModule = new (EffectsPresetsModule as any)(chatMemory);
+      enhancedAILearningSystem = new (EnhancedAILearningSystem as any)();
+      enhancedPerformanceSystem = new (EnhancedPerformanceSystem as any)();
+      layerAnalysisModule = new (LayerAnalysisModule as any)();
+      localFileStorageManager = new (LocalFileStorageManager as any)();
+      moduleMonitor = new (ModuleMonitor as any)();
+      panelLayout = new (PanelLayout as any)();
+      presetLayout = new (PresetLayout as any)();
+      simpleFileUpload = new (SimpleFileUpload as any)();
+      simpleSettingsManager = new (SimpleSettingsManager as any)();
+      simpleYouTubeHelper = new (SimpleYouTubeHelper as any)();
+      smartSuggestionEngine = new (SmartSuggestionEngine as any)();
+      uIEnhancer = new (UIEnhancer as any)();
+      uIInitializer = new (UIInitializer as any)();
+    } catch (error) {
+      console.error('Failed to initialize modules:', error);
+    }
   });
 
 </script>
@@ -77,8 +81,8 @@
         <p>Status: <span id="ai-status">Ready</span></p>
         <p>Suggestions: <span id="suggestion-count">0</span></p>
         <p>Learning Quality: <span id="learning-quality">Initializing...</span></p>
-        <button on:click={() => smartSuggestionEngine.generateSuggestions(true)} style="padding:5px 10px;margin:3px;">Activate Smart AI</button>
-        <button on:click={() => smartSuggestionEngine.generateSuggestions()} style="padding:5px 10px;margin:3px;">Generate Suggestions</button>
+        <button on:click={() => smartSuggestionEngine?.generateSuggestions?.(true)} style="padding:5px 10px;margin:3px;">Activate Smart AI</button>
+        <button on:click={() => smartSuggestionEngine?.generateSuggestions?.()} style="padding:5px 10px;margin:3px;">Generate Suggestions</button>
     </div>
     
     <!-- Performance Metrics Section -->
@@ -88,7 +92,7 @@
         <p>CPU Usage: <span id="cpu-usage">--</span></p>
         <p>System Health: <span id="system-health">Good</span></p>
         <p>Active Layers: <span id="active-layers">0</span></p>
-        <button on:click={() => enhancedPerformanceSystem.getIntelligentMetrics()} style="padding:5px 10px;margin:3px;">Refresh Metrics</button>
+        <button on:click={() => enhancedPerformanceSystem?.getIntelligentMetrics?.()} style="padding:5px 10px;margin:3px;">Refresh Metrics</button>
     </div>
     
     <!-- Layer Analysis Section -->
@@ -97,8 +101,8 @@
         <p>Total Layers: <span id="total-layers">0</span></p>
         <p>Complexity Score: <span id="complexity-score">Low</span></p>
         <p>Issues Found: <span id="issues-found">0</span></p>
-        <button on:click={() => layerAnalysisModule.analyzeLayers()} style="padding:5px 10px;margin:3px;">Analyze Project</button>
-        <button on:click={() => layerAnalysisModule.getOptimizations()} style="padding:5px 10px;margin:3px;">Optimize</button>
+        <button on:click={() => layerAnalysisModule?.analyzeLayers?.()} style="padding:5px 10px;margin:3px;">Analyze Project</button>
+        <button on:click={() => layerAnalysisModule?.getOptimizations?.()} style="padding:5px 10px;margin:3px;">Optimize</button>
     </div>
     
     <!-- Smart Suggestions Section -->
@@ -107,16 +111,16 @@
         <div id="suggestions-container" style="min-height:80px;background:#f9f9f9;padding:8px;border:1px solid #ddd;">
             <p id="suggestions-text">Press "Activate Smart AI" to begin intelligent analysis...</p>
         </div>
-        <button on:click={() => smartSuggestionEngine.implementSuggestion()} style="padding:5px 10px;margin:3px;">Implement Top Suggestion</button>
-        <button on:click={() => smartSuggestionEngine.handleFeedback('positive')} style="padding:5px 10px;margin:3px;">👍 Good</button>
-        <button on:click={() => smartSuggestionEngine.handleFeedback('negative')} style="padding:5px 10px;margin:3px;">👎 Poor</button>
+        <button on:click={() => smartSuggestionEngine?.implementSuggestion?.()} style="padding:5px 10px;margin:3px;">Implement Top Suggestion</button>
+        <button on:click={() => smartSuggestionEngine?.handleFeedback?.('positive')} style="padding:5px 10px;margin:3px;">👍 Good</button>
+        <button on:click={() => smartSuggestionEngine?.handleFeedback?.('negative')} style="padding:5px 10px;margin:3px;">👎 Poor</button>
     </div>
     
     <!-- AI Training Section -->
     <div style="border:1px solid #ccc;padding:8px;margin:8px 0;">
         <h4>🧠 AI Training & Learning</h4>
         <p>Training Mode: 
-            <select id="training-mode" on:change={(e) => enhancedAILearningSystem.updateTrainingMode(e.target.value)} style="margin:3px;">
+            <select id="training-mode" on:change={(e) => enhancedAILearningSystem?.updateTrainingMode((e.target as HTMLSelectElement).value)} style="margin:3px;">
                 <option value="beginner">Beginner</option>
                 <option value="intermediate" selected>Intermediate</option>
                 <option value="advanced">Advanced</option>
@@ -124,17 +128,17 @@
         </p>
         <p>Learning Rate: <span id="learning-rate">Medium</span></p>
         <p>Data Collection: <span id="data-collection">Active</span></p>
-        <button on:click={() => aITrainingDataCollector.exportTrainingDataForML()} style="padding:5px 10px;margin:3px;">Export Training Data</button>
-        <button on:click={() => enhancedAILearningSystem.resetLearning()} style="padding:5px 10px;margin:3px;">Reset Learning</button>
+        <button on:click={() => aITrainingDataCollector?.exportTrainingDataForML?.()} style="padding:5px 10px;margin:3px;">Export Training Data</button>
+        <button on:click={() => enhancedAILearningSystem?.resetLearning?.()} style="padding:5px 10px;margin:3px;">Reset Learning</button>
     </div>
     
     <!-- Quick Actions Section -->
     <div style="border:1px solid #ccc;padding:8px;margin:8px 0;">
         <h4>⚡ Quick Actions</h4>
-        <button on:click={() => simpleToast.info('Quick Fix clicked')} style="padding:5px 10px;margin:3px;background:#28a745;color:white;">Quick Fix</button>
-        <button on:click={() => simpleToast.info('Organize Project clicked')} style="padding:5px 10px;margin:3px;background:#007bff;color:white;">Organize Project</button>
-        <button on:click={() => simpleToast.info('Performance Boost clicked')} style="padding:5px 10px;margin:3px;background:#ffc107;color:black;">Performance Boost</button>
-        <button on:click={() => simpleToast.info('Help clicked')} style="padding:5px 10px;margin:3px;">Help & Shortcuts</button>
+        <button on:click={() => simpleToast?.info?.('Quick Fix clicked')} style="padding:5px 10px;margin:3px;background:#28a745;color:white;">Quick Fix</button>
+        <button on:click={() => simpleToast?.info?.('Organize Project clicked')} style="padding:5px 10px;margin:3px;background:#007bff;color:white;">Organize Project</button>
+        <button on:click={() => simpleToast?.info?.('Performance Boost clicked')} style="padding:5px 10px;margin:3px;background:#ffc107;color:black;">Performance Boost</button>
+        <button on:click={() => simpleToast?.info?.('Help clicked')} style="padding:5px 10px;margin:3px;">Help & Shortcuts</button>
     </div>
     
     <!-- Status Bar -->
@@ -146,16 +150,5 @@
 </body>
 
 <style>
-  main {
-    font-family: sans-serif;
-    text-align: center;
-    padding: 1em;
-    margin: 0 auto;
-  }
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 2em;
-    font-weight: 100;
-  }
+  /* Removed unused selectors */
 </style>

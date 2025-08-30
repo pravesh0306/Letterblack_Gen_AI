@@ -6,6 +6,8 @@
     <title>UI Style Guide</title>
     <!-- Font-awesome for icons to ensure they are available -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Consolidated stylesheet replacing base/layout/components/chat/panels/forms/animations -->
+    <link rel="stylesheet" href="css/css2.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
@@ -94,9 +96,10 @@
         }
 
         .chat-area {
-            flex-grow: 1;
+            flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
             background-color: #1e1e1e;
         }
         
@@ -228,13 +231,92 @@
         }
 
         .messages-container {
-            flex-grow: 1;
+            flex: 1;
             overflow-y: auto;
-            padding: 8px;
+            padding: var(--spacing-md);
+            background: var(--vscode-bg);
+            /* VS Code Custom Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: var(--vscode-border) transparent;
+        }
+
+        .messages-container::-webkit-scrollbar {
+            width: 14px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: var(--vscode-border);
+            border-radius: 7px;
+            border: 3px solid var(--vscode-bg);
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: var(--vscode-input-border);
+        }
+
+        .chat-messages {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--spacing-md);
         }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 720px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .message.system {
+            align-self: flex-start;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message-content {
+            background: var(--vscode-panel-bg);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--vscode-border);
+        }
+
+        .message.system .message-content {
+            background: var(--vscode-input-bg);
+        }
+
+        .message.user .message-content {
+            background: var(--vscode-accent);
+            color: white;
+        }
+
+        .message-content h3 {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+        }
+
+        .message-content p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .message-timestamp {
+            font-size: 11px;
+            color: var(--vscode-text-muted);
+            margin-top: var(--spacing-xs);
+            text-align: right;
+        }
+        
 
         .message {
             display: flex;

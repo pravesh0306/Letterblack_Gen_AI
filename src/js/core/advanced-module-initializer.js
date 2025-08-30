@@ -1,5 +1,5 @@
 // Advanced Module Initializer - JavaScript Edition
-// Relinks all modules in the proper order and provides global access
+// relink all modules in the proper order and provides global access
 
 (function() {
     'use strict';
