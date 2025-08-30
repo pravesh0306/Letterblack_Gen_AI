@@ -1,0 +1,54 @@
+{
+  "generated": "2025-08-24T14:32:10.447Z",
+  "scenarios": {
+    "idle": "Idle.webm",
+    "thinking": "problem-solving.webm",
+    "success": "completion.webm",
+    "solution": "solution.webm",
+    "explain": "explain.webm",
+    "debug": "debug.webm",
+    "settings": "settings.webm"
+  },
+  "assets": {
+    "ae-mascot-animated.gif": {
+      "size": 4194052,
+      "hash": "0979185935d0a276ef1ab0fde1fa284a00ca531590b15c229d896be720e400c3"
+    },
+    "ae-mascot-animated.mp4": {
+      "size": 9108886,
+      "hash": "ebddd15375760d96017f3d89341cbfdfb447881fc9db2a42cc775962434c4c7b"
+    },
+    "ae-mascot.png": {
+      "size": 26347,
+      "hash": "9f858e3717227bdeaee32e79abc8e71975e74071c9f3ef815df2e1a8f167f635"
+    },
+    "completion.webm": {
+      "size": 39540,
+      "hash": "55ff2a337aa61af0ac46706e21f928fb3585c7663cf70de79fa94a8e352d0609"
+    },
+    "debug.webm": {
+      "size": 37282,
+      "hash": "7bcfea760c1214ab44eecd16674a96bd4f212cd618a46b4a5862873d2c1c05aa"
+    },
+    "explain.webm": {
+      "size": 33657,
+      "hash": "61d0f3ca2f0d3a36a9daace89e51b0dbc2b1116f9ebb8a1c3cb3e884b9f16b2f"
+    },
+    "Idle.webm": {
+      "size": 40787,
+      "hash": "2290eb56de05655f721908ae7e2f10170b395c11f4da4580872b0f5faaeae0ea"
+    },
+    "problem-solving.webm": {
+      "size": 35666,
+      "hash": "5a94e91a708185b95dc419ce6102bf9801060ddb92c519bdd81b9fbbdc3e0ef5"
+    },
+    "settings.webm": {
+      "size": 40675,
+      "hash": "569f3d35fd83b18e4daeb67c3744a5cb9fced56c72d98269cc3ccd993f6eba69"
+    },
+    "solution.webm": {
+      "size": 35440,
+      "hash": "d0c13ee56f913e1d8b870c5923b87ba22d6fee647d77ee0b70c23b5f58f67baf"
+    }
+  }
+}

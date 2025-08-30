@@ -1,0 +1,199 @@
+/* AI Script Generator Styles */
+.script-generator-container {
+    padding: 16px;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    margin: 16px 0;
+}
+
+.script-preview {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.preview-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.preview-type {
+    background: var(--accent-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.ui-preview .preview-type {
+    background: #ff6b35;
+}
+
+.preview-description {
+    margin-bottom: 16px;
+}
+
+.preview-description p {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.estimated-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg-primary);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* UI Code Sections */
+.ui-code-sections {
+    margin: 16px 0;
+}
+
+.code-section {
+    margin-bottom: 16px;
+}
+
+.code-section h4 {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.code-section pre {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 12px;
+    overflow-x: auto;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.code-section code {
+    color: var(--text-primary);
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+/* Preview Actions */
+.preview-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-secondary, .btn-primary, .btn-execute {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.btn-primary, .btn-execute {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.btn-primary:hover, .btn-execute:hover {
+    background: var(--accent-hover);
+}
+
+.ui-preview .btn-execute {
+    background: #ff6b35;
+    border-color: #ff6b35;
+}
+
+.ui-preview .btn-execute:hover {
+    background: #e55a2e;
+}
+
+/* Generated UI Container */
+.ai-generated-ui {
+    margin: 16px 0;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 2px dashed var(--accent-color);
+    border-radius: 8px;
+    position: relative;
+}
+
+.ai-generated-ui::before {
+    content: "✨ AI Generated UI";
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background: var(--bg-primary);
+    color: var(--accent-color);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+}
+
+/* Loading States */
+.loading-spinner {
+    text-align: center;
+    padding: 32px;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Hidden state */
+.hidden {
+    display: none !important;
+}

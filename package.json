@@ -1,0 +1,26 @@
+{
+  "name": "letterblack-gen-ai",
+  "version": "2.0.2",
+  "private": true,
+  "description": "LetterBlack_Gen_AI for After Effects - AI Assistant Extension",
+  "scripts": {
+    "dev": "cd src && python -m http.server 8080",
+    "serve": "cd src && python -m http.server 8080",
+    "start": "cd src && python -m http.server 8080",
+    "lint": "eslint . --ext .js,.jsx --ignore-path .gitignore",
+    "format": "prettier . --write",
+    "build": "echo Build step placeholder (add bundler if needed)",
+    "package": "node scripts/package-cep.js",
+    "version:bump": "node scripts/version-bump.js",
+    "test": "node tests/settings-manager.test.js && node tests/prompt-builder.test.js",
+    "release": "node scripts/release.js",
+    "clean": "rimraf node_modules package-lock.json",
+    "reinstall": "npm run clean && npm install"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1"
+  }
+}

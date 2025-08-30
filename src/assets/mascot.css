@@ -1,0 +1,627 @@
+/*
+ * LetterBlack_Gen_AI Mascot Component
+ * Reusable mascot system integrated with design system
+ * Updated to support floating-mascot implementation
+ */
+
+/* ================================================
+   FLOATING MASCOT IMPLEMENTATION
+   ================================================ */
+.floating-mascot {
+  position: absolute;
+  bottom: var(--space-2);
+  right: var(--space-2);
+  z-index: 1000;
+  cursor: move;
+  background: var(--color-bg-elevated);
+  border-radius: 50%;
+  padding: 1px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  min-height: 70px;
+  pointer-events: all;
+}
+
+.floating-mascot:hover {
+  background: var(--color-bg-active);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  border-color: var(--color-border-strong);
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+/* Dragging state */
+.floating-mascot.dragging {
+  transform: scale(1.1) !important;
+  z-index: 1001 !important;
+  box-shadow: 0 0 40px rgba(0, 122, 204, 0.7), 0 0 80px rgba(0, 122, 204, 0.3);
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+  user-select: none; /* Standard */
+}
+
+#floating-mascot-video {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  transform: scale(1);
+  transition: transform 0.2s ease, filter 0.2s ease;
+  animation: subtle-float 3s ease-in-out infinite;
+  background: transparent !important;
+  object-fit: cover;
+  mix-blend-mode: normal;
+  pointer-events: none;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+#floating-mascot-video::-webkit-media-controls {
+  display: none !important;
+}
+
+#floating-mascot-video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+/* Firefox video controls */
+#floating-mascot-video::-moz-media-controls {
+  display: none !important;
+}
+
+/* Edge/IE video controls */
+#floating-mascot-video::-ms-media-controls {
+  display: none !important;
+}
+
+#floating-mascot-fallback {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: none;
+}
+
+.floating-mascot:hover #floating-mascot-video {
+  transform: scale(1.08);
+  filter: drop-shadow(0 2px 8px var(--color-accent));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+/* Subtle continuous floating animation */
+@keyframes subtle-float {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.02);
+  }
+}
+
+/* Tooltip styling for floating mascot */
+.floating-mascot[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: var(--space-1);
+  padding: 4px 8px;
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  z-index: 1001;
+  opacity: 1;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(0);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.floating-mascot[data-tooltip]::after {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+/* Click animation for floating mascot */
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translateY(0) scale(1.05);
+  }
+  40%, 43% {
+    transform: translateY(-8px) scale(1.1);
+  }
+  70% {
+    transform: translateY(-4px) scale(1.08);
+  }
+  90% {
+    transform: translateY(-2px) scale(1.06);
+  }
+}
+
+/* ================================================
+   LEGACY MASCOT CONTAINER BASE (For compatibility)
+   ================================================ */
+.mascot {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.15s ease;
+}
+
+.mascot.interactive {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.mascot.interactive:hover .mascot-image {
+  transform: scale(1.1);
+  filter: drop-shadow(0 6px 16px rgba(0, 122, 204, 0.4));
+}
+
+/* ================================================
+   MASCOT POSITIONING
+   ================================================ */
+.mascot-bottom-right {
+  bottom: var(--space-4);
+  right: var(--space-4);
+  /* Blue circle with glow effect */
+  background: radial-gradient(circle, rgba(0, 122, 204, 0.2) 0%, rgba(0, 122, 204, 0.1) 50%, transparent 70%);
+  border-radius: 50%;
+  padding: var(--space-3);
+  box-shadow: 0 0 20px rgba(0, 122, 204, 0.3), 0 0 40px rgba(0, 122, 204, 0.1);
+  transition: all 0.3s ease;
+}
+
+.mascot-bottom-right:hover {
+  background: radial-gradient(circle, rgba(0, 122, 204, 0.3) 0%, rgba(0, 122, 204, 0.15) 50%, transparent 70%);
+  box-shadow: 0 0 30px rgba(0, 122, 204, 0.5), 0 0 60px rgba(0, 122, 204, 0.2);
+  transform: scale(1.05);
+}
+
+.mascot-top-right {
+  top: var(--space-4);
+  right: var(--space-4);
+}
+
+.mascot-top-left {
+  top: var(--space-4);
+  left: var(--space-4);
+}
+
+.mascot-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mascot-center-bottom {
+  bottom: var(--space-4);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ================================================
+   MASCOT IMAGE STYLES
+   ================================================ */
+.mascot-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+  transition: all 0.15s ease;
+}
+
+.mascot-image.small {
+  width: 48px;
+  height: 48px;
+}
+
+.mascot-image.large {
+  width: 104px;
+  height: 104px;
+}
+
+.mascot-image.notification {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
+}
+
+/* ================================================
+   MASCOT SPEECH BUBBLES
+   ================================================ */
+.mascot-bubble {
+  position: relative;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 4px 8px;
+  max-width: 220px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all var(--transition-fast);
+  pointer-events: all;
+}
+
+.mascot-bubble.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mascot-bubble::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+}
+
+/* Speech bubble arrows based on position */
+.mascot-bottom-right .mascot-bubble::before {
+  bottom: -12px;
+  left: 8px;
+  border-top-color: #2d2d2d;
+}
+
+.mascot-top-right .mascot-bubble::before,
+.mascot-top-left .mascot-bubble::before {
+  top: -12px;
+  left: 8px;
+  border-bottom-color: #2d2d2d;
+}
+
+.mascot-center .mascot-bubble::before {
+  top: 50%;
+  left: -12px;
+  transform: translateY(-50%);
+  border-right-color: #2d2d2d;
+}
+
+/* ================================================
+   MASCOT STATES & ANIMATIONS
+   ================================================ */
+.mascot.welcome {
+  animation: mascot-bounce-in 0.6s ease-out;
+}
+
+.mascot.thinking .mascot-image {
+  animation: mascot-thinking 2s ease-in-out infinite;
+}
+
+.mascot.loading .mascot-image {
+  animation: mascot-pulse 1.5s ease-in-out infinite;
+}
+
+.mascot.celebrating .mascot-image {
+  animation: mascot-celebrate 0.8s ease-out;
+}
+
+.mascot.hidden {
+  opacity: 0;
+  transform: scale(0.8) translateY(20px);
+  pointer-events: none;
+}
+
+/* ================================================
+   MASCOT ANIMATIONS
+   ================================================ */
+@keyframes mascot-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(50px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes mascot-thinking {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg) scale(1.02); }
+  75% { transform: rotate(5deg) scale(0.98); }
+}
+
+@keyframes mascot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes mascot-celebrate {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.2) rotate(-10deg); }
+  50% { transform: scale(1.1) rotate(10deg); }
+  75% { transform: scale(1.15) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ================================================
+   CUSTOM ANIMATION VARIANTS
+   Add your custom animations here safely
+   ================================================ */
+
+/* Example: Enhanced floating with rotation */
+@keyframes mascot-float-rotate {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  25% { 
+    transform: translateY(-5px) rotate(-2deg); 
+  }
+  75% { 
+    transform: translateY(-10px) rotate(2deg); 
+  }
+}
+
+/* Example: Gentle wiggle animation */
+@keyframes mascot-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-3deg) scale(1.02); }
+  75% { transform: rotate(3deg) scale(0.98); }
+}
+
+/* Example: Attention-grabbing zoom */
+@keyframes mascot-zoom-attention {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.2); }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Example: Slide in from different directions */
+@keyframes mascot-slide-in-left {
+  0% { transform: translateX(-100px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes mascot-slide-in-right {
+  0% { transform: translateX(100px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+/* ================================================
+   MASCOT NOTIFICATION STYLES
+   ================================================ */
+.mascot-notification {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: var(--transition-all);
+}
+
+.mascot-notification.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.mascot-notification.success {
+  border-left: 4px solid var(--color-success);
+}
+
+.mascot-notification.warning {
+  border-left: 4px solid var(--color-warning);
+}
+
+.mascot-notification.error {
+  border-left: 4px solid var(--color-error);
+}
+
+.mascot-notification.info {
+  border-left: 4px solid var(--color-info);
+}
+
+.mascot-notification-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mascot-notification-text {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+}
+
+.mascot-notification-close {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-all);
+}
+
+.mascot-notification-close:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+/* ================================================
+   LETTERBLACK BRANDED MASCOT
+   ================================================ */
+.mascot-letterblack .mascot-bubble {
+  background: linear-gradient(135deg, var(--color-letterblack-primary) 0%, var(--color-letterblack-secondary) 100%);
+  color: white;
+  border-color: var(--color-letterblack-primary);
+}
+
+.mascot-letterblack .mascot-bubble::before {
+  border-top-color: var(--color-letterblack-primary);
+  border-bottom-color: var(--color-letterblack-primary);
+  border-right-color: var(--color-letterblack-primary);
+}
+
+.mascot-ae .mascot-bubble {
+  background: var(--color-ae-purple);
+  color: white;
+  border-color: var(--color-ae-purple);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.mascot-ae .mascot-bubble::before {
+  border-top-color: var(--color-ae-purple);
+  border-bottom-color: var(--color-ae-purple);
+  border-right-color: var(--color-ae-purple);
+}
+
+/* ================================================
+   INTERACTIVE MASCOT
+   ================================================ */
+.mascot.interactive:hover .mascot-image {
+  transform: scale(1.05);
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
+}
+
+.mascot.interactive:hover .mascot-bubble {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-floating);
+}
+
+.mascot-clickable {
+  cursor: pointer;
+  transition: var(--transition-all);
+}
+
+.mascot-clickable:hover {
+  transform: scale(1.02);
+}
+
+.mascot-clickable:active {
+  transform: scale(0.98);
+}
+
+/* ================================================
+   RESPONSIVE BEHAVIOR
+   ================================================ */
+@media (max-width: 768px) {
+  .mascot-image {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .mascot-image.large {
+    width: 96px;
+    height: 96px;
+  }
+  
+  .mascot-bubble {
+    max-width: 240px;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+  
+  .mascot-bottom-right,
+  .mascot-top-right,
+  .mascot-top-left {
+    bottom: var(--space-2);
+    right: var(--space-2);
+    left: var(--space-2);
+    top: var(--space-2);
+  }
+}
+
+/* ================================================
+   ACCESSIBILITY
+   ================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .mascot,
+  .mascot-image,
+  .mascot-bubble,
+  .mascot-notification {
+    transition: none;
+    animation: none;
+  }
+  
+  .mascot.thinking .mascot-image,
+  .mascot.loading .mascot-image {
+    animation: none;
+  }
+}
+
+.mascot[aria-hidden="true"] {
+  display: none;
+}
+
+/* ================================================
+   USAGE EXAMPLES
+   ================================================
+   
+   Basic Mascot:
+   <div class="mascot mascot-bottom-right welcome">
+     <img src="assets/ae-mascot.png" alt="Mascot" class="mascot-image">
+     <div class="mascot-bubble visible">
+       Welcome to LetterBlack!
+     </div>
+   </div>
+   
+   Thinking Mascot:
+   <div class="mascot mascot-center thinking">
+     <img src="assets/ae-mascot-animated.gif" alt="Thinking" class="mascot-image">
+     <div class="mascot-bubble visible">
+       Processing your request...
+     </div>
+   </div>
+   
+   Notification:
+   <div class="mascot mascot-top-right">
+     <div class="mascot-notification success visible">
+       <div class="mascot-notification-content">
+         <img src="assets/ae-mascot.png" alt="Success" class="mascot-image notification">
+         <div class="mascot-notification-text">Task completed successfully!</div>
+         <button class="mascot-notification-close">×</button>
+       </div>
+     </div>
+   </div>
+   
+   LetterBlack Branded (Bottom-Right with Blue Glow):
+   <div class="mascot mascot-letterblack mascot-bottom-right interactive">
+     <img src="assets/ae-mascot-animated.gif" alt="LetterBlack" class="mascot-image">
+     <div class="mascot-bubble visible">
+       LetterBlack AI is ready! Click for AE facts!
+     </div>
+   </div>
+   
+*/
+
+/* Chat History Actions external style */
+.chat-history-actions {
+    margin-top: 1em;
+}

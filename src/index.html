@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Style Guide</title>
+    <!-- Font-awesome for icons to ensure they are available -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        /* Reduce all FontAwesome icons to 85% size */
+        .fa-solid, .fa-brands, .fa-regular, .fa-light, .fa-thin, .fa-duotone, [class*="fa-"] {
+            font-size: 0.85em !important;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1e1e1e; /* VS Code dark theme background */
+            color: #d4d4d4; /* VS Code dark theme text color */
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .vscode-app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            border: 1px solid #3c3c3c;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .header-left, .header-right {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .app-mascot {
+            width: 27px;
+            height: 27px;
+            margin-right: 4px;
+            border-radius: 4px;
+        }
+
+        .app-identity {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .app-subtitle {
+            font-size: 9px;
+            color: #888;
+        }
+
+        .app-credit {
+            font-size: 8px;
+            color: #666;
+            margin-top: 1px;
+        }
+        
+        .header-btn {
+            background-color: transparent;
+            border: none;
+            color: #888;
+            padding: 4px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background-color: #3c3c3c;
+            color: #fff;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #1e1e1e;
+        }
+        
+        /* Remove panel resizer since we don't need it */
+        .panel-resizer {
+            display: none;
+        }
+
+        /* Remove old tabs-panel styles */
+        .tabs-panel {
+            display: none;
+        }
+
+        /* Bottom Panel Styles */
+        .bottom-panel {
+            background-color: #252526;
+            border-top: 1px solid #3c3c3c;
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+            transition: height 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .bottom-panel.collapsed {
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .bottom-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #252526;
+            border-bottom: 1px solid #3c3c3c;
+            padding: 8px 12px;
+            min-height: 24px;
+        }
+
+        .bottom-panel-tabs {
+            display: flex;
+            gap: 4px;
+        }
+
+        .bottom-panel-toggle {
+            background-color: transparent;
+            border: none;
+            color: #888;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .bottom-panel-toggle:hover {
+            background-color: #3c3c3c;
+            color: #fff;
+        }
+
+        .bottom-panel-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .bottom-panel.collapsed .bottom-panel-toggle i {
+            transform: rotate(180deg);
+        }
+
+        .bottom-panel-content {
+            flex-grow: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+        }
+
+        .bottom-panel.collapsed .bottom-panel-content {
+            display: none;
+        }
+
+        .context-bar {
+            padding: 6px 8px;
+            background-color: #1e1e1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .context-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .context-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 2px;
+        }
+        
+        .context-btn:hover {
+            color: #fff;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            font-size: 9px;
+            color: #888;
+        }
+        
+        .breadcrumb-item {
+            color: #ccc;
+        }
+        
+        .breadcrumb-chevron {
+            color: #666;
+            margin: 0 2px;
+        }
+        
+        .context-chip {
+            background-color: #3a3a3a;
+            color: #ccc;
+            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+
+        .messages-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+
+        .message-content {
+            background-color: #252526;
+            padding: 8px;
+            border-radius: 6px;
+            max-width: 90%;
+        }
+
+        .message.user .message-content {
+            background-color: #007acc;
+            color: #fff;
+            align-self: flex-end;
+        }
+        
+        .message-timestamp {
+            font-size: 8px;
+            color: #666;
+            align-self: flex-end;
+        }
+
+        .message.system h3 {
+            font-size: 11px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            color: #fff;
+        }
+        
+        .message p {
+            font-size: 10px;
+            margin: 0;
+        }
+        
+        .message.system {
+            align-self: flex-start;
+        }
+
+        .composer {
+            background-color: #1e1e1e;
+            border-top: 1px solid #3c3c3c;
+            padding: 6px 8px;
+        }
+        
+        .composer-main {
+            display: flex;
+            gap: 6px;
+            align-items: flex-end;
+        }
+
+        .composer-input {
+            flex-grow: 1;
+            background-color: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            color: #d4d4d4;
+            padding: 6px;
+            border-radius: 4px;
+            resize: none;
+            overflow: hidden;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        
+        .composer-actions {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .composer-btn {
+            background-color: #3c3c3c;
+            border: none;
+            color: #888;
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        
+        .composer-btn.primary {
+            background-color: #007acc;
+            color: #fff;
+        }
+        
+        .composer-btn:hover {
+            background-color: #5a5a5a;
+            color: #fff;
+        }
+
+        .composer-btn.primary:hover {
+            background-color: #005f99;
+        }
+        
+        .composer-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .composer-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .footer-btn {
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .footer-btn:hover {
+            color: #999;
+        }
+
+        .tabs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #252526;
+            border-bottom: 1px solid #3c3c3c;
+        }
+        
+        .tab-navigation {
+            display: flex;
+            flex-grow: 1;
+            overflow-x: auto;
+            -ms-overflow-style: none;
+            /* scrollbar-width: none; Removed unsupported property */
+        }
+        
+        .tab-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            border: none;
+            color: #888;
+            padding: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s ease, border-bottom-color 0.2s ease;
+        }
+        
+        .tab-btn.active {
+            color: #fff;
+            background-color: #1e1e1e;
+            border-bottom-color: #007acc;
+        }
+        
+        .tabs-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .collapse-btn {
+            background-color: transparent;
+            border: none;
+            color: #888;
+            padding: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .collapse-btn svg {
+            transition: transform 0.2s ease;
+        }
+        
+        .tabs-panel.hidden .collapse-btn svg {
+            transform: rotate(-90deg);
+        }
+
+        .setting-group {
+            border: 1px solid #3c3c3c;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .setting-group legend {
+            color: #fff;
+            font-weight: 600;
+            padding: 0 2px;
+            font-size: 11px;
+        }
+        
+        .config-field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
+        }
+        
+        .config-field label {
+            font-size: 9px;
+            color: #ccc;
+            margin-bottom: 2px;
+        }
+        
+        .setting-input, .setting-select, .setting-textarea {
+            background-color: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            color: #d4d4d4;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 10px;
+            resize: vertical;
+        }
+        
+        .setting-textarea {
+            min-height: 60px;
+        }
+
+        .setting-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="%23d4d4d4" d="M4.5 5.5l3.5 3.5 3.5-3.5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+        }
+        
+        .code-editor {
+            width: 100%;
+            height: 250px;
+            background-color: #1e1e1e;
+            border: 1px solid #3c3c3c;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 8px;
+            font-size: 10px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #252526;
+            border: 1px solid #3c3c3c;
+            border-bottom: none;
+            padding: 6px 8px;
+        }
+        
+        .editor-title {
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        .toolbar-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .toolbar-btn {
+            background-color: transparent;
+            border: 1px solid #5a5a5a;
+            color: #ccc;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 9px;
+        }
+        
+        .toolbar-btn:hover {
+            background-color: #3c3c3c;
+        }
+
+        .toolbar-btn.primary {
+            background-color: #007acc;
+            border-color: #007acc;
+            color: #fff;
+        }
+        
+        .toolbar-btn.primary:hover {
+            background-color: #005f99;
+            border-color: #005f99;
+        }
+        
+        .project-health-btn {
+            margin-top: 1em;
+        }
+        
+        .command-palette {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            width: 400px;
+            max-height: 70vh;
+            background-color: #252526;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: none;
+        }
+
+        .command-palette.hidden {
+            display: none;
+        }
+        
+        .command-palette-input {
+            width: 100%;
+            background-color: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            color: #d4d4d4;
+            padding: 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .command-palette-content {
+            padding: 12px;
+            overflow-y: auto;
+        }
+        
+        .palette-section {
+            margin-bottom: 12px;
+        }
+
+        .palette-section h4 {
+            font-size: 9px;
+            color: #999;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .command-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 6px 10px;
+            background-color: transparent;
+            border: 1px solid transparent;
+            color: #d4d4d4;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            font-size: 10px;
+        }
+
+        .command-item:hover {
+            background-color: #3c3c3c;
+            border-color: #5a5a5a;
+        }
+        
+        .quick-actions, .command-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 6px;
+            background-color: #007acc;
+            color: #fff;
+            font-size: 9px;
+        }
+        
+        .status-left, .status-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0 0 0 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+
+        /* Floating Mascot Styles */
+        .floating-mascot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(135deg, #007acc 0%, #005f99 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 122, 204, 0.3), 0 0 0 0 rgba(0, 122, 204, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .floating-mascot::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(-45deg) translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .floating-mascot:hover {
+            transform: translateY(-5px) scale(1.08);
+            box-shadow: 0 8px 25px rgba(0, 122, 204, 0.5), 0 0 20px rgba(0, 122, 204, 0.3);
+            background: linear-gradient(135deg, #0099ff 0%, #007acc 100%);
+            animation: bubbleFloat 2s ease-in-out infinite;
+        }
+
+        .floating-mascot:hover::after {
+            transform: rotate(-45deg) translateX(100%);
+        }
+
+        @keyframes mascotPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 4px 12px rgba(0, 122, 204, 0.3), 0 0 0 0 rgba(0, 122, 204, 0.4);
+            }
+            50% { 
+                transform: scale(1.2);
+                box-shadow: 0 8px 30px rgba(0, 122, 204, 0.6), 0 0 40px rgba(0, 122, 204, 0.4);
+            }
+        }
+
+        @keyframes mascotSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.15); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes bubblePop {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 4px 12px rgba(0, 122, 204, 0.3);
+            }
+            30% { 
+                transform: scale(1.3);
+                box-shadow: 0 10px 35px rgba(0, 122, 204, 0.8), 0 0 50px rgba(255, 255, 255, 0.3);
+            }
+            60% { 
+                transform: scale(0.9);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 4px 12px rgba(0, 122, 204, 0.3);
+            }
+        }
+
+        /* Mascot tooltip */
+        .floating-mascot::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            margin-bottom: 8px;
+        }
+
+        .floating-mascot:hover::before {
+            opacity: 1;
+        }
+
+        /* Performance Indicator */
+        .performance-indicator {
+            font-size: 10px;
+            color: #d4d4d4;
+            margin-left: 8px;
+            padding: 2px 6px;
+            background-color: rgba(0, 122, 204, 0.1);
+            border-radius: 3px;
+            border: 1px solid rgba(0, 122, 204, 0.3);
+            cursor: help;
+            transition: background-color 0.2s ease;
+        }
+
+        .performance-indicator:hover {
+            background-color: rgba(0, 122, 204, 0.2);
+        }
+
+        .performance-indicator i {
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+        <header class="vscode-header">
+            <div class="header-left">
+                <img src="assets/ae-mascot.png" alt="AI Assistant Mascot" class="app-mascot" id="app-mascot-img">
+                <div class="app-identity">
+                    <span class="app-title">LetterBlack_Gen_AI</span>
+                    <span class="app-subtitle">for After Effects</span>
+                    <span class="app-credit">Created & Developed by pravesh.pandey@letterblack.ae</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="command-menu-trigger" class="header-btn" title="Command Palette (Ctrl+K)">
+                    <i class="fa-solid fa-search"></i>
+                </button>
+                <div id="command-menu-panel" class="command-palette hidden">
+                    <input type="text" id="command-search" class="command-palette-input" placeholder="Type a command or action...">
+                    <div class="command-palette-content">
+                        <div class="palette-section">
+                            <h4>Recent Commands</h4>
+                            <div class="command-list">
+                                <em>Recent commands will appear here</em>
+                            </div>
+                        </div>
+                        <div class="palette-section">
+                            <h4>Quick Actions ✨</h4>
+                            <div class="quick-actions">
+                                <em>Quick actions will be populated dynamically</em>
+                            </div>
+                        </div>
+                        <div class="palette-section">
+                            <h4>Context Actions</h4>
+                            <button class="command-item">Read Expression</button>
+                            <button class="command-item">Analyze Selection</button>
+                        </div>
+                        <div class="palette-section">
+                            <h4>Expression Helper</h4>
+                            <button class="command-item">Explain Expression</button>
+                            <button class="command-item">Debug Expression</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Working Area -->
+        <main class="main-content">
+            <!-- Chat Area (Full Width) -->
+            <section class="chat-area">
+                <div class="context-bar">
+                    <div class="context-left">
+                        <button id="eye-toggle" class="context-btn" title="Toggle Visibility">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <nav class="breadcrumb">
+                            <span class="breadcrumb-item">Comp</span>
+                            <span class="breadcrumb-chevron">›</span>
+                            <span class="breadcrumb-item">Layer</span>
+                            <span class="breadcrumb-chevron">›</span>
+                            <span class="breadcrumb-item">Property</span>
+                        </nav>
+                    </div>
+                    <div class="context-right">
+                        <span class="context-chip">Context Shared</span>
+                    </div>
+                </div>
+                <div class="messages-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="message system">
+                            <div class="message-content">
+                                <h3>Welcome</h3>
+                                <p>Your VS Code-style AI assistant for After Effects. Ask questions, request scripts, or get help with your projects.</p>
+                            </div>
+                            <div class="message-timestamp">6:14 PM</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="composer">
+                    <div class="composer-main">
+                        <textarea id="chat-input" class="composer-input" placeholder="Send a message..." rows="1" maxlength="1000"></textarea>
+                        <div class="composer-actions">
+                            <button id="analyze-youtube" class="composer-btn" title="Analyze YouTube Tutorial">
+                                <i class="fa-brands fa-youtube"></i>
+                            </button>
+                            <button id="send-button" class="composer-btn primary" title="Send (Ctrl+Enter)" disabled>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="composer-footer">
+                        <span class="char-count">0/1000</span>
+                        <span class="shortcut-hint">Ctrl+Enter to send</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Bottom Panel for Script Library -->
+            <section id="bottom-panel" class="bottom-panel">
+                <div class="bottom-panel-header">
+                    <div class="bottom-panel-tabs" role="tablist" aria-label="Bottom Panel Tabs">
+                        <button class="tab-btn active" data-tab="script-library" role="tab" aria-selected="true" aria-controls="script-library-tab" id="tab-btn-script-library">
+                            <i class="fa-solid fa-code"></i>
+                            Script Library
+                        </button>
+                        <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false" aria-controls="settings-tab" id="tab-btn-settings">
+                            <i class="fa-solid fa-cog"></i>
+                            Settings
+                        </button>
+                        <button class="tab-btn" data-tab="chat-history" role="tab" aria-selected="false" aria-controls="chat-history-tab" id="tab-btn-chat-history">
+                            <i class="fa-solid fa-history"></i>
+                            Chat History
+                        </button>
+                        <button class="tab-btn" data-tab="saved-scripts" role="tab" aria-selected="false" aria-controls="saved-scripts-tab" id="tab-btn-saved-scripts">
+                            <i class="fa-solid fa-bookmark"></i>
+                            Saved Scripts
+                        </button>
+                        <button class="tab-btn" data-tab="project-tools" role="tab" aria-selected="false" aria-controls="project-tools-tab" id="tab-btn-project-tools">
+                            <i class="fa-solid fa-tools"></i>
+                            Project Tools
+                        </button>
+                    </div>
+                    <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Toggle Script Library">
+                        <i class="fa-solid fa-cog"></i>
+                    </button>
+                </div>
+                <div class="bottom-panel-content">
+                    <div id="script-library-tab" class="tab-pane active" role="tabpanel" aria-labelledby="tab-btn-script-library" tabindex="0">
+                        <div class="script-editor-container">
+                            <div class="editor-toolbar">
+                                <span class="editor-title">Script Editor</span>
+                                <div class="toolbar-actions">
+                                    <button id="run-script" class="toolbar-btn primary" title="Run Script">
+                                        <i class="fa-solid fa-play"></i>
+                                        Run Script
+                                    </button>
+                                    <button id="apply-expression" class="toolbar-btn" title="Apply Expression">
+                                        <i class="fa-solid fa-dna"></i>
+                                        Apply Expression
+                                    </button>
+                                    <button id="save-script-btn" class="toolbar-btn" title="Save Script">
+                                        <i class="fa-solid fa-save"></i>
+                                    </button>
+                                    <button id="copy-script-btn" class="toolbar-btn" title="Copy Script">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </button>
+                                    <button id="explain-script-btn" class="toolbar-btn" title="Explain Script">Explain</button>
+                                    <button id="debug-script-btn" class="toolbar-btn" title="Debug Script">Debug</button>
+                                </div>
+                            </div>
+                            <textarea id="script-editor" class="code-editor" placeholder="// Your ExtendScript code here..."></textarea>
+                        </div>
+                    </div>
+                    <div id="settings-tab" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-settings" tabindex="0">
+                        <form class="settings-form">
+                            <p class="sr-only">Configure AI provider, model, API key, context and interface options.</p>
+                            <fieldset class="setting-group">
+                                <legend class="group-label">API Configuration</legend>
+                                <div class="config-field">
+                                    <label for="api-provider">Provider</label>
+                                    <select id="api-provider" class="setting-select">
+                                        <option value="google" selected>Google Gemini (Flash)</option>
+                                    </select>
+                                </div>
+                                <div class="config-field">
+                                    <label for="model-select-setting">Model</label>
+                                    <select id="model-select-setting" class="setting-select">
+                                        <option value="gemini-2.5-flash-preview-05-20" selected>gemini-2.5-flash-preview-05-20</option>
+                                    </select>
+                                </div>
+                                <div class="config-field">
+                                    <label for="api-key-setting">API Key</label>
+                                    <input type="password" id="api-key-setting" class="setting-input" placeholder="Paste your API key">
+                                </div>
+                            </fieldset>
+                            <fieldset class="setting-group">
+                                <legend>Additional Context</legend>
+                                <textarea id="memory-textarea" class="setting-textarea" placeholder="Tell the AI about your project context..."></textarea>
+                            </fieldset>
+                            <div class="settings-actions">
+                                <button id="save-and-test-btn" class="toolbar-btn primary" type="button">Save & Test</button>
+                                <button id="export-settings-btn" class="toolbar-btn" type="button">Export Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="chat-history-tab" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-chat-history" tabindex="0">
+                        <h3>Chat History</h3>
+                        <div class="chat-sessions-container">
+                            <p>Loading chat sessions...</p>
+                        </div>
+                        <div class="chat-history-actions">
+                            <button id="clear-history-btn" class="toolbar-btn" type="button">Clear All History</button>
+                            <button id="export-all-history-btn" class="toolbar-btn" type="button">Export All History</button>
+                            <button id="start-new-session-btn" class="toolbar-btn primary" type="button">Start New Session</button>
+                        </div>
+                    </div>
+                    <div id="saved-scripts-tab" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-saved-scripts" tabindex="0">
+                        <div class="saved-scripts-container">
+                            <p>No saved scripts yet.</p>
+                        </div>
+                    </div>
+                    <div id="project-tools-tab" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-project-tools" tabindex="0">
+                        <div class="project-tools-container">
+                            <h3>Project Tools</h3>
+                            <div class="config-field">
+                                <label for="project-brief-textarea">Project Brief</label>
+                                <textarea id="project-brief-textarea" class="setting-textarea" placeholder="Describe your project..."></textarea>
+                            </div>
+                            <button class="toolbar-btn primary">
+                                <i class="fa-solid fa-file-invoice"></i>
+                                Generate Project Report ✨
+                            </button>
+                            <button class="toolbar-btn primary project-health-btn" type="button">
+                                <i class="fa-solid fa-heart-pulse"></i>
+                                Run Health Check ✨
+                            </button>
+                            <div class="report-section hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="status-bar">
+            <div class="status-left">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="status-text">Ready</span>
+                </div>
+            </div>
+            <div class="status-right">
+                <span class="message-counter">0 Messages</span>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Core System Modules -->
+    <script src="js/core/constants.js"></script>
+    <script src="js/core/module-monitor.js"></script>
+    <script src="js/core/enhanced-performance-system.js"></script>
+    <script src="js/core/api-settings-storage.js"></script>
+    <script src="js/core/enhanced-main.js"></script>
+    <script src="js/core/ui-initializer.js"></script>
+    <script src="js/core/local-file-storage-manager.js"></script>
+    
+    <!-- AI System Modules -->
+    <script src="js/ai/ai-providers.js"></script>
+    <script src="js/ai/ai-module.js"></script>
+    <script src="js/ai/chat-memory.js"></script>
+    <script src="js/ai/enhanced-ai-learning-system.js"></script>
+    <script src="js/ai/smart-ai-suggestion-engine.js"></script>
+    <script src="js/ai/ai-training-data-collector.js"></script>
+    
+    <!-- Advanced Integration Modules -->
+    <script src="js/utils/advanced-sdk-integration.js"></script>
+    <script src="js/utils/effects-presets-module.js"></script>
+    <script src="js/utils/layer-analysis-module.js"></script>
+    <script src="js/utils/simple-file-upload.js"></script>
+    <script src="js/utils/simple-toast.js"></script>
+    <script src="js/utils/simple-youtube-helper.js"></script>
+    
+    <!-- UI Enhancement Modules -->
+    <script src="js/ui/ui-animator.js"></script>
+    <script src="js/ui/ui-bootstrap.js"></script>
+    <script src="js/ui/panel-shortcuts.js"></script>
+    <script src="js/ui/settings-panel.js"></script>
+    <script src="js/ui/tab-switching.js"></script>
+    <script src="js/ui/simple-settings-manager.js"></script>
+    <script src="js/ui/panel-layout-manager.js"></script>
+    <script src="js/ui/preset-layout-manager.js"></script>
+    
+    <!-- Project Management Modules -->
+    <script src="js/utils/project-tools.js"></script>
+    <script src="js/utils/saved-scripts.js"></script>
+
+    <!-- Mascot Animator: load and initialize the reusable mascot system -->
+    <script src="assets/mascot-animator.js"></script>
+    <script>
+        // Prefill settings from localStorage and wire Save & Test
+        (function(){
+            const apiKeyInput = document.getElementById('api-key-setting');
+            const providerSelect = document.getElementById('api-provider');
+            const modelSelect = document.getElementById('model-select-setting');
+            const memoryTextarea = document.getElementById('memory-textarea');
+            const saveBtn = document.getElementById('save-and-test-btn');
+
+            if (apiKeyInput) apiKeyInput.value = localStorage.getItem('ai_api_key') || '';
+            if (providerSelect) providerSelect.value = localStorage.getItem('ai_provider') || 'google';
+            if (modelSelect) modelSelect.value = localStorage.getItem('ai_model') || 'gemini-2.5-flash-preview-05-20';
+            if (memoryTextarea) memoryTextarea.value = localStorage.getItem('ai_context_memory') || '';
+
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function(){
+                    try{
+                        localStorage.setItem('ai_api_key', apiKeyInput.value || '');
+                        localStorage.setItem('ai_provider', providerSelect.value || 'google');
+                        localStorage.setItem('ai_model', modelSelect.value || 'gemini-2.5-flash-preview-05-20');
+                        localStorage.setItem('ai_context_memory', memoryTextarea.value || '');
+                        // Provide simple feedback
+                        saveBtn.textContent = 'Saved';
+                        setTimeout(()=> saveBtn.textContent = 'Save & Test', 1400);
+                    } catch(e) {
+                        console.warn('Could not save settings', e);
+                    }
+                });
+            }
+        })();
+
+        // Initialize Enhanced Systems (Svelte-style)
+        (function() {
+            console.log('🚀 Initializing Enhanced Systems (Svelte-style)...');
+            
+            // Initialize all modules like in Svelte TypeScript version
+            const modules = {
+                advancedSDKIntegration: null,
+                aiModule: null,
+                aiProviders: null,
+                aiTrainingDataCollector: null,
+                apiSettingsStorage: null,
+                chatMemory: null,
+                effectsPresetsModule: null,
+                enhancedAILearningSystem: null,
+                enhancedPerformanceSystem: null,
+                layerAnalysisModule: null,
+                moduleMonitor: null,
+                smartSuggestionEngine: null,
+                simpleFileUpload: null,
+                simpleToast: null,
+                simpleYouTubeHelper: null,
+                uiAnimator: null
+            };
+
+            // Initialize modules when classes are available
+            setTimeout(() => {
+                try {
+                    // Core modules
+                    if (window.AdvancedSDKIntegration) {
+                        modules.advancedSDKIntegration = new window.AdvancedSDKIntegration();
+                        console.log('✅ Advanced SDK Integration initialized');
+                    }
+                    
+                    if (window.AIModule) {
+                        modules.aiModule = new window.AIModule();
+                        console.log('✅ AI Module initialized');
+                    }
+                    
+                    if (window.AIProviders) {
+                        modules.aiProviders = new window.AIProviders();
+                        console.log('✅ AI Providers initialized');
+                    }
+                    
+                    if (window.ChatMemory) {
+                        modules.chatMemory = new window.ChatMemory();
+                        console.log('✅ Chat Memory initialized');
+                    }
+                    
+                    if (window.EffectsPresetsModule && modules.chatMemory) {
+                        modules.effectsPresetsModule = new window.EffectsPresetsModule(modules.chatMemory);
+                        console.log('✅ Effects Presets Module initialized');
+                    }
+                    
+                    if (window.LayerAnalysisModule) {
+                        modules.layerAnalysisModule = new window.LayerAnalysisModule();
+                        console.log('✅ Layer Analysis Module initialized');
+                    }
+                    
+                    if (window.SimpleFileUpload) {
+                        modules.simpleFileUpload = new window.SimpleFileUpload();
+                        console.log('✅ Simple File Upload initialized');
+                    }
+                    
+                    // Make modules globally available
+                    window.appModules = modules;
+                    console.log('🎉 All available modules initialized');
+                    
+                } catch (error) {
+                    console.warn('⚠️ Some modules failed to initialize:', error);
+                }
+            }, 500);
+            
+            // Initialize Enhanced Performance System
+            if (window.EnhancedPerformanceSystem) {
+                window.performanceSystem = new window.EnhancedPerformanceSystem();
+                console.log('✅ Performance System initialized');
+                
+                // Add performance info to status bar
+                setTimeout(() => {
+                    const statusLeft = document.querySelector('.status-left');
+                    if (statusLeft && window.performanceSystem) {
+                        const summary = window.performanceSystem.getPerformanceSummary();
+                        const perfIndicator = document.createElement('span');
+                        perfIndicator.className = 'performance-indicator';
+                        perfIndicator.innerHTML = `<i class="fa-solid fa-tachometer-alt"></i> ${summary.status} (${summary.score})`;
+                        perfIndicator.title = `Performance: ${summary.status}\nScore: ${summary.score}\nMemory: ${summary.memoryUsage}\nErrors: ${summary.errorCount}`;
+                        statusLeft.appendChild(perfIndicator);
+                    }
+                }, 2000);
+            }
+
+            // Module Monitor is auto-initialized in development
+            if (window.moduleMonitor) {
+                console.log('✅ Module Monitor active');
+                
+                // Add module status to console after 3 seconds
+                setTimeout(() => {
+                    if (window.moduleMonitor) {
+                        window.moduleMonitor.showReport();
+                    }
+                }, 3000);
+            }
+
+            // Constants are available globally
+            if (window.APP_CONSTANTS) {
+                console.log('✅ Application Constants loaded');
+                console.log('📋 Available constants:', Object.keys(window.APP_CONSTANTS));
+            }
+
+            console.log('🎉 Enhanced Systems initialization complete');
+        })();
+    </script>
+</body>
+
+</html>
