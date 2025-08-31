@@ -1,0 +1,296 @@
+/*
+ * LetterBlack_Gen_AI Icon System
+ * Complete icon library with VS Code Codicons integration
+ */
+
+/* ================================================
+   CODICONS INTEGRATION
+   ================================================
+   VS Code's official icon font for professional appearance
+*/
+
+/* Import Codicons from CDN (fallback to local if available) */
+@import url('https://cdn.jsdelivr.net/npm/@vscode/codicons@0.0.35/dist/codicon.css');
+
+/* ================================================
+   ICON BASE CLASSES
+   ================================================ */
+.codicon {
+  font-family: 'codicon';
+  font-display: block;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  text-decoration: none;
+  text-rendering: auto;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+/* ================================================
+   ICON SIZE VARIANTS
+   ================================================ */
+.icon-xs, .codicon.icon-xs {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.icon-sm, .codicon.icon-sm {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.icon-md, .codicon.icon-md {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.icon-lg, .codicon.icon-lg {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.icon-xl, .codicon.icon-xl {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.icon-2xl, .codicon.icon-2xl {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+/* ================================================
+   COMMONLY USED CODICONS
+   ================================================
+   Pre-defined classes for most used icons
+*/
+
+/* Navigation & Actions */
+.icon-home::before { content: '\eaf3'; }
+.icon-menu::before { content: '\eb94'; }
+.icon-close::before { content: '\ea76'; }
+.icon-search::before { content: '\ea6d'; }
+.icon-filter::before { content: '\ea83'; }
+
+/* File Operations */
+.icon-save::before { content: '\ea77'; }
+.icon-save-as::before { content: '\eb9b'; }
+.icon-open::before { content: '\ea7c'; }
+.icon-new-file::before { content: '\ea7f'; }
+.icon-new-folder::before { content: '\ea80'; }
+.icon-delete::before { content: '\ea81'; }
+
+/* Media Controls */
+.icon-play::before { content: '\ea85'; }
+.icon-pause::before { content: '\ea86'; }
+.icon-stop::before { content: '\ea87'; }
+.icon-record::before { content: '\ea88'; }
+.icon-fast-forward::before { content: '\ea89'; }
+.icon-rewind::before { content: '\ea8a'; }
+
+/* Edit Operations */
+.icon-edit::before { content: '\ea73'; }
+.icon-copy::before { content: '\ea8b'; }
+.icon-paste::before { content: '\ea8c'; }
+.icon-cut::before { content: '\ea8d'; }
+.icon-undo::before { content: '\ea8e'; }
+.icon-redo::before { content: '\ea8f'; }
+
+/* Settings & Tools */
+.icon-settings::before { content: '\ea90'; }
+.icon-gear::before { content: '\ea91'; }
+.icon-tools::before { content: '\ea92'; }
+.icon-extension::before { content: '\ea93'; }
+.icon-extensions::before { content: '\eb88'; }
+
+/* Status & Feedback */
+.icon-check::before { content: '\ea95'; }
+.icon-error::before { content: '\ea96'; }
+.icon-warning::before { content: '\ea97'; }
+.icon-info::before { content: '\ea98'; }
+.icon-question::before { content: '\ea99'; }
+
+/* Navigation Arrows */
+.icon-arrow-up::before { content: '\ea9a'; }
+.icon-arrow-down::before { content: '\ea9b'; }
+.icon-arrow-left::before { content: '\ea9c'; }
+.icon-arrow-right::before { content: '\ea9d'; }
+.icon-chevron-up::before { content: '\ea9e'; }
+.icon-chevron-down::before { content: '\ea9f'; }
+.icon-chevron-left::before { content: '\eaa0'; }
+.icon-chevron-right::before { content: '\eaa1'; }
+
+/* Content Types */
+.icon-file::before { content: '\ea7b'; }
+.icon-folder::before { content: '\ea83'; }
+.icon-image::before { content: '\eaa2'; }
+.icon-video::before { content: '\eaa3'; }
+.icon-audio::before { content: '\eaa4'; }
+.icon-code::before { content: '\eaa5'; }
+
+/* Communication */
+.icon-mail::before { content: '\eaa6'; }
+.icon-comment::before { content: '\eaa7'; }
+.icon-feedback::before { content: '\eaa8'; }
+.icon-heart::before { content: '\eaa9'; }
+.icon-star::before { content: '\eaaa'; }
+
+/* Layout & View */
+.icon-layout::before { content: '\eaab'; }
+.icon-split-horizontal::before { content: '\eaac'; }
+.icon-split-vertical::before { content: '\eaad'; }
+.icon-sidebar::before { content: '\eaae'; }
+.icon-panel::before { content: '\eaaf'; }
+
+/* Sync & Cloud */
+.icon-sync::before { content: '\eab0'; }
+.icon-cloud::before { content: '\eab1'; }
+.icon-download::before { content: '\eab2'; }
+.icon-upload::before { content: '\eab3'; }
+
+/* ================================================
+   AFTER EFFECTS SPECIFIC ICONS
+   ================================================ */
+.icon-ae-composition::before { content: '\ea7f'; } /* New file icon */
+.icon-ae-layer::before { content: '\eab4'; }
+.icon-ae-keyframe::before { content: '\eab5'; }
+.icon-ae-timeline::before { content: '\eab6'; }
+.icon-ae-effect::before { content: '\ea90'; } /* Settings gear */
+.icon-ae-precomp::before { content: '\ea83'; } /* Folder */
+.icon-ae-mask::before { content: '\eab7'; }
+.icon-ae-camera::before { content: '\eab8'; }
+.icon-ae-light::before { content: '\eab9'; }
+
+/* ================================================
+   LETTERBLACK BRANDED ICONS
+   ================================================ */
+.icon-letterblack::before {
+  content: '🎨';
+  font-family: emoji;
+}
+
+.icon-letterblack-ai::before {
+  content: '🤖';
+  font-family: emoji;
+}
+
+.icon-letterblack-extension::before {
+  content: '🧩';
+  font-family: emoji;
+}
+
+/* ================================================
+   ICON STATE MODIFIERS
+   ================================================ */
+.icon-spinning {
+  animation: icon-spin 1s linear infinite;
+}
+
+.icon-pulse {
+  animation: icon-pulse 2s ease-in-out infinite;
+}
+
+.icon-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.icon-hidden {
+  display: none;
+}
+
+/* ================================================
+   ICON ANIMATIONS
+   ================================================ */
+@keyframes icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes icon-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ================================================
+   ICON COLOR VARIANTS
+   ================================================ */
+.icon-primary { color: var(--color-primary) !important; }
+.icon-secondary { color: var(--color-secondary) !important; }
+.icon-success { color: var(--color-success) !important; }
+.icon-warning { color: var(--color-warning) !important; }
+.icon-error { color: var(--color-error) !important; }
+.icon-info { color: var(--color-info) !important; }
+.icon-muted { color: var(--color-text-muted) !important; }
+
+/* ================================================
+   ICON POSITIONING UTILITIES
+   ================================================ */
+.icon-before {
+  margin-right: 0.5rem;
+}
+
+.icon-after {
+  margin-left: 0.5rem;
+}
+
+.icon-center {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================================================
+   CUSTOM SVG ICON SUPPORT
+   ================================================ */
+.svg-icon {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  vertical-align: middle;
+}
+
+.svg-icon-sm { width: 14px; height: 14px; }
+.svg-icon-md { width: 16px; height: 16px; }
+.svg-icon-lg { width: 20px; height: 20px; }
+.svg-icon-xl { width: 24px; height: 24px; }
+
+/* ================================================
+   USAGE EXAMPLES
+   ================================================
+   
+   Basic Icon:
+   <i class="codicon icon-save"></i>
+   
+   Sized Icon:
+   <i class="codicon icon-save icon-lg"></i>
+   
+   Colored Icon:
+   <i class="codicon icon-save icon-primary"></i>
+   
+   Spinning Icon (for loading):
+   <i class="codicon icon-sync icon-spinning"></i>
+   
+   Icon with Text:
+   <button class="btn">
+     <i class="codicon icon-save icon-before"></i>
+     Save Project
+   </button>
+   
+   After Effects Specific:
+   <i class="codicon icon-ae-composition"></i>
+   
+*/

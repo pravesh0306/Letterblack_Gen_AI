@@ -1,0 +1,737 @@
+/* Compact Interactive Code Blocks - VS Code Style - FIXED CONFLICTS */
+
+/* Main Compact Code Block Container - High Specificity */
+.message-content .compact-code-block {
+    background: #252526 !important;
+    border: 1px solid #333 !important;
+    border-radius: 4px !important;
+    margin: 4px 0 !important;
+    overflow: hidden !important;
+    font-family: 'Consolas', 'SF Mono', 'Monaco', 'Courier New', monospace !important;
+    display: inline-block !important;
+    max-width: 100% !important;
+    width: auto !important;
+    min-width: 80px !important;
+    padding: 0 !important;
+}
+
+/* Compact Code Content - Fixed Specificity */
+.message-content .compact-code-block .code-content {
+    background: #252526 !important;
+    padding: 6px 8px !important;
+    margin: 0 !important;
+    color: #d4d4d4 !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    overflow-x: auto !important;
+    border: none !important;
+    white-space: pre !important;
+}
+
+.message-content .compact-code-block .code-content pre {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    font-family: inherit !important;
+    white-space: pre !important;
+    border: none !important;
+}
+
+.message-content .compact-code-block .code-content code {
+    background: transparent !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    white-space: pre !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+/* Compact Action Buttons - Fixed Specificity */
+.message-content .compact-code-block .code-actions {
+    background: #2d2d2d !important;
+    border: none !important;
+    padding: 2px !important;
+    margin: 0 !important;
+    display: flex !important;
+    gap: 2px !important;
+    justify-content: flex-start !important;
+}
+
+.message-content .compact-code-block .compact-btn {
+    background: #3c3c3c !important;
+    border: none !important;
+    color: #cccccc !important;
+    padding: 4px !important;
+    margin: 0 !important;
+    border-radius: 2px !important;
+    font-size: 10px !important;
+    cursor: pointer !important;
+    transition: all 0.1s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 24px !important;
+    height: 20px !important;
+}
+
+.message-content .compact-code-block .compact-btn:hover {
+    background: #4a4a4a !important;
+    color: #ffffff !important;
+}
+
+.message-content .compact-code-block .compact-btn.copy-btn:hover {
+    background: #007acc !important;
+}
+
+.message-content .compact-code-block .compact-btn.apply-btn:hover {
+    background: #28a745 !important;
+}
+
+.message-content .compact-code-block .compact-btn.save-btn:hover {
+    background: #ffc107 !important;
+    color: #212529 !important;
+}
+
+/* SVG icons in buttons - Fixed Size */
+.message-content .compact-code-block .compact-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Auto-fit sizing */
+.compact-code-block {
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Multi-line code support */
+.compact-code-block.multiline .code-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-width: 400px;
+}
+
+/* Syntax highlighting for compact blocks */
+.compact-code-block .keyword {
+    color: #569cd6;
+    font-weight: 300;
+}
+
+.compact-code-block .string {
+    color: #ce9178;
+}
+
+.compact-code-block .comment {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.compact-code-block .number {
+    color: #b5cea8;
+}
+
+.compact-code-block .function {
+    color: #dcdcaa;
+}
+
+.compact-code-block .property {
+    color: #9cdcfe;
+}
+
+/* Minimal feedback states */
+.compact-code-block.copied {
+    border-color: #28a745;
+    animation: compact-pulse 0.3s ease;
+}
+
+.compact-code-block.applied {
+    border-color: #28a745;
+    animation: compact-pulse 0.4s ease;
+}
+
+.compact-code-block.saved {
+    border-color: #ffc107;
+    animation: compact-pulse 0.3s ease;
+}
+
+@keyframes compact-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.3); }
+    70% { box-shadow: 0 0 0 0px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+/* Button feedback states */
+.compact-btn.success {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+.compact-btn.processing {
+    background: #007acc !important;
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* Integration with chat messages - Zero extra spacing */
+.message-content .compact-code-block {
+    margin: 2px 0;
+}
+
+/* Remove any inherited styles that could cause gaps */
+.compact-code-block *,
+.compact-code-block *::before,
+.compact-code-block *::after {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+/* Explicitly set backgrounds only where needed */
+.compact-code-block {
+    background: #252526 !important;
+}
+
+.compact-code-block .code-content {
+    background: #252526 !important;
+}
+
+.compact-code-block .code-actions {
+    background: #2d2d2d !important;
+}
+
+/* Responsive behavior */
+@media (max-width: 600px) {
+    .compact-code-block {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .compact-code-block .code-content {
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+    
+    .compact-btn {
+        font-size: 9px;
+        min-width: 18px;
+        height: 16px;
+        padding: 1px 3px;
+    }
+    
+    .compact-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Legacy Interactive Code Block Support */
+.interactive-code-block {
+    background: #1e1e1e;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    margin: 14px 0;
+    overflow: hidden;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    box-shadow: 0 2px 0px rgba(0,0,0,0.3);
+    display: block !important;
+    width: 100%;
+}
+
+.code-header {
+    background: #2d2d2d;
+    border-bottom: 1px solid #404040;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #dcdcdc;
+    font-weight: 500;
+}
+
+.code-type {
+    font-weight: 600;
+    color: #58a6ff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.code-type::before {
+    content: "⚡";
+    font-size: 14px;
+}
+
+.code-btn {
+    background: #383838;
+    border: 1px solid #555;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.code-btn:hover {
+    background: #4a90e2;
+    border-color: #4a90e2;
+    transform: translateY(-1px);
+}
+
+.code-content {
+    background: #2b2b2b;
+    padding: 16px;
+    margin: 0;
+    color: #dcdcdc;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    border: none;
+}
+
+/* Animation Effects */
+.response-block.copied {
+    border-color: #5cb85c;
+    animation: pulse-success 0.6s ease;
+}
+
+.response-block.applied {
+    border-color: #5cb85c;
+    animation: pulse-apply 0.8s ease;
+}
+
+.response-block.saved {
+    border-color: #f0ad4e;
+    animation: pulse-save 0.6s ease;
+}
+
+@keyframes pulse-success {
+    0% { box-shadow: 0 0 0 0 rgba(92, 184, 92, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(92, 184, 92, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(92, 184, 92, 0); }
+}
+
+@keyframes pulse-apply {
+    0% { box-shadow: 0 0 0 0 rgba(92, 184, 92, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(92, 184, 92, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(92, 184, 92, 0); }
+}
+
+@keyframes pulse-save {
+    0% { box-shadow: 0 0 0 0 rgba(240, 173, 78, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(240, 173, 78, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(240, 173, 78, 0); }
+}
+
+/* Button Feedback States */
+.action-btn.success {
+    background: #5cb85c !important;
+    border-color: #5cb85c !important;
+    animation: button-success 0.3s ease;
+}
+
+.action-btn.processing {
+    background: #337ab7 !important;
+    border-color: #337ab7 !important;
+    opacity: 0.8;
+    cursor: wait;
+}
+
+@keyframes button-success {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Code Type Variants */
+.response-block[data-type="expression"] {
+    border-left: 4px solid #58a6ff;
+}
+
+.response-block[data-type="extendscript"] {
+    border-left: 4px solid #f0ad4e;
+}
+
+.response-block[data-type="javascript"] {
+    border-left: 4px solid #5cb85c;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .response-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+    
+    .code-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .action-btn {
+        font-size: 10px;
+        padding: 5px 8px;
+        min-width: 50px;
+    }
+    
+    .code-box {
+        padding: 12px;
+        font-size: 12px;
+    }
+}
+
+/* Dark theme override for better contrast */
+.vscode-dark .response-block {
+    background: #1a1a1a;
+    border-color: #333;
+}
+
+.vscode-dark .response-header {
+    background: #252526;
+    border-bottom-color: #333;
+}
+
+.vscode-dark .code-box {
+    background: #1e1e1e;
+}
+
+/* Loading state for buttons */
+.action-btn.loading::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: button-loading 1s linear infinite;
+    margin-left: 4px;
+}
+
+@keyframes button-loading {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Main Code Block Container */
+.code-block {
+    background: var(--vscode-bg-secondary);
+    border: 1px solid var(--vscode-border);
+    border-radius: var(--vscode-border-radius);
+    margin: 8px 0;
+    overflow: hidden;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Code Block Header */
+.code-block-header {
+    background: var(--vscode-bg-tertiary);
+    border-bottom: 1px solid var(--vscode-border);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--vscode-text-secondary);
+}
+
+.code-block-language {
+    font-weight: 600;
+    color: var(--vscode-text-accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.code-block-language::before {
+    content: "📄";
+    font-size: 12px;
+}
+
+.code-block-language.extendscript::before {
+    content: "⚡";
+    color: #ff6b35;
+}
+
+.code-block-language.expression::before {
+    content: "🔢";
+    color: #4fc3f7;
+}
+
+/* Code Block Actions */
+.code-block-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.code-action-btn {
+    background: var(--vscode-button-secondary-bg);
+    border: 1px solid var(--vscode-border);
+    border-radius: 3px;
+    padding: 3px 8px;
+    color: var(--vscode-text-primary);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.code-action-btn:hover {
+    background: var(--vscode-button-secondary-hover);
+    transform: translateY(-1px);
+}
+
+.code-action-btn.copy-btn::before {
+    content: "📋";
+    font-size: 10px;
+}
+
+.code-action-btn.run-btn {
+    background: var(--vscode-button-primary-bg);
+    color: white;
+    border-color: var(--vscode-button-primary-bg);
+}
+
+.code-action-btn.run-btn::before {
+    content: "▶️";
+    font-size: 9px;
+}
+
+.code-action-btn.run-btn:hover {
+    background: var(--vscode-button-primary-hover);
+}
+
+.code-action-btn.send-to-editor-btn {
+    background: linear-gradient(135deg, #4a9eff, #3d8bef);
+    color: white;
+    border-color: #4a9eff;
+}
+
+.code-action-btn.send-to-editor-btn::before {
+    content: "📝";
+    font-size: 10px;
+}
+
+.code-action-btn.send-to-editor-btn:hover {
+    background: linear-gradient(135deg, #3d8bef, #2a7ae4);
+}
+
+/* Code Content */
+.code-content {
+    background: var(--vscode-bg-primary);
+    padding: 12px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--vscode-text-primary);
+}
+
+.code-content pre {
+    margin: 0;
+    padding: 0;
+    background: none;
+    font-family: inherit;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Syntax Highlighting for ExtendScript */
+.code-content .keyword {
+    color: #569cd6;
+    font-weight: 600;
+}
+
+.code-content .string {
+    color: #ce9178;
+}
+
+.code-content .comment {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.code-content .number {
+    color: #b5cea8;
+}
+
+.code-content .function {
+    color: #dcdcaa;
+}
+
+.code-content .property {
+    color: #9cdcfe;
+}
+
+.code-content .operator {
+    color: #d4d4d4;
+}
+
+.code-content .variable {
+    color: #4fc1ff;
+}
+
+/* Code Block Variants */
+.code-block.script-code {
+    border-left: 3px solid #ff6b35;
+}
+
+.code-block.expression-code {
+    border-left: 3px solid #4fc3f7;
+}
+
+.code-block.tutorial-code {
+    border-left: 3px solid #4a9eff;
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.05), rgba(74, 158, 255, 0.02));
+}
+
+.code-block.ui-code {
+    border-left: 3px solid #4aff9e;
+    background: linear-gradient(135deg, rgba(74, 255, 158, 0.05), rgba(74, 255, 158, 0.02));
+}
+
+/* Code Block Feedback */
+.code-block.copied {
+    border-color: var(--vscode-success);
+    animation: flash-success 0.3s ease;
+}
+
+.code-block.executed {
+    border-color: var(--vscode-success);
+    animation: flash-execute 0.5s ease;
+}
+
+.code-block.error {
+    border-color: var(--vscode-error);
+    animation: flash-error 0.3s ease;
+}
+
+@keyframes flash-success {
+    0% { box-shadow: 0 0 0 0 rgba(137, 209, 133, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(137, 209, 133, 0.2); }
+    100% { box-shadow: 0 0 0 0 rgba(137, 209, 133, 0); }
+}
+
+@keyframes flash-execute {
+    0% { box-shadow: 0 0 0 0 rgba(74, 158, 255, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.2); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 158, 255, 0); }
+}
+
+@keyframes flash-error {
+    0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.2); }
+    100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+}
+
+/* Inline Code */
+.message-content code {
+    background: var(--vscode-bg-secondary);
+    border: 1px solid var(--vscode-border);
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--vscode-text-accent);
+}
+
+/* Code Snippet Preview */
+.code-snippet-preview {
+    background: var(--vscode-bg-secondary);
+    border: 1px solid var(--vscode-border);
+    border-radius: var(--vscode-border-radius);
+    padding: 8px;
+    margin: 6px 0;
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--vscode-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.code-snippet-preview:hover {
+    background: var(--vscode-bg-hover);
+    border-color: var(--vscode-border-light);
+}
+
+.code-snippet-preview::before {
+    content: "💡 ";
+    margin-right: 4px;
+}
+
+/* Multi-line Code Display */
+.code-block.multiline .code-content {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.code-block.collapsed .code-content {
+    max-height: 60px;
+    overflow: hidden;
+    position: relative;
+}
+
+.code-block.collapsed .code-content::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(transparent, var(--vscode-bg-primary));
+}
+
+.code-expand-btn {
+    background: var(--vscode-bg-tertiary);
+    border: none;
+    border-top: 1px solid var(--vscode-border);
+    width: 100%;
+    padding: 4px;
+    color: var(--vscode-text-secondary);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.code-expand-btn:hover {
+    background: var(--vscode-bg-hover);
+    color: var(--vscode-text-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .code-block-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .code-block-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .code-action-btn {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+}

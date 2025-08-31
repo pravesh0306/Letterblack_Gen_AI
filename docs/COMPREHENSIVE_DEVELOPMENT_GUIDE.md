@@ -1,6 +1,47 @@
 # Adobe CEP Extension Development Guide
 **Complete Guide for Secure, Professional Extension Development**
 
+## 🎯 Current Production Setup (September 2025)
+
+### **Junction-Based Development Workflow**
+- **Extension Location**: `C:\Users\prave\AppData\Roaming\Adobe\CEP\extensions\com.letterblack.genai`
+- **Junction Target**: `G:\Developments\15_AI_AE\Adobe_AI_Generations\com.letterblack.genai_Build`
+- **Development Files**: Edit directly in `com.letterblack.genai_Build` folder
+- **Instant Updates**: Junction provides real-time file access to After Effects
+
+### **⚙️ How the Current System Works:**
+1. **Adobe After Effects** loads extension from standard CEP location
+2. **Windows Junction** redirects file access to workspace build folder
+3. **Direct Development**: Edit files in workspace, see changes immediately
+4. **No File Copying**: Junction eliminates manual sync requirements
+
+### **🔧 Current Development Workflow:**
+1. **Edit Files**: Modify code in `com.letterblack.genai_Build/`
+2. **Auto-Sync**: Changes instantly available through junction
+3. **Test Extension**: Refresh panel in After Effects
+4. **Debug**: Use Chrome DevTools at http://localhost:8000
+
+### **📁 Workspace Structure (Cleaned & Organized):**
+```
+Adobe_AI_Generations/
+├── com.letterblack.genai_Build/     # 🎯 ACTIVE EXTENSION (Junction Target)
+│   ├── CSXS/manifest.xml           # Extension configuration
+│   ├── index.html                  # Main UI file
+│   ├── main.jsx                    # ExtendScript host
+│   ├── assets/                     # Mascot animations & images
+│   ├── css/                        # All stylesheets
+│   ├── js/                         # JavaScript modules
+│   └── storage/                    # Data persistence
+├── src/                            # 📝 Development source files
+├── docs/                           # 📚 Documentation
+├── scripts/                        # 🔧 PowerShell automation scripts
+├── tests/                          # 🧪 Test files
+├── archive/                        # 📦 Legacy/backup files
+├── config/                         # ⚙️ Build configuration
+└── package.json                    # Project metadata
+```
+
+
 ## 📋 Table of Contents
 
 1. [Adobe CEP Standards & Folder Structure](#adobe-cep-standards--folder-structure)
@@ -168,6 +209,65 @@ function riskyOperation() {
 ---
 
 ## 🔄 Development Workflow
+
+### 📋 **Current Production Workflow (September 2025)**
+
+#### **🎯 Junction-Based Development System**
+Our extension uses a Windows Junction to eliminate file copying and enable real-time development:
+
+**Setup:**
+```bash
+# Junction created linking CEP location to workspace
+mklink /J "C:\Users\prave\AppData\Roaming\Adobe\CEP\extensions\com.letterblack.genai" 
+         "G:\Developments\15_AI_AE\Adobe_AI_Generations\com.letterblack.genai_Build"
+```
+
+**Benefits:**
+- ✅ **Real-time development**: Edit → Save → Refresh panel
+- ✅ **No file copying**: Direct access through junction
+- ✅ **Proper CEP registration**: Extension appears in standard location
+- ✅ **Version control friendly**: All changes tracked in workspace
+
+#### **🔧 Daily Development Process:**
+
+1. **Edit Extension Files**
+   ```
+   # Edit any file in the build folder
+   com.letterblack.genai_Build/
+   ├── index.html          # Main UI
+   ├── css/components/     # Styling
+   ├── js/core/           # Core functionality
+   └── assets/            # Resources
+   ```
+
+2. **Test Changes**
+   - Save files in workspace
+   - Refresh extension panel in After Effects
+   - Changes appear immediately (no copying needed)
+
+3. **Debug Issues**
+   - Open Chrome: http://localhost:8000
+   - Click extension target for DevTools
+   - Debug with full browser capabilities
+
+4. **Script Automation** (Available in `scripts/` folder)
+   - `refresh-extension.ps1` - Restart extension
+   - `debug-ae-extension.ps1` - Debug utilities
+   - `manage-junction.ps1` - Junction management
+
+#### **🎨 Mascot System Integration**
+Our floating mascot system is fully integrated:
+- **Fixed 70×70px size** with clean production styling
+- **WebM → GIF → Emoji fallback** system
+- **Draggable positioning** with memory persistence
+- **Animation states**: Idle, Thinking, Success, Error
+
+#### **🔐 Security Framework Active**
+All security modules are operational:
+- **Encrypted API storage** via `secureAPIStorage.js`
+- **Input validation** via `input-validator.js`
+- **Memory management** via `memory-manager.js`
+- **Error handling** via `error-handler.js`
 
 ### 📋 **Phase 1: Planning & Setup**
 

@@ -19,8 +19,8 @@
         <Extension Id="com.letterblack.genai">
             <DispatchInfo>
                 <Resources>
-                    <MainPath>./src/index.html</MainPath>
-                    <ScriptPath>./host/main.jsx</ScriptPath>
+                    <MainPath>./index.html</MainPath>
+                    <ScriptPath>./main.jsx</ScriptPath>
                     <CEFCommandLine>
                         <Parameter>--enable-nodejs</Parameter>
                         <Parameter>--mixed-context</Parameter>
