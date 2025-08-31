@@ -236,7 +236,18 @@
             padding: var(--spacing-md);
             background: var(--vscode-bg);
             /* VS Code Custom Scrollbar */
-            scrollbar-width: thin;
+            scrollbar-width: thin; /* For Firefox */
+            /* Fallback for WebKit-based browsers */
+            &::-webkit-scrollbar {
+                width: 8px;
+            }
+            &::-webkit-scrollbar-thumb {
+                background-color: var(--vscode-border);
+                border-radius: 4px;
+            }
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
             scrollbar-color: var(--vscode-border) transparent;
         }
 

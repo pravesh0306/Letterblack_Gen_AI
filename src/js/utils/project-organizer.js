@@ -4,7 +4,7 @@
 class ProjectOrganizer {
     static init(container) {
         if (container) {
-            container.innerHTML = '<div style="padding:16px;color:#fff;">Project Tools Module Loaded.<br>Scan, organize, and run health checks on your AE project.</div>';
+            container.innerHTML = '<div class="module-status">Project Tools Module Loaded.<br>Scan, organize, and run health checks on your AE project.</div>';
         }
     }
 

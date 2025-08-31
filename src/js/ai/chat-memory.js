@@ -52,7 +52,7 @@
 
         static init(container) {
             if (container) {
-                container.innerHTML = '<div style="padding:16px;color:#fff;">Chat History Module Loaded.<br>View and manage your chat sessions here.</div>';
+                container.innerHTML = '<div class="module-status">Chat History Module Loaded.<br>View and manage your chat sessions here.</div>';
             }
         }
 

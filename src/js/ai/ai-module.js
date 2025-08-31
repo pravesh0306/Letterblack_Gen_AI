@@ -27,7 +27,7 @@ class AIModule {
     async init(container) {
         console.log('🤖 Initializing AI Module...');
         if (container) {
-            container.innerHTML = '<div style="padding:16px;color:#fff;">AI Module Loaded.<br>Ready to generate scripts and analyze context.</div>';
+            container.innerHTML = '<div class="module-status">AI Module Loaded.<br>Ready to generate scripts and analyze context.</div>';
         }
         // ...existing initialization logic...
         try {

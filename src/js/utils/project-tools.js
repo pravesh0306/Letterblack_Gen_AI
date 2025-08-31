@@ -7,13 +7,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (reportBtn) reportBtn.onclick = function() {
         if (reportSection) {
             reportSection.classList.remove('hidden');
-            reportSection.innerHTML = '<div style="color:#fff;padding:12px;">📄 Simulated Project Report:<br>- All assets organized.<br>- No unused footage.<br>- Layer naming consistent.<br>- Ready for export.</div>';
+            reportSection.innerHTML = '<div class="project-report">📄 Simulated Project Report:<br>- All assets organized.<br>- No unused footage.<br>- Layer naming consistent.<br>- Ready for export.</div>';
         }
     };
     if (healthBtn) healthBtn.onclick = function() {
         if (reportSection) {
             reportSection.classList.remove('hidden');
-            reportSection.innerHTML = '<div style="color:#fff;padding:12px;">💡 Simulated Health Check:<br>- No errors found.<br>- All expressions valid.<br>- Project structure healthy.</div>';
+            reportSection.innerHTML = '<div class="project-report">💡 Simulated Health Check:<br>- No errors found.<br>- All expressions valid.<br>- Project structure healthy.</div>';
         }
     };
 });

@@ -158,7 +158,7 @@
                                 <label><input type="checkbox" class="batch-layer-checkbox" value="1"> 🎬 Demo Layer 1</label><br>
                                 <label><input type="checkbox" class="batch-layer-checkbox" value="2"> 🎨 Demo Layer 2</label><br>
                                 <label><input type="checkbox" class="batch-layer-checkbox" value="3"> ✨ Demo Layer 3</label><br>
-                                <small style="color: #888; font-style: italic;">Demo layers shown - run in After Effects for real layers</small>
+                                <small class="demo-indicator">Demo layers shown - run in After Effects for real layers</small>
                             `;
                             return;
                         }
@@ -491,7 +491,7 @@ let projectOrganizer = null;
         panel.innerHTML = `
             <span id="debug-status">🔍 Initializing CEP detection...</span>
             <button onclick="document.getElementById('cep-debug-panel').style.display='none'" 
-                    style="float: right; background: none; border: none; color: #888; cursor: pointer; font-size: 14px;">×</button>
+                    class="close-button">×</button>
         `;
         document.body.insertBefore(panel, document.body.firstChild);
         
@@ -573,7 +573,7 @@ let projectOrganizer = null;
             // Add a development mode indicator
             const header = document.querySelector('.header-content h1');
             if (header) {
-                header.innerHTML += ' <span style="color: #f9bc60; font-size: 0.7em; opacity: 0.8;">(BROWSER PREVIEW)</span>';
+                header.innerHTML += ' <span class="browser-preview-badge">(BROWSER PREVIEW)</span>';
             }
             
             // Remove debug panel after showing dev mode status
@@ -598,7 +598,7 @@ let projectOrganizer = null;
                         <strong>🎨 Design System Preview</strong><br>
                         <small>All UI components functional! Install in After Effects for CEP features.</small>
                         <button onclick="this.parentElement.remove()" 
-                                style="float: right; background: none; border: none; color: white; cursor: pointer; font-size: 16px; margin-top: -4px;">×</button>
+                                class="close-button-white">×</button>
                     `;
                     document.body.appendChild(notice);
                     

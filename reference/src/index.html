@@ -80,7 +80,7 @@
                 
                 <div class="composer">
                     <div class="composer-main">
-                        <textarea id="chat-input" class="composer-input" placeholder="Ask me about After Effects scripting, expressions, or get help with your project..." rows="1"></textarea>
+                        <textarea id="reference-chat-input" class="composer-input" placeholder="Ask me about After Effects scripting, expressions, or get help with your project..." rows="1"></textarea>
                         <div class="composer-actions">
                             <button id="analyze-youtube" class="composer-btn" title="Analyze YouTube Tutorial">
                                 <i class="fa-brands fa-youtube"></i>
@@ -371,7 +371,7 @@ if (comp && comp instanceof CompItem) {
             }
             
             // Chat functionality with improvements
-            const chatInput = document.getElementById('chat-input');
+            const chatInput = document.getElementById('reference-chat-input');
             const sendButton = document.getElementById('send-button');
             const messagesContainer = document.getElementById('chat-messages');
             const charCount = document.querySelector('.char-count');
@@ -471,7 +471,7 @@ if (comp && comp instanceof CompItem) {
                 indicator.className = 'message system';
                 indicator.innerHTML = `
                     <div class="message-content">
-                        <p style="opacity: 0.7;">AI is typing...</p>
+                        <p class="typing-text">AI is typing...</p>
                     </div>
                 `;
                 messagesContainer.appendChild(indicator);
