@@ -12,40 +12,40 @@ class MascotAnimator {
         // Animation scenarios mapping with WebM files
         this.scenarios = {
             idle: {
-                file: 'src/assets/Idle.webm',
+                file: 'assets/Idle.webm',
                 loop: true,
                 tooltip: 'Ready to help! 🚀'
             },
             thinking: {
-                file: 'src/assets/problem-solving.webm', // normalized filename (thinking pose)
+                file: 'assets/problem-solving.webm', // normalized filename (thinking pose)
                 loop: true,
                 tooltip: 'Processing your request... 🤔'
             },
             success: {
-                file: 'src/assets/completion.webm',
+                file: 'assets/completion.webm',
                 loop: false,
                 duration: 3000,
                 tooltip: 'Task completed successfully! 🎉'
             },
             solution: {
-                file: 'src/assets/solution.webm',
+                file: 'assets/solution.webm',
                 loop: false,
                 duration: 3000,
                 tooltip: 'Found a solution! 💡'
             },
             explain: {
-                file: 'src/assets/explain.webm',
+                file: 'assets/explain.webm',
                 loop: false,
                 duration: 3000,
                 tooltip: 'Let me explain... 📖'
             },
             debug: {
-                file: 'src/assets/debug.webm',
+                file: 'assets/debug.webm',
                 loop: true,
                 tooltip: 'Debugging in progress... 🔍'
             },
             settings: {
-                file: 'src/assets/settings.webm',
+                file: 'assets/settings.webm',
                 loop: false,
                 duration: 2500,
                 tooltip: 'Configuring settings... ⚙️'
@@ -114,7 +114,7 @@ class MascotAnimator {
 
     async loadManifest() {
         try {
-            const res = await fetch('src/assets/mascot-assets.json', { cache: 'no-store' });
+            const res = await fetch('assets/mascot-assets.json', { cache: 'no-store' });
             if (res.ok) {
                 this.manifest = await res.json();
                 console.log('Mascot manifest loaded', this.manifest.generated);

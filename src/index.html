@@ -1333,6 +1333,167 @@
         }, 1000); // Less frequent checking
     </script>
     
+    <!-- Floating Mascot with WebM Animation -->
+    <div class="floating-mascot" id="floating-mascot" data-tooltip="Let's create something amazing!">
+        <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video">
+            <source src="assets/Idle.webm" type="video/webm">
+            <!-- Fallback for browsers that don't support WebM -->
+            <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback">
+        </video>
+    </div>
+
+    <!-- Mascot Initialization Script -->
+    <script>
+        // Initialize floating mascot dragging functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const bubble = document.getElementById('floating-mascot');
+            if(!bubble) return; 
+            
+            let dragging = false;
+            let startX = 0, startY = 0, offX = 0, offY = 0;
+            
+            // Get the main panel container for boundary constraints
+            function getPanelBounds() {
+                const panel = document.body; // CEP panel body
+                const rect = panel.getBoundingClientRect();
+                const bubbleRect = bubble.getBoundingClientRect();
+                const mascotWidth = bubbleRect.width || 78; // Default size if not measured
+                const mascotHeight = bubbleRect.height || 78;
+                
+                return {
+                    minX: 10, // 10px margin from left
+                    minY: 10, // 10px margin from top  
+                    maxX: Math.max(50, rect.width - mascotWidth - 10), // 10px margin from right
+                    maxY: Math.max(50, rect.height - mascotHeight - 10) // 10px margin from bottom
+                };
+            }
+            
+            // Constrain position within panel boundaries
+            function constrainPosition(x, y) {
+                const bounds = getPanelBounds();
+                return {
+                    x: Math.max(bounds.minX, Math.min(bounds.maxX, x)),
+                    y: Math.max(bounds.minY, Math.min(bounds.maxY, y))
+                };
+            }
+            
+            // Restore position with boundary check
+            try {
+                const pos = JSON.parse(localStorage.getItem('floatingMascotPos'));
+                if(pos && pos.x != null && pos.y != null) {
+                    const constrained = constrainPosition(pos.x, pos.y);
+                    bubble.style.left = constrained.x + 'px';
+                    bubble.style.top = constrained.y + 'px';
+                    bubble.style.right = 'auto';
+                    bubble.style.bottom = 'auto';
+                } else {
+                    // Set default position if no saved position
+                    bubble.style.bottom = '20px';
+                    bubble.style.right = '20px';
+                }
+            } catch(e) {
+                console.warn('Failed to restore mascot position:', e);
+                // Set default position on error
+                bubble.style.bottom = '20px';
+                bubble.style.right = '20px';
+            }
+            
+            // Start drag
+            function down(e) {
+                e.preventDefault();
+                dragging = true;
+                bubble.style.transition = 'none';
+                bubble.classList.add('dragging');
+                
+                const r = bubble.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                offX = clientX - r.left;
+                offY = clientY - r.top;
+                
+                document.addEventListener('mousemove', move, { passive: false });
+                document.addEventListener('mouseup', up, { passive: false });
+                document.addEventListener('touchmove', move, { passive: false });
+                document.addEventListener('touchend', up, { passive: false });
+            }
+            
+            // Handle drag movement
+            function move(e) {
+                if (!dragging) return;
+                e.preventDefault();
+                
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                const x = clientX - offX;
+                const y = clientY - offY;
+                
+                const constrained = constrainPosition(x, y);
+                
+                bubble.style.left = constrained.x + 'px';
+                bubble.style.top = constrained.y + 'px';
+                bubble.style.right = 'auto';
+                bubble.style.bottom = 'auto';
+            }
+            
+            // End drag
+            function up(e) {
+                if (!dragging) return;
+                
+                dragging = false;
+                bubble.style.transition = '';
+                bubble.classList.remove('dragging');
+                
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('mouseup', up);
+                document.removeEventListener('touchmove', move);
+                document.removeEventListener('touchend', up);
+                
+                // Save position
+                try {
+                    localStorage.setItem('floatingMascotPos', JSON.stringify({
+                        x: parseInt(bubble.style.left) || 0,
+                        y: parseInt(bubble.style.top) || 0
+                    }));
+                } catch(e) {
+                    console.warn('Failed to save mascot position:', e);
+                }
+            }
+            
+            // Attach drag events
+            bubble.addEventListener('mousedown', down);
+            bubble.addEventListener('touchstart', down, { passive: false });
+            
+            console.log('🎭 Floating mascot initialized with dragging support');
+        });
+
+        // Test function for mascot
+        window.testFloatingMascot = function() {
+            const mascot = document.getElementById('floating-mascot');
+            if (mascot) {
+                console.log('🎭 Floating mascot found:', mascot);
+                console.log('🎭 Mascot video element:', document.getElementById('floating-mascot-video'));
+                console.log('🎭 Mascot position:', {
+                    left: mascot.style.left,
+                    top: mascot.style.top,
+                    bottom: mascot.style.bottom,
+                    right: mascot.style.right
+                });
+                
+                // Test animation if mascot animator is available
+                if (window.mascotAnimator) {
+                    console.log('🎬 Testing mascot animations...');
+                    window.mascotAnimator.testAllAnimations();
+                } else {
+                    console.log('⚠️ MascotAnimator not found');
+                }
+            } else {
+                console.error('❌ Floating mascot element not found');
+            }
+        };
+    </script>
+    
     <!-- Module Initializer - DISABLED due to dependency issues -->
     <!-- <script src="js/core/module-initializer.js"></script> -->
 </body>
