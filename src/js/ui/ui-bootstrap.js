@@ -60,10 +60,17 @@
         };
     }
 
-    // Centralized error display
+    // Centralized error display - now with floating mascot integration
     function showError(message) {
         console.error('UI Error:', message);
-        // Create or update error display
+        
+        // Use floating mascot if available
+        if (window.floatingMascot) {
+            window.floatingMascot.error(message);
+            return;
+        }
+        
+        // Fallback to traditional error display
         let errorDiv = document.getElementById('ui-error-display');
         if (!errorDiv) {
             errorDiv = document.createElement('div');
@@ -83,6 +90,34 @@
         setTimeout(() => {
             if (errorDiv) errorDiv.style.display = 'none';
         }, 5000);
+    }
+
+    // Centralized success display - with floating mascot integration
+    function showSuccess(message) {
+        console.log('UI Success:', message);
+        
+        // Use floating mascot if available
+        if (window.floatingMascot) {
+            window.floatingMascot.success(message);
+            return;
+        }
+        
+        // Fallback to console log
+        console.log('Success:', message);
+    }
+
+    // Centralized info display - with floating mascot integration
+    function showInfo(message) {
+        console.log('UI Info:', message);
+        
+        // Use floating mascot if available
+        if (window.floatingMascot) {
+            window.floatingMascot.info(message);
+            return;
+        }
+        
+        // Fallback to console log
+        console.log('Info:', message);
     }
 
     // Secure storage wrapper (replaces localStorage)
@@ -768,11 +803,24 @@
                 // Validate settings
                 if (!validateText(apiKey, 10, 200)) {
                     append('system', `❌ **API Key Missing or Invalid**\n\nPlease configure your ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key in the Settings tab before sending messages.`);
+                    
+                    // Update floating mascot
+                    if (window.floatingMascot) {
+                        window.floatingMascot.error(`${provider.charAt(0).toUpperCase() + provider.slice(1)} API key not configured`);
+                        window.floatingMascot.setTooltip('Please configure API key in Settings 🔑');
+                        window.floatingMascot.playAnimation('debug');
+                    }
                     return;
                 }
                 
                 // Show typing indicator first
                 append('system', '🤖 AI is thinking...');
+                
+                // Update floating mascot for thinking state
+                if (window.floatingMascot) {
+                    window.floatingMascot.setTooltip('AI is processing your request... 🤔');
+                    window.floatingMascot.playAnimation('thinking');
+                }
                 
                 // Use AI Module if available
                 if (window.AIModule) {
@@ -804,14 +852,34 @@
                     if (response && validateText(response, 1, 50000)) {
                         append('system', response);
                         
+                        // Update floating mascot for successful response
+                        if (window.floatingMascot) {
+                            window.floatingMascot.success('Response received successfully! 🎉');
+                            window.floatingMascot.setTooltip('Ready to help! 🚀');
+                            window.floatingMascot.playAnimation('success');
+                        }
+                        
                         // Show helpful setup message if this looks like an error
                         if (response.includes('❌') && response.includes('API Key')) {
                             setTimeout(() => {
                                 append('system', '💡 **Quick Setup Guide:**\n\n1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)\n2. Create a free API key\n3. Go to Settings tab → paste your key\n4. Click "Save & Test"\n\nThen come back and chat with me! 🚀');
+                                
+                                // Update mascot for help mode
+                                if (window.floatingMascot) {
+                                    window.floatingMascot.setTooltip('Need help setting up? Click me! 💡');
+                                    window.floatingMascot.playAnimation('explain');
+                                }
                             }, 1000);
                         }
                     } else {
                         append('system', '❌ Invalid or empty response received from AI provider.');
+                        
+                        // Update floating mascot for error
+                        if (window.floatingMascot) {
+                            window.floatingMascot.error('Invalid response from AI provider');
+                            window.floatingMascot.setTooltip('Something went wrong 😕');
+                            window.floatingMascot.playAnimation('debug');
+                        }
                     }
                     
                 } else {
@@ -822,6 +890,13 @@
                     }
                     
                     append('system', '❌ AI Module not loaded. Please refresh the page.');
+                    
+                    // Update floating mascot for module error
+                    if (window.floatingMascot) {
+                        window.floatingMascot.error('AI Module not loaded');
+                        window.floatingMascot.setTooltip('Please refresh the page 🔄');
+                        window.floatingMascot.playAnimation('debug');
+                    }
                 }
             } catch (error) {
                 // Remove typing indicator
@@ -834,6 +909,13 @@
                 const errorMessage = error.message && validateText(error.message, 0, 1000) ? 
                     error.message : 'Unknown error occurred';
                 append('system', `❌ **Unexpected Error**: ${escapeHtml(errorMessage)}\n\n📍 Try refreshing the page or check your internet connection.`);
+                
+                // Update floating mascot for unexpected error
+                if (window.floatingMascot) {
+                    window.floatingMascot.error('Unexpected error occurred');
+                    window.floatingMascot.setTooltip('Check connection & refresh 🔄');
+                    window.floatingMascot.playAnimation('debug');
+                }
             }
         }, ErrorMessages.NETWORK_ERROR);
         

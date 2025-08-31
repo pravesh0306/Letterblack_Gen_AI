@@ -1,7 +1,13 @@
 // js/migration-helper.js
 // Migration helper to transition from localStorage to persistent storage
 
-const chatStore = require("../storage/chatStore");
+// Use global chatStore or create minimal compatibility layer
+const chatStore = window.chatStore || {
+  createConversation: () => Promise.resolve('default'),
+  appendMessage: () => Promise.resolve(),
+  getConversationList: () => Promise.resolve([]),
+  clearAll: () => Promise.resolve()
+};
 
 class ChatMigrationHelper {
   constructor() {

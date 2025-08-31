@@ -15,13 +15,20 @@ class APISettingsMigration {
    */
   async init() {
     try {
+      // Wait for SecureAPIStorage to be available
+      let attempts = 0;
+      while (!window.SecureAPIStorage && attempts < 10) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
       // Load secure storage
       if (window.SecureAPIStorage) {
         this.secureStorage = new window.SecureAPIStorage();
         console.log('✅ API migration system initialized');
         return true;
       } else {
-        console.error('❌ SecureAPIStorage not available');
+        console.warn('⚠️ SecureAPIStorage not available after waiting - migration disabled');
         return false;
       }
     } catch (error) {

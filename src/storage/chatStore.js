@@ -1,8 +1,10 @@
 // storage/chatStore.js
-// Robust, OS-correct chat history storage for CEP panel
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
+// Robust, OS-correct chat history storage for CEP panel - Browser Compatible Version
+
+// Browser compatibility layer for Node.js modules
+const fs = window.require ? require("fs") : null;
+const path = window.require ? require("path") : null;
+const os = window.require ? require("os") : null;
 
 const VENDOR = "Letterblack";
 const APP = "AEChatExtension";

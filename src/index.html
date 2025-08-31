@@ -8,6 +8,9 @@
     <!-- LetterBlack GenAI Design System -->
     <link rel="stylesheet" href="css/design-system.css">
     
+    <!-- Floating Mascot Component -->
+    <link rel="stylesheet" href="css/components/floating-mascot.css">
+    
     <!-- External Dependencies -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -715,7 +718,7 @@
     
     <!-- Security and Storage - MUST load before other modules -->
     <script src="storage/secureAPIStorage.js"></script>
-    <script src="storage/chatStore.js"></script>
+    <script src="storage/chatStore-browser.js"></script>
     <script src="js/core/secure-api-settings-ui.js"></script>
     <script src="js/api-settings-migration.js"></script>
     
@@ -726,6 +729,11 @@
     <script src="js/core/enhanced-main.js"></script>
     <script src="js/core/ui-initializer.js"></script>
     <script src="js/core/local-file-storage-manager.js"></script>
+    
+    <!-- Mascot System -->
+    <script src="assets/mascot-animator.js"></script>
+    <script src="js/core/floating-mascot.js"></script>
+    <script src="js/core/floating-mascot-config.js"></script>
     
     <!-- Storage Integration -->
     <script src="js/legacy-chat-disabler.js"></script>

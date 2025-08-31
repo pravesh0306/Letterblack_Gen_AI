@@ -644,6 +644,30 @@ class SecureAPISettingsUI {
    * Show notification
    */
   showNotification(message, type = 'info') {
+    // Use floating mascot if available
+    if (window.floatingMascot) {
+      window.floatingMascot.notify(message, type);
+      
+      // Update mascot based on notification type
+      switch(type) {
+        case 'success':
+          window.floatingMascot.setTooltip('Settings saved successfully! 🎉');
+          window.floatingMascot.playAnimation('success');
+          break;
+        case 'error':
+          window.floatingMascot.setTooltip('Something went wrong 😕');
+          window.floatingMascot.playAnimation('debug');
+          break;
+        case 'warning':
+          window.floatingMascot.setTooltip('Check your API settings ⚠️');
+          window.floatingMascot.playAnimation('thinking');
+          break;
+        default:
+          window.floatingMascot.setTooltip('Settings updated 📝');
+          window.floatingMascot.playAnimation('settings');
+      }
+    }
+    
     // Remove any existing notifications
     const existingNotifications = document.querySelectorAll('.api-notification');
     existingNotifications.forEach(n => n.remove());

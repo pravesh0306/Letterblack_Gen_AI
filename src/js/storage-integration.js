@@ -1,7 +1,14 @@
 // js/storage-integration.js
 // UI integration for persistent chat storage
 
-const chatStore = require("../storage/chatStore");
+// Use global chatStore or create minimal compatibility layer
+const chatStore = window.chatStore || {
+  createConversation: () => Promise.resolve('default'),
+  appendMessage: () => Promise.resolve(),
+  getConversationList: () => Promise.resolve([]),
+  getConversationMessages: () => Promise.resolve([]),
+  clearAll: () => Promise.resolve()
+};
 
 class ChatStorageManager {
   constructor() {

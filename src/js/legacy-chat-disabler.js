@@ -206,4 +206,7 @@ if (document.readyState === 'loading') {
   window.legacyChatDisabler.disableLegacyChat();
 }
 
-module.exports = LegacyChatDisabler;
+// Export for module systems if available
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = LegacyChatDisabler;
+}
