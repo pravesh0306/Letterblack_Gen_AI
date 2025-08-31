@@ -1,43 +1,60 @@
-# Adobe AI Generations - File Structure
+# LetterBlack Gen AI - CEP Extension File Structure
 
-## Organized Structure (August 30, 2025)
+## Current Structure (August 31, 2025)
 
 ```
-Adobe_AI_Generations/
-├── src/                              # Main application source
-│   ├── index.html                    # Primary application file
-│   ├── assets/                       # Static assets
-│   │   └── mascot/                   # Mascot animations and assets
-│   │       ├── ae-mascot-animated.gif (4MB)
-│   │       ├── ae-mascot-animated.mp4 (8.7MB)
-│   │       ├── *.webm files          # Animation states
-│   │       ├── mascot-animator.js
-│   │       └── mascot-assets.json
-│   ├── styles/                       # CSS organization
+LetterBlack_Gen_AI/                    # Root project directory
+├── config/                           # CEP Extension configuration
+│   └── CSXS/
+│       └── manifest.xml              # Adobe CEP manifest
+├── src/                              # CEP Extension source code
+│   ├── index.html                    # Main extension UI entry point
+│   ├── assets/                       # Extension assets
+│   │   ├── ae-mascot-animated.gif    # Mascot animations
+│   │   ├── ae-mascot-animated.mp4    
+│   │   ├── *.webm files              # Animation states
+│   │   ├── mascot-animator.js
+│   │   ├── mascot-assets.json
+│   │   └── icon.svg                  # Extension icon
+│   ├── js/                           # JavaScript modules
+│   │   ├── ai/                       # AI integration
+│   │   │   ├── ai-module.js
+│   │   │   ├── ai-providers.js
+│   │   │   ├── chat-memory.js
+│   │   │   └── smart-ai-suggestion-engine.js
+│   │   ├── core/                     # Core functionality
+│   │   │   ├── main.js
+│   │   │   ├── constants.js
+│   │   │   ├── enhanced-main.js
+│   │   │   └── module-monitor.js
+│   │   ├── ui/                       # UI components
+│   │   │   ├── component-loader.js
+│   │   │   ├── tab-switching.js
+│   │   │   └── ui-animator.js
+│   │   └── utils/                    # Utility functions
+│   │       ├── project-tools.js
+│   │       ├── simple-file-upload.js
+│   │       └── simple-toast.js
+│   ├── styles/                       # CSS stylesheets
 │   │   ├── foundation/               # Base styles
 │   │   │   ├── colors.css
 │   │   │   ├── typography.css
-│   │   │   ├── layout-modern.css
-│   │   │   └── icons.css
-│   │   ├── components/               # Component-specific styles
-│   │   │   ├── buttons.css
-│   │   │   ├── panels.css
-│   │   │   ├── forms.css
-│   │   │   └── navigation.css
-│   │   └── themes/                   # Theme files
-│   │       ├── vscode-theme.css
-│   │       └── design-system.css
-│   ├── scripts/                      # JavaScript organization
-│   │   ├── modules/                  # Core functionality modules
-│   │   │   ├── ai-module.js
-│   │   │   ├── constants.js
-│   │   │   ├── enhanced-performance-system.js
-│   │   │   ├── module-monitor.js
-│   │   │   └── [30+ other modules]
-│   │   ├── components/               # UI components
-│   │   │   ├── mascot.js
-│   │   │   └── component-loader.js
-│   │   └── libs/                     # External libraries
+│   │   │   └── layout-modern.css
+│   │   ├── themes/                   # VS Code themes
+│   │   │   └── vscode-theme.css      # Main theme file
+│   │   └── *.css                     # Component styles
+│   └── css/                          # Legacy CSS (to be organized)
+├── docs/                             # Project documentation
+│   ├── CSS_COMPATIBILITY.md
+│   ├── FILE_STRUCTURE.md
+│   └── WORKSPACE_ORGANIZATION.md
+├── reference/                        # Clean reference implementations
+│   └── src/                          # Reference code examples
+├── package.json                      # CEP extension metadata
+├── DEVELOPMENT.md                    # Development guide
+├── README.md                         # Project overview
+├── CHANGELOG.md                      # Version history
+└── .gitignore                        # Git ignore rules
 │   │       ├── CSInterface.js
 │   │       └── utility.js
 │   ├── advanced-main.jsx             # Advanced React entry point
