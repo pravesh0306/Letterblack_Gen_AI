@@ -13,6 +13,20 @@
     
     <!-- Emergency inline CSS to force hide warning panels -->
     <style>
+        /* Fallback CSS Variables for immediate use */
+        :root {
+            --color-background: #1e1e1e;
+            --color-background-secondary: #252526;
+            --color-background-hover: #2a2d2e;
+            --color-border: #3e3e42;
+            --color-text: #cccccc;
+            --color-text-secondary: #969696;
+            --color-text-inverse: #000000;
+            --color-accent: #007acc;
+            --color-success: #4ec9b0;
+            --color-error: #f44747;
+        }
+        
         /* Emergency CSS - Only hide specific yellow warning overlays */
         *[style*="background: yellow"], *[style*="background-color: yellow"], 
         *[style*="background: #ffeb3b"], *[style*="background-color: #ffeb3b"],
@@ -97,20 +111,215 @@
         /* Enable flexible window sizing */
         html, body {
             width: auto !important;
-            height: auto !important;
+            height: 100vh !important; /* Fixed viewport height */
             min-width: 320px; /* Minimum usable width */
             min-height: 240px; /* Minimum usable height */
-            overflow: auto !important;
+            overflow: hidden !important; /* No scrolling on main container */
             resize: both !important; /* Allow manual resizing */
         }
         
-        /* Make the app container flexible */
+        /* Make the app container flexible - Fixed layout */
         .vscode-app {
             width: 100% !important;
-            height: auto !important;
-            min-height: 100vh; /* At least full viewport height */
+            height: 100vh !important; /* Full viewport height */
             max-width: none !important;
             max-height: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important; /* No scrolling on app container */
+        }
+        
+        /* Fixed layout structure */
+        .main-content {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+        }
+        
+        /* Chat area should not scroll - fixed height */
+        .chat-area {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+        }
+        
+        /* Messages container should be scrollable */
+        .messages-container {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Bottom panel fixed positioning */
+        .bottom-panel {
+            position: relative !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            background: var(--color-background) !important;
+            border-top: 1px solid var(--color-border) !important;
+            z-index: 100 !important;
+        }
+        
+        /* Always show tabs even when collapsed */
+        .bottom-panel-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            background: var(--color-background-secondary) !important;
+            border-bottom: 1px solid var(--color-border) !important;
+            min-height: 40px !important;
+        }
+        
+        /* Tab buttons always visible */
+        .bottom-panel-tabs {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 4px !important;
+            padding: 4px 8px !important;
+        }
+        
+        /* Individual tab styling */
+        .tab-btn {
+            display: flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            white-space: nowrap !important;
+            min-width: auto !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* Bottom panel content - Only script library scrollable */
+        .bottom-panel-content {
+            max-height: 400px !important;
+            overflow: hidden !important;
+            transition: max-height 0.3s ease !important;
+        }
+        
+        /* When collapsed, reduce height but keep tabs visible */
+        .bottom-panel.collapsed .bottom-panel-content {
+            max-height: 0px !important;
+            overflow: hidden !important;
+        }
+        
+        /* Script Library tab should be scrollable */
+        #script-library-tab {
+            height: 100% !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Script editor container scrollable */
+        .script-editor-container {
+            height: 350px !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* Script editor textarea scrollable */
+        #script-editor {
+            flex: 1 !important;
+            min-height: 200px !important;
+            max-height: 300px !important;
+            overflow-y: auto !important;
+            resize: vertical !important;
+        }
+        
+        /* Other tab panes should also be scrollable if needed */
+        .tab-pane {
+            max-height: 350px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 16px !important;
+        }
+        
+        /* Settings form scrollable */
+        .settings-form {
+            max-height: 320px !important;
+            overflow-y: auto !important;
+        }
+        
+        /* Status bar fixed at bottom */
+        .status-bar {
+            position: relative !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            flex-shrink: 0 !important;
+            background: var(--color-background-secondary) !important;
+            border-top: 1px solid var(--color-border) !important;
+        }
+        
+        /* Ensure API settings are easily accessible */
+        .settings-form .config-field {
+            margin-bottom: 12px !important;
+        }
+        
+        .settings-form .setting-input,
+        .settings-form .setting-select,
+        .settings-form .setting-textarea {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        /* Settings actions always visible */
+        .settings-actions {
+            position: sticky !important;
+            bottom: 0 !important;
+            background: var(--color-background) !important;
+            padding: 12px 0 !important;
+            border-top: 1px solid var(--color-border) !important;
+            margin-top: 16px !important;
+        }
+        
+        /* Smooth transitions for panel collapse/expand */
+        .bottom-panel-content {
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Tab button hover effects */
+        .tab-btn:hover {
+            background-color: var(--color-background-hover) !important;
+        }
+        
+        .tab-btn.active {
+            background-color: var(--color-accent) !important;
+            color: var(--color-text-inverse) !important;
+        }
+        
+        /* Toggle button styling */
+        .bottom-panel-toggle {
+            padding: 8px !important;
+            background: transparent !important;
+            border: 1px solid var(--color-border) !important;
+            border-radius: 4px !important;
+            color: var(--color-text-secondary) !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .bottom-panel-toggle:hover {
+            background: var(--color-background-hover) !important;
+            color: var(--color-text) !important;
+        }
+        
+        /* Ensure content doesn't overflow when collapsed */
+        .bottom-panel.collapsed .tab-pane {
+            display: none !important;
+        }
+        
+        /* Keep tabs responsive */
+        @media (max-width: 600px) {
+            .tab-btn {
+                padding: 4px 8px !important;
+                font-size: 11px !important;
+            }
+            
+            .tab-btn i {
+                font-size: 10px !important;
+            }
         }
     </style>
     
@@ -922,6 +1131,93 @@
         })();
 
         console.log('🎉 LetterBlack GenAI fully initialized - All systems ready!');
+        
+        // Bottom Panel Collapse/Expand functionality
+        (function initializeBottomPanelToggle() {
+            console.log('📋 Initializing Bottom Panel Toggle...');
+            
+            const bottomPanel = document.getElementById('bottom-panel');
+            const toggleButton = document.getElementById('bottom-panel-toggle');
+            const panelContent = document.querySelector('.bottom-panel-content');
+            
+            if (!bottomPanel || !toggleButton || !panelContent) {
+                console.warn('⚠️ Bottom panel elements not found');
+                return;
+            }
+            
+            let isCollapsed = false;
+            
+            function toggleBottomPanel() {
+                isCollapsed = !isCollapsed;
+                
+                if (isCollapsed) {
+                    // Collapse panel - hide content but keep tabs visible
+                    bottomPanel.classList.add('collapsed');
+                    panelContent.style.maxHeight = '0px';
+                    panelContent.style.overflow = 'hidden';
+                    toggleButton.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+                    toggleButton.title = 'Expand Panel';
+                    console.log('📋 Bottom panel collapsed - tabs still visible');
+                } else {
+                    // Expand panel - show content
+                    bottomPanel.classList.remove('collapsed');
+                    panelContent.style.maxHeight = '400px';
+                    panelContent.style.overflow = 'hidden';
+                    toggleButton.innerHTML = '<i class="fa-solid fa-cog"></i>';
+                    toggleButton.title = 'Toggle Script Library';
+                    console.log('📋 Bottom panel expanded');
+                }
+            }
+            
+            // Add click handler to toggle button
+            toggleButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleBottomPanel();
+            });
+            
+            // Tab switching functionality - ensure tabs work when panel is collapsed
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // If panel is collapsed, expand it when a tab is clicked
+                    if (isCollapsed) {
+                        toggleBottomPanel();
+                    }
+                    
+                    // Remove active class from all tabs and panes
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                    });
+                    
+                    tabPanes.forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                    
+                    // Show corresponding pane
+                    const targetPane = document.getElementById(`${targetTab}-tab`);
+                    if (targetPane) {
+                        targetPane.classList.add('active');
+                    }
+                    
+                    console.log(`📑 Switched to tab: ${targetTab}`);
+                });
+            });
+            
+            console.log('✅ Bottom Panel Toggle initialized');
+        })();
         
         // Button click logger with VISUAL feedback - Add event listeners to all buttons
         (function setupButtonClickLogging() {
