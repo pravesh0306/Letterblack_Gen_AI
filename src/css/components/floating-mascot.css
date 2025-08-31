@@ -8,7 +8,7 @@
    ================================================ */
 .floating-mascot {
     position: fixed;
-    z-index: 1000;
+    z-index: 999999;
     cursor: move;
     background: var(--color-bg-elevated, #2d2d30);
     border-radius: 50%;
@@ -30,6 +30,9 @@
     user-select: none;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
+    /* Force visibility */
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .floating-mascot:hover {
@@ -45,7 +48,7 @@
 /* Active/Dragging state */
 .floating-mascot.dragging {
     transform: scale(1.1) !important;
-    z-index: 1001 !important;
+    z-index: 999999 !important;
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.5),
         0 0 0 2px rgba(0, 122, 204, 0.6),

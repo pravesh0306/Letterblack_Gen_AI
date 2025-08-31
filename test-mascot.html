@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mascot Test</title>
+    <link rel="stylesheet" href="src/css/components/floating-mascot.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #005a9f;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎭 Floating Mascot Test</h1>
+        <p>Testing the floating mascot system with all WebM animations.</p>
+        
+        <div>
+            <button class="test-button" onclick="testMascotPresence()">Test Mascot Presence</button>
+            <button class="test-button" onclick="testAllAnimations()">Test All Animations</button>
+            <button class="test-button" onclick="testSpecificAnimation('success')">Test Success</button>
+            <button class="test-button" onclick="testSpecificAnimation('thinking')">Test Thinking</button>
+            <button class="test-button" onclick="testSpecificAnimation('debug')">Test Debug</button>
+        </div>
+        
+        <div id="test-output" style="margin-top: 20px; padding: 15px; background: #2d2d2d; border-radius: 4px;">
+            <p>Click the buttons above to test the mascot functionality.</p>
+        </div>
+    </div>
+
+    <!-- Floating Mascot with WebM Animation -->
+    <div class="floating-mascot" id="floating-mascot" data-tooltip="Test mascot ready!">
+        <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video">
+            <source src="src/assets/Idle.webm" type="video/webm">
+            <!-- Fallback for browsers that don't support WebM -->
+            <img src="src/assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback">
+        </video>
+    </div>
+
+    <script src="src/assets/mascot-animator.js"></script>
+    <script>
+        function log(message) {
+            const output = document.getElementById('test-output');
+            output.innerHTML += `<p style="margin: 5px 0; color: #4ec9b0;">${message}</p>`;
+            console.log(message);
+        }
+
+        function testMascotPresence() {
+            const mascot = document.getElementById('floating-mascot');
+            const video = document.getElementById('floating-mascot-video');
+            
+            if (mascot) {
+                log('✅ Floating mascot element found');
+                if (video) {
+                    log('✅ Video element found');
+                    log(`📹 Video source: ${video.src}`);
+                    log(`📊 Video ready state: ${video.readyState}`);
+                    log(`🔄 Video paused: ${video.paused}`);
+                } else {
+                    log('❌ Video element not found');
+                }
+            } else {
+                log('❌ Floating mascot element not found');
+            }
+            
+            if (window.mascotAnimator) {
+                log('✅ MascotAnimator found');
+            } else {
+                log('❌ MascotAnimator not found');
+            }
+        }
+
+        function testAllAnimations() {
+            if (window.mascotAnimator) {
+                log('🎬 Testing all animations...');
+                window.mascotAnimator.testAllAnimations();
+            } else {
+                log('❌ MascotAnimator not available');
+            }
+        }
+
+        function testSpecificAnimation(scenario) {
+            if (window.mascotAnimator) {
+                log(`🎭 Playing ${scenario} animation...`);
+                window.mascotAnimator.playScenario(scenario);
+            } else {
+                log('❌ MascotAnimator not available');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Test page loaded');
+            setTimeout(() => {
+                testMascotPresence();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -79,11 +79,20 @@
             visibility: hidden !important;
         }
         
-        /* Hide any fixed positioned elements on the right side */
-        *[style*="position: fixed"][style*="right:"],
-        *[style*="position: absolute"][style*="right:"],
-        *[style*="float: right"] {
+        /* Hide specific fixed positioned elements on the right side - EXCLUDE MASCOT */
+        *[style*="position: fixed"][style*="right:"]:not(.floating-mascot):not(#floating-mascot),
+        *[style*="position: absolute"][style*="right:"]:not(.floating-mascot):not(#floating-mascot),
+        *[style*="float: right"]:not(.floating-mascot):not(#floating-mascot) {
             display: none !important;
+        }
+        
+        /* FORCE floating mascot to always be visible */
+        .floating-mascot,
+        #floating-mascot {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 999999 !important;
         }
         
         /* Hide any elements containing network error text */
@@ -1342,6 +1351,49 @@
         </video>
     </div>
 
+    <!-- Force Mascot Visibility - Emergency CSS Override -->
+    <style>
+        /* ULTIMATE MASCOT VISIBILITY ENFORCEMENT */
+        .floating-mascot,
+        #floating-mascot {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 999999 !important;
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            pointer-events: all !important;
+            /* Ultra-high contrast border for debugging */
+            border: 3px solid #ff0000 !important;
+            background: rgba(255, 0, 0, 0.1) !important;
+        }
+        
+        /* Video element inside mascot */
+        #floating-mascot-video,
+        .floating-mascot video {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 70px !important;
+            height: 70px !important;
+        }
+        
+        /* Debug info */
+        .floating-mascot::before {
+            content: "🎭 MASCOT DEBUG";
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #ff0000;
+            color: white;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 2px;
+            z-index: 1000000;
+        }
+    </style>
+
     <!-- Mascot Initialization Script -->
     <script>
         // Initialize floating mascot dragging functionality
@@ -1466,7 +1518,59 @@
             bubble.addEventListener('touchstart', down, { passive: false });
             
             console.log('🎭 Floating mascot initialized with dragging support');
+            
+            // FORCE VISIBILITY CHECK AND OVERRIDE
+            setTimeout(() => {
+                forceMascotVisibility();
+            }, 100);
+            
+            // Continuous visibility enforcement
+            setInterval(() => {
+                forceMascotVisibility();
+            }, 2000);
         });
+
+        // Force mascot visibility function
+        function forceMascotVisibility() {
+            const mascot = document.getElementById('floating-mascot');
+            const video = document.getElementById('floating-mascot-video');
+            
+            if (mascot) {
+                // Force all visibility properties
+                mascot.style.display = 'flex';
+                mascot.style.visibility = 'visible';
+                mascot.style.opacity = '1';
+                mascot.style.zIndex = '999999';
+                mascot.style.position = 'fixed';
+                mascot.style.pointerEvents = 'all';
+                
+                // Ensure it has a position if not set
+                if (!mascot.style.left && !mascot.style.right) {
+                    mascot.style.bottom = '20px';
+                    mascot.style.right = '20px';
+                }
+                
+                console.log('🔥 FORCED mascot visibility. Current style:', {
+                    display: mascot.style.display,
+                    visibility: mascot.style.visibility,
+                    opacity: mascot.style.opacity,
+                    zIndex: mascot.style.zIndex,
+                    position: mascot.style.position,
+                    bottom: mascot.style.bottom,
+                    right: mascot.style.right,
+                    left: mascot.style.left,
+                    top: mascot.style.top
+                });
+            } else {
+                console.error('❌ MASCOT ELEMENT NOT FOUND!');
+            }
+            
+            if (video) {
+                video.style.display = 'block';
+                video.style.visibility = 'visible';
+                video.style.opacity = '1';
+            }
+        }
 
         // Test function for mascot
         window.testFloatingMascot = function() {
