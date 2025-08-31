@@ -450,8 +450,8 @@
                             AI Status
                         </button>
                     </div>
-                    <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Toggle Script Library">
-                        <i class="fa-solid fa-cog"></i>
+                    <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Collapse Panel">
+                        <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
                 
@@ -1163,8 +1163,8 @@
                     bottomPanel.classList.remove('collapsed');
                     panelContent.style.maxHeight = '400px';
                     panelContent.style.overflow = 'hidden';
-                    toggleButton.innerHTML = '<i class="fa-solid fa-cog"></i>';
-                    toggleButton.title = 'Toggle Script Library';
+                    toggleButton.innerHTML = '<i class="fa-solid fa-chevron-down"></i>';
+                    toggleButton.title = 'Collapse Panel';
                     console.log('📋 Bottom panel expanded');
                 }
             }

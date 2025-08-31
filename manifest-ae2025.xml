@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="6.0" ExtensionBundleId="com.letterblack.genai" ExtensionBundleVersion="1.0.0"
+<ExtensionManifest Version="9.0" ExtensionBundleId="com.letterblack.genai" ExtensionBundleVersion="1.0.0"
     ExtensionBundleName="LetterBlack_Gen_AI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <ExtensionList>
         <Extension Id="com.letterblack.genai" Version="1.0.0" />
     </ExtensionList>
     <ExecutionEnvironment>
         <HostList>
-            <Host Name="AEFT" Version="[13.0,99.9]" />
+            <Host Name="AEFT" Version="[22.0,99.9]" />
         </HostList>
         <LocaleList>
             <Locale Code="All" />
         </LocaleList>
         <RequiredRuntimeList>
-            <RequiredRuntime Name="CSXS" Version="6.0" />
+            <RequiredRuntime Name="CSXS" Version="9.0" />
         </RequiredRuntimeList>
     </ExecutionEnvironment>
     <DispatchInfoList>
@@ -20,7 +20,6 @@
             <DispatchInfo>
                 <Resources>
                     <MainPath>./index.html</MainPath>
-                    <ScriptPath>./host/main.jsx</ScriptPath>
                     <CEFCommandLine>
                         <Parameter>--enable-nodejs</Parameter>
                         <Parameter>--mixed-context</Parameter>
@@ -41,16 +40,11 @@
                             <Width>400</Width>
                         </Size>
                         <MinSize>
-                            <Height>300</Height>
-                            <Width>300</Width>
+                            <Height>200</Height>
+                            <Width>200</Width>
                         </MinSize>
-                        <MaxSize>
-                            <Height>1200</Height>
-                            <Width>1200</Width>
-                        </MaxSize>
                     </Geometry>
                 </UI>
-                <DebugPort>8000</DebugPort>
             </DispatchInfo>
         </Extension>
     </DispatchInfoList>

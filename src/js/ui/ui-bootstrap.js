@@ -745,14 +745,29 @@
             
             try {
                 // Get settings from secure storage
-                const apiKey = await secureGet('ai_api_key', '');
                 const provider = await secureGet('ai_provider', 'google');
                 const model = await secureGet('ai_model', 'gemini-1.5-flash');
                 const contextMemory = await secureGet('ai_context_memory', '');
                 
+                // Get the correct API key based on provider
+                let apiKey = '';
+                switch(provider) {
+                    case 'google':
+                        apiKey = await secureGet('gemini_api_key', '');
+                        break;
+                    case 'openai':
+                        apiKey = await secureGet('openai_api_key', '');
+                        break;
+                    case 'anthropic':
+                        apiKey = await secureGet('anthropic_api_key', '');
+                        break;
+                    default:
+                        apiKey = await secureGet('gemini_api_key', ''); // fallback to gemini
+                }
+                
                 // Validate settings
                 if (!validateText(apiKey, 10, 200)) {
-                    append('system', '❌ **API Key Missing or Invalid**\n\nPlease configure your API key in the Settings tab before sending messages.');
+                    append('system', `❌ **API Key Missing or Invalid**\n\nPlease configure your ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key in the Settings tab before sending messages.`);
                     return;
                 }
                 

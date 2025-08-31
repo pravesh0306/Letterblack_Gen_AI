@@ -354,20 +354,176 @@ class SecureAPISettingsUI {
         throw new Error('Invalid API key format');
       }
       
-      // Note: Actual API testing would happen here
-      // For now, we simulate a successful test
-      setTimeout(() => {
-        statusDiv.innerHTML = '<div class="status-success">✅ API connection test successful!</div>';
-        testBtn.disabled = false;
-        testBtn.textContent = '🔍 Test Connection';
-      }, 1500);
+      // Actual API testing
+      const testResult = await this.performAPITest(settings);
+      
+      if (testResult.success) {
+        statusDiv.innerHTML = `<div class="status-success">✅ API connection successful!<br><small>Response time: ${testResult.responseTime}ms</small></div>`;
+        this.showNotification('🎉 API key is working correctly!', 'success');
+      } else {
+        throw new Error(testResult.error);
+      }
       
     } catch (error) {
       const escapedMessage = this.escapeHtml(error.message);
       statusDiv.innerHTML = `<div class="status-error">❌ Connection test failed: ${escapedMessage}</div>`;
+      this.showNotification(`API test failed: ${escapedMessage}`, 'error');
+    } finally {
       testBtn.disabled = false;
       testBtn.textContent = '🔍 Test Connection';
     }
+  }
+
+  /**
+   * Perform actual API test
+   */
+  async performAPITest(settings) {
+    const startTime = Date.now();
+    
+    try {
+      let response;
+      
+      switch (settings.provider) {
+        case 'gemini':
+          response = await this.testGeminiAPI(settings);
+          break;
+        case 'openai':
+          response = await this.testOpenAIAPI(settings);
+          break;
+        case 'anthropic':
+          response = await this.testAnthropicAPI(settings);
+          break;
+        default:
+          throw new Error(`Testing not implemented for provider: ${settings.provider}`);
+      }
+      
+      const responseTime = Date.now() - startTime;
+      
+      return {
+        success: true,
+        responseTime,
+        response
+      };
+      
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        responseTime: Date.now() - startTime
+      };
+    }
+  }
+
+  /**
+   * Test Gemini API
+   */
+  async testGeminiAPI(settings) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+    
+    const response = await fetch(`${url}?key=${settings.apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: "Say 'API test successful' if you can read this."
+          }]
+        }],
+        generationConfig: {
+          temperature: 0,
+          maxOutputTokens: 10
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      throw new Error('Invalid response structure from Gemini API');
+    }
+
+    return data.candidates[0].content.parts[0].text;
+  }
+
+  /**
+   * Test OpenAI API
+   */
+  async testOpenAIAPI(settings) {
+    const url = 'https://api.openai.com/v1/chat/completions';
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${settings.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: settings.model || 'gpt-4o-mini',
+        messages: [{
+          role: 'user',
+          content: "Say 'API test successful' if you can read this."
+        }],
+        max_tokens: 10,
+        temperature: 0
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error('Invalid response structure from OpenAI API');
+    }
+
+    return data.choices[0].message.content;
+  }
+
+  /**
+   * Test Anthropic API
+   */
+  async testAnthropicAPI(settings) {
+    const url = 'https://api.anthropic.com/v1/messages';
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'x-api-key': settings.apiKey,
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: settings.model || 'claude-3-5-sonnet-20241022',
+        max_tokens: 10,
+        messages: [{
+          role: 'user',
+          content: "Say 'API test successful' if you can read this."
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Anthropic API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.content || !data.content[0] || !data.content[0].text) {
+      throw new Error('Invalid response structure from Anthropic API');
+    }
+
+    return data.content[0].text;
   }
 
   /**
@@ -405,6 +561,21 @@ class SecureAPISettingsUI {
         if (lastUpdatedDiv) {
           lastUpdatedDiv.textContent = `Last updated: ${new Date().toLocaleString()}`;
         }
+        
+        // Auto-test the API after saving
+        saveBtn.textContent = '🔍 Testing API...';
+        statusDiv.innerHTML = '<div class="status-info">✅ Saved! Now testing API connection...</div>';
+        
+        const testResult = await this.performAPITest(settings);
+        
+        if (testResult.success) {
+          statusDiv.innerHTML = `<div class="status-success">✅ Settings saved and API verified!<br><small>Response time: ${testResult.responseTime}ms</small></div>`;
+          this.showNotification('🎉 API key saved and working correctly!', 'success');
+        } else {
+          statusDiv.innerHTML = `<div class="status-warning">✅ Settings saved but API test failed:<br><small>${testResult.error}</small></div>`;
+          this.showNotification(`⚠️ Saved but API test failed: ${testResult.error}`, 'warning');
+        }
+        
       } else {
         throw new Error(result.error || 'Failed to save settings');
       }
@@ -473,16 +644,107 @@ class SecureAPISettingsUI {
    * Show notification
    */
   showNotification(message, type = 'info') {
-    // Simple notification system
+    // Remove any existing notifications
+    const existingNotifications = document.querySelectorAll('.api-notification');
+    existingNotifications.forEach(n => n.remove());
+    
+    // Create notification element
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
+    notification.className = `api-notification api-notification-${type}`;
+    
+    // Add icon based on type
+    const icons = {
+      success: '✅',
+      error: '❌', 
+      warning: '⚠️',
+      info: 'ℹ️'
+    };
+    
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span class="notification-icon">${icons[type] || icons.info}</span>
+        <span class="notification-message">${this.escapeHtml(message)}</span>
+        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+      </div>
+    `;
+    
+    // Style the notification
+    Object.assign(notification.style, {
+      position: 'fixed',
+      top: '20px',
+      right: '20px',
+      zIndex: '10000',
+      backgroundColor: this.getNotificationColor(type),
+      color: 'white',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+      maxWidth: '400px',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      fontSize: '14px',
+      border: `1px solid ${this.getNotificationBorderColor(type)}`,
+      animation: 'slideInRight 0.3s ease-out'
+    });
+    
+    // Style notification content
+    const content = notification.querySelector('.notification-content');
+    Object.assign(content.style, {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
+    });
+    
+    // Style close button
+    const closeBtn = notification.querySelector('.notification-close');
+    Object.assign(closeBtn.style, {
+      background: 'transparent',
+      border: 'none',
+      color: 'white',
+      cursor: 'pointer',
+      fontSize: '18px',
+      lineHeight: '1',
+      marginLeft: 'auto',
+      opacity: '0.7'
+    });
+    
+    closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '1');
+    closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.7');
     
     document.body.appendChild(notification);
     
+    // Auto-remove after delay
     setTimeout(() => {
-      notification.remove();
-    }, 3000);
+      if (notification.parentElement) {
+        notification.style.animation = 'slideOutRight 0.3s ease-in';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, type === 'error' ? 8000 : 5000); // Errors stay longer
+  }
+
+  /**
+   * Get notification background color
+   */
+  getNotificationColor(type) {
+    const colors = {
+      success: '#4CAF50',
+      error: '#f44336',
+      warning: '#FF9800', 
+      info: '#2196F3'
+    };
+    return colors[type] || colors.info;
+  }
+
+  /**
+   * Get notification border color
+   */
+  getNotificationBorderColor(type) {
+    const colors = {
+      success: '#45a049',
+      error: '#d32f2f',
+      warning: '#f57c00',
+      info: '#1976d2'
+    };
+    return colors[type] || colors.info;
   }
 
   /**

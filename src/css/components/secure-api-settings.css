@@ -9,6 +9,63 @@
   color: var(--vscode-editor-foreground);
 }
 
+/* Notification Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* API Notification Styles */
+.api-notification {
+  font-family: var(--vscode-font-family) !important;
+}
+
+.api-notification .notification-content {
+  align-items: flex-start !important;
+}
+
+.api-notification .notification-message {
+  flex: 1;
+  word-wrap: break-word;
+}
+
+.api-notification .notification-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.api-notification .notification-close {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.api-notification .notification-close:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 .api-settings-header {
   display: flex;
   justify-content: space-between;
