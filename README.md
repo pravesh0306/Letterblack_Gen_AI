@@ -1,28 +1,64 @@
 # LetterBlack Gen AI - After Effects Extension
 
-An AI-powered Adobe After Effects CEP extension with VS Code-style interface for creative automation and scripting assistance.
+An AI-powered Adobe After Effects CEP extension with enterprise-grade security, VS Code-style interface, and comprehensive development framework.
 
 ## 🚀 Features
 
-- **AI Assistant**: Integrated chat interface with multiple AI providers (OpenAI, Google Gemini, Claude)
-- **Script Editor**: Built-in ExtendScript editor with syntax highlighting
-- **Project Tools**: Automated project analysis and optimization tools
-- **YouTube Integration**: Analyze and learn from After Effects tutorials
-- **Smart Suggestions**: Context-aware recommendations based on your workflow
-- **Save & Organize**: Manage your custom scripts and expressions
+- **🔐 Enterprise Security**: AES-256 encrypted storage, comprehensive input validation, XSS protection
+- **🤖 AI Assistant**: Integrated chat interface with multiple AI providers (OpenAI, Google Gemini, Claude)
+- **💾 Secure Storage**: Cross-platform encrypted storage that survives browser restarts
+- **📝 Script Editor**: Built-in ExtendScript editor with syntax highlighting
+- **🛠️ Project Tools**: Automated project analysis and optimization tools
+- **📺 YouTube Integration**: Analyze and learn from After Effects tutorials
+- **🧠 Smart Suggestions**: Context-aware recommendations based on your workflow
+- **♿ Accessibility**: WCAG 2.1 compliant with screen reader support
 
-## 📁 Project Structure
+## 🛡️ Security Framework
+
+This extension implements enterprise-grade security:
+
+- ✅ **AES-256 Encryption** for all sensitive data
+- ✅ **Input Validation** with XSS protection
+- ✅ **Memory Leak Prevention** with automatic cleanup
+- ✅ **Error Boundaries** with comprehensive handling
+- ✅ **Accessibility Compliance** (WCAG 2.1 Level AA)
+- ✅ **Dependency Injection** preventing race conditions
+
+See [docs/SECURITY_HARDENING_REPORT.md](docs/SECURITY_HARDENING_REPORT.md) for complete security details.
+
+## � Storage System
+
+The extension uses a robust, OS-correct storage system that saves chat history in appropriate user data directories:
+
+**Windows:** `C:\Users\<USERNAME>\AppData\Roaming\Letterblack\AEChatExtension\`
+**macOS:** `~/Library/Application Support/Letterblack/AEChatExtension/`
+
+Features:
+- ✅ Atomic file operations (corruption-resistant)
+- ✅ Automatic file rotation (prevents large files)
+- ✅ Secret redaction (protects API keys)
+- ✅ Cross-platform compatibility
+- ✅ No admin permissions required
+
+See [docs/CHAT_STORAGE.md](docs/CHAT_STORAGE.md) for detailed documentation.
+
+## �📁 Project Structure
 
 ```
 LetterBlack_Gen_AI/
 ├── src/                          # CEP Extension source code
 │   ├── index.html               # Main extension UI
-│   ├── assets/                  # Extension assets (mascot, icons)
+│   ├── storage/                 # Persistent storage system
+│   │   ├── chatStore.js        # Core storage module
+│   │   ├── chatStore.test.js   # Test suite
+│   │   └── demo.js             # Usage demonstration
 │   ├── js/                      # JavaScript modules
+│   │   ├── storage-integration.js # UI integration for storage
 │   │   ├── ai/                 # AI integration modules
 │   │   ├── core/               # Core functionality
 │   │   ├── ui/                 # UI enhancement modules
 │   │   └── utils/              # Utility functions
+│   ├── assets/                  # Extension assets (mascot, icons)
 │   ├── styles/                  # CSS stylesheets
 │   │   ├── foundation/         # Base styles
 │   │   ├── themes/             # VS Code themes
@@ -31,9 +67,9 @@ LetterBlack_Gen_AI/
 ├── config/                      # Adobe CEP configuration
 │   └── CSXS/                   
 │       └── manifest.xml        # Extension manifest
-├── reference/                   # Reference implementations
-│   └── src/                    # Clean reference version
 ├── docs/                        # Documentation
+│   └── CHAT_STORAGE.md         # Storage system documentation
+├── reference/                   # Reference implementations
 └── package.json                # Extension metadata
 ```
 
@@ -72,6 +108,29 @@ npm run uninstall-extension
 - **Animated Mascot**: Interactive AI assistant character
 - **Memory System**: Context-aware AI interactions
 
+## 🧪 Testing
+
+The storage system includes comprehensive tests:
+
+```bash
+# Run storage system tests
+npm run test-storage
+
+# Run storage demonstration
+npm run demo-storage
+
+# Run all tests
+npm test
+```
+
+**Test Coverage:**
+- ✅ Cross-platform directory creation
+- ✅ Message persistence and retrieval
+- ✅ File rotation and archiving
+- ✅ Secret redaction security
+- ✅ Performance with 100+ messages
+- ✅ Error handling and recovery
+
 ## Getting Started
 
 1. **Development Server**:
@@ -88,12 +147,33 @@ npm run uninstall-extension
    - Add your AI provider API key
    - Select your preferred model
 
+4. **Test Storage System**:
+   ```bash
+   npm run demo-storage
+   ```
+
 ## Development
 
 ### Adding New Modules
 1. Create module in `src/scripts/modules/`
 2. Add script tag to `src/index.html`
 3. Follow existing module patterns for consistency
+
+### Working with Storage
+```javascript
+// Access the storage system
+const chatStore = require("./storage/chatStore");
+
+// Create conversation
+const id = chatStore.createConversation("My Conversation");
+
+// Add messages
+await chatStore.appendMessage(id, {
+  role: "user",
+  text: "Hello!",
+  meta: { context: "development" }
+});
+```
 
 ### Styling Guidelines
 - Use foundation styles for base elements
@@ -106,6 +186,12 @@ npm run uninstall-extension
 - Optimize file sizes for web delivery
 
 ## Architecture
+
+### Storage System
+- **chatStore.js**: Core persistent storage with atomic writes
+- **storage-integration.js**: UI integration layer
+- **Cross-platform**: Windows AppData, macOS Application Support
+- **Security**: Automatic secret redaction, corruption protection
 
 ### Module System
 - **constants.js**: Configuration management

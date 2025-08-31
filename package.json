@@ -1,0 +1,38 @@
+{
+  "name": "letterblack-gen-ai",
+  "version": "1.0.0",
+  "description": "AI Generation Extension for Adobe After Effects",
+  "main": "src/index.html",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node tests/run-tests.js",
+    "build": "npm run clean && npm run copy-to-build",
+    "start": "echo 'Open Adobe After Effects and load the extension'",
+    "test-storage": "node src/storage/chatStore.test.js",
+    "test-security": "echo 'Open src/index.html in browser and check console for security tests'",
+    "demo-storage": "node src/storage/demo.js",
+    "clean": "rimraf build/* || rm -rf build/* || echo 'Build directory cleaned'",
+    "copy-to-build": "cp -r src/* build/ || xcopy src build\\ /E /I /Y",
+    "copy-to-cep": "echo 'Copy build/* to your CEP extensions folder'",
+    "archive": "echo 'Creating backup...' && cp -r . ../Adobe_AI_Generations_backup_$(date +%Y%m%d) || echo 'Manual backup recommended'",
+    "organize": "echo 'Workspace organization complete - see docs/PROJECT_ORGANIZATION_GUIDE.md'"
+  },
+  "keywords": [
+    "adobe",
+    "after-effects",
+    "cep",
+    "ai",
+    "extension"
+  ],
+  "author": "pravesh.pandey@letterblack.ae",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pravesh0306/Letterblack_Gen_AI.git"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

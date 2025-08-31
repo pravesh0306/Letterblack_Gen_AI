@@ -7,6 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Archive files (workspace organization)
+archive/
+*.backup
+
+# Build output
+build/
+dist/
+
 # Dependencies
 node_modules/
 package-lock.json
@@ -48,6 +56,18 @@ ehthumbs.db
 Desktop.ini
 
 # Backup files
+*.backup
+*.bak
+*~
+
+# Chat History Storage (User Data)
+**/ChatLogs/
+**/chat_history*.json
+**/settings.json
+
+# User data directories
+**/AppData/Roaming/Letterblack/
+**/Library/Application Support/Letterblack/
 *.bak
 *.tmp
 *~

@@ -196,7 +196,25 @@
                 }
             }
         }, 500);
+        
+        // Store interval reference for cleanup
+        window._uiEnhancementsCleanup = window._uiEnhancementsCleanup || [];
+        window._uiEnhancementsCleanup.push(checkInterval);
     }
+
+    // Global cleanup function
+    function cleanup() {
+        if (window._uiEnhancementsCleanup) {
+            window._uiEnhancementsCleanup.forEach(interval => {
+                if (interval) clearInterval(interval);
+            });
+            window._uiEnhancementsCleanup = [];
+            console.log('🧹 UI Enhancements cleanup completed');
+        }
+    }
+
+    // Add cleanup on page unload
+    window.addEventListener('beforeunload', cleanup);
 
     // Run when ready
     if(document.readyState === 'loading') {

@@ -1,0 +1,482 @@
+/* LetterBlack GenAI - Icon System */
+/* Design System Compliant Version */
+
+/* ===== ICON BASE STYLES ===== */
+
+/* Reset all FontAwesome icons to design system standards */
+.fa-solid, 
+.fa-brands, 
+.fa-regular, 
+.fa-light, 
+.fa-thin, 
+.fa-duotone, 
+[class*="fa-"] {
+    font-size: var(--icon-size-sm) !important;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Remove the arbitrary 85% scaling */
+.fa-solid, 
+.fa-brands, 
+.fa-regular, 
+[class*="fa-"] {
+    font-size: var(--icon-size-sm) !important;
+}
+
+/* ===== ICON SIZE CLASSES ===== */
+
+/* Use design system icon sizes */
+.icon-xs, .fa-xs {
+    font-size: var(--icon-size-xs) !important; /* 12px */
+}
+
+.icon-sm, .fa-sm {
+    font-size: var(--icon-size-sm) !important; /* 14px */
+}
+
+.icon-md, .fa-md, .icon-base {
+    font-size: var(--icon-size-md) !important; /* 16px */
+}
+
+.icon-lg, .fa-lg {
+    font-size: var(--icon-size-lg) !important; /* 18px */
+}
+
+.icon-xl, .fa-xl {
+    font-size: var(--icon-size-xl) !important; /* 20px */
+}
+
+.icon-2xl, .fa-2xl {
+    font-size: var(--icon-size-2xl) !important; /* 24px */
+}
+
+.icon-3xl, .fa-3xl {
+    font-size: var(--icon-size-3xl) !important; /* 32px */
+}
+
+/* ===== ICON COLOR CLASSES ===== */
+
+/* Semantic color classes for icons */
+.icon-primary {
+    color: var(--color-primary) !important;
+}
+
+.icon-secondary {
+    color: var(--color-text-secondary) !important;
+}
+
+.icon-muted {
+    color: var(--color-text-tertiary) !important;
+}
+
+.icon-success {
+    color: var(--color-success) !important;
+}
+
+.icon-warning {
+    color: var(--color-warning) !important;
+}
+
+.icon-error {
+    color: var(--color-error) !important;
+}
+
+.icon-info {
+    color: var(--color-info) !important;
+}
+
+.icon-inverse {
+    color: var(--color-text-inverse) !important;
+}
+
+/* ===== CONTEXTUAL ICON STYLES ===== */
+
+/* Header icons */
+.header-btn i,
+.header-icon {
+    font-size: var(--icon-size-sm) !important;
+    color: var(--color-text-secondary);
+    transition: var(--transition-colors);
+}
+
+.header-btn:hover i {
+    color: var(--color-text-primary);
+}
+
+/* Context bar icons */
+.context-btn i,
+.context-icon {
+    font-size: var(--icon-size-sm) !important;
+    color: var(--color-text-secondary);
+    transition: var(--transition-colors);
+}
+
+.context-btn:hover i {
+    color: var(--color-text-primary);
+}
+
+/* Composer icons */
+.composer-btn i {
+    font-size: var(--icon-size-sm) !important;
+}
+
+.composer-btn.primary i {
+    color: var(--color-text-inverse);
+}
+
+/* Tab icons */
+.tab-btn i {
+    font-size: var(--icon-size-sm) !important;
+    margin-right: var(--spacing-xs);
+    color: inherit;
+}
+
+/* Toolbar icons */
+.toolbar-btn i {
+    font-size: var(--icon-size-sm) !important;
+    margin-right: var(--spacing-xs);
+}
+
+.toolbar-btn:not(:has(span)):not(:has(text)) i {
+    margin-right: 0;
+}
+
+/* Status icons */
+.status-indicator {
+    font-size: var(--icon-size-lg) !important;
+}
+
+.provider-indicator,
+.module-indicator {
+    font-size: var(--icon-size-md) !important;
+}
+
+/* Command palette icons */
+.command-item i {
+    font-size: var(--icon-size-sm) !important;
+    margin-right: var(--spacing-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ===== ICON SPACING UTILITIES ===== */
+
+/* Consistent spacing for icons with text */
+.icon-left {
+    margin-right: var(--spacing-xs);
+}
+
+.icon-right {
+    margin-left: var(--spacing-xs);
+}
+
+.icon-only {
+    margin: 0;
+}
+
+/* For buttons with both icon and text */
+.btn i + span,
+.toolbar-btn i + span,
+.tab-btn i + span {
+    margin-left: var(--spacing-xs);
+}
+
+/* ===== ICON STATES ===== */
+
+/* Loading/spinning icons */
+.icon-spin {
+    animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Pulse animation for status indicators */
+.icon-pulse {
+    animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+/* Hover effects */
+.icon-hover {
+    transition: var(--transition-all);
+}
+
+.icon-hover:hover {
+    transform: scale(1.1);
+    color: var(--color-primary);
+}
+
+/* ===== SPECIFIC ICON CONTEXTS ===== */
+
+/* Message type icons */
+.message.system .message-content h3::before {
+    content: '\f085'; /* fa-cogs */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: var(--icon-size-sm);
+    color: var(--color-info);
+    margin-right: var(--spacing-sm);
+}
+
+.message.user .message-content h3::before {
+    content: '\f007'; /* fa-user */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: var(--icon-size-sm);
+    color: var(--color-text-inverse);
+    margin-right: var(--spacing-sm);
+}
+
+.message.assistant .message-content h3::before {
+    content: '\f544'; /* fa-robot */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: var(--icon-size-sm);
+    color: var(--color-primary);
+    margin-right: var(--spacing-sm);
+}
+
+/* Status dot styling */
+.status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: var(--radius-full);
+    display: inline-block;
+    margin-right: var(--spacing-xs);
+    background-color: var(--color-success);
+}
+
+.status-dot.warning {
+    background-color: var(--color-warning);
+}
+
+.status-dot.error {
+    background-color: var(--color-error);
+}
+
+.status-dot.info {
+    background-color: var(--color-info);
+}
+
+/* ===== ICON COMBINATIONS ===== */
+
+/* Icon with badge */
+.icon-with-badge {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: var(--color-error);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    line-height: 1;
+    padding: 1px 4px;
+    min-width: 12px;
+    text-align: center;
+    font-family: var(--font-family-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Icon groups */
+.icon-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.icon-group i {
+    color: var(--color-text-secondary);
+    transition: var(--transition-colors);
+}
+
+.icon-group:hover i {
+    color: var(--color-text-primary);
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Screen reader only icons */
+.icon-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Decorative icons (hidden from screen readers) */
+.icon-decorative {
+    aria-hidden: "true";
+}
+
+/* ===== ICON LAYOUT HELPERS ===== */
+
+/* Flex alignment for icons */
+.flex-icon {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.flex-icon-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+}
+
+/* Grid layout for icon collections */
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    gap: var(--spacing-md);
+    align-items: center;
+    justify-items: center;
+}
+
+/* ===== COMPONENT-SPECIFIC ICON OVERRIDES ===== */
+
+/* App mascot */
+.app-mascot {
+    width: 27px;
+    height: 27px;
+    object-fit: contain;
+}
+
+/* Bottom panel toggle icon rotation */
+.bottom-panel-toggle i {
+    transition: transform var(--transition-slow);
+    font-size: var(--icon-size-md) !important;
+}
+
+.bottom-panel.collapsed .bottom-panel-toggle i {
+    transform: rotate(180deg);
+}
+
+/* Command palette search icon */
+.command-palette-input {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23969696' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3ccircle cx='11' cy='11' r='8'/%3e%3cpath d='m21 21-4.35-4.35'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-md) center;
+    background-size: var(--icon-size-md);
+    padding-right: calc(var(--spacing-md) + var(--icon-size-md) + var(--spacing-sm));
+}
+
+/* ===== RESPONSIVE ICON SIZES ===== */
+
+@media (max-width: 768px) {
+    /* Slightly smaller icons on mobile */
+    .toolbar-btn i {
+        font-size: var(--icon-size-xs) !important;
+    }
+    
+    .tab-btn i {
+        font-size: var(--icon-size-xs) !important;
+    }
+    
+    .header-btn i {
+        font-size: var(--icon-size-xs) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Even smaller for very small screens */
+    .icon-responsive {
+        font-size: var(--icon-size-xs) !important;
+    }
+}
+
+/* ===== DARK THEME ICON ADJUSTMENTS ===== */
+
+[data-theme="dark"] {
+    /* Icons may need slight opacity adjustments in dark theme */
+    .icon-subtle {
+        opacity: 0.8;
+    }
+}
+
+/* ===== ICON PERFORMANCE ===== */
+
+/* Optimize icon rendering */
+.icon-crisp {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Apply to all icons by default */
+[class*="fa-"] {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* ===== ICON UTILITIES ===== */
+
+/* Center an icon perfectly */
+.icon-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-size-2xl);
+    height: var(--icon-size-2xl);
+}
+
+/* Make icon inherit parent text color */
+.icon-inherit {
+    color: inherit !important;
+}
+
+/* Icon with background circle */
+.icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--icon-size-md) + var(--spacing-md));
+    height: calc(var(--icon-size-md) + var(--spacing-md));
+    border-radius: var(--radius-full);
+    background-color: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+}
+
+.icon-circle.primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+.icon-circle.success {
+    background-color: var(--color-success);
+    color: var(--color-text-inverse);
+}
+
+.icon-circle.warning {
+    background-color: var(--color-warning);
+    color: var(--color-text-inverse);
+}
+
+.icon-circle.error {
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
+}

@@ -38,8 +38,26 @@ class AdvancedSDKIntegration {
             // Start polling for After Effects changes
             this.pollInterval = setInterval(this.pollForChanges.bind(this), 2000); // Check every 2 seconds
             
+            // Add cleanup for page unload
+            window.addEventListener('beforeunload', () => this.cleanup());
+            
         } catch (error) {
             console.error('Failed to initialize Advanced SDK:', error);
+        }
+    }
+
+    // Cleanup method to prevent memory leaks
+    cleanup() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+            console.log('🧹 Advanced SDK cleanup completed');
+        }
+        
+        // Remove event listeners
+        if (this.csInterface) {
+            // Note: CSInterface doesn't have removeEventListener, so we track and avoid re-adding
+            this.isConnected = false;
         }
     }
 

@@ -1,33 +1,27 @@
-class APISettingsStorage {
-	static init(container) {
-		if (!container) return;
-		// Load saved values
-		const savedKey = localStorage.getItem('ai_api_key') || '';
-		const savedModel = localStorage.getItem('ai_model') || 'gemini-2.5-flash-preview-05-20';
-		container.innerHTML = `
-			<div class="api-settings-modal">
-				<label for="api-key-input" class="api-settings-label">API Key</label>
-				<input id="api-key-input" type="password" value="${savedKey}" class="api-settings-input">
-				<label for="model-select" class="api-settings-label">Model</label>
-				<select id="model-select" class="api-settings-input">
-					<option value="gemini-2.5-flash-preview-05-20" ${savedModel==='gemini-2.5-flash-preview-05-20'?'selected':''}>gemini-2.5-flash-preview-05-20</option>
-					<option value="other-model">Other Model</option>
-				</select>
-				<button id="save-api-settings-btn" class="api-settings-button">Save</button>
-				<span id="api-settings-status" class="api-settings-status"></span>
-			</div>
-		`;
-		// Save logic
-		const keyInput = container.querySelector('#api-key-input');
-		const modelSelect = container.querySelector('#model-select');
-		const saveBtn = container.querySelector('#save-api-settings-btn');
-		const statusSpan = container.querySelector('#api-settings-status');
-		saveBtn.onclick = function() {
-			localStorage.setItem('ai_api_key', keyInput.value);
-			localStorage.setItem('ai_model', modelSelect.value);
-			statusSpan.textContent = 'Settings saved!';
-			setTimeout(()=>{statusSpan.textContent='';}, 2000);
-		};
-	}
+// ⚠️ DEPRECATED - INSECURE API STORAGE
+// This file has been disabled due to critical security vulnerabilities.
+// API keys were stored in plain text localStorage, exposing them to XSS attacks.
+// 
+// ✅ REPLACEMENT: Use secure-api-settings-ui.js with encrypted storage
+// 
+// SECURITY ISSUES FIXED:
+// 1. Plain text API key storage in localStorage
+// 2. No encryption or protection
+// 3. Vulnerable to XSS attacks
+// 4. No input validation
+// 5. No error handling
+//
+// This file is kept for reference only and should NOT be loaded.
+
+console.error('🚫 SECURITY VIOLATION: Insecure API storage file loaded!');
+console.error('📍 Use secure-api-settings-ui.js instead');
+
+// Prevent any functionality from this deprecated file
+if (typeof window !== 'undefined') {
+    window.APISettingsStorage = {
+        init: function() {
+            console.error('🚫 Blocked: Use SecureAPISettingsUI instead');
+            throw new Error('DEPRECATED: Use secure API storage system');
+        }
+    };
 }
-window.APISettingsStorage = APISettingsStorage;

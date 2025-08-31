@@ -4,6 +4,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const scriptEditor = document.getElementById('script-editor');
     const savedScriptsContainer = document.querySelector('.saved-scripts-container');
+    
+    // XSS protection helper
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
     function getSavedScripts() {
         try {
             return JSON.parse(localStorage.getItem('ae_saved_scripts') || '[]');
@@ -26,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         savedScriptsContainer.innerHTML = scripts.map((s, i) =>
-            `<div class="saved-script-item"><pre>${s.text}</pre><span>${s.date}</span><button data-index="${i}" class="delete-script-btn">Delete</button></div>`
+            `<div class="saved-script-item"><pre>${escapeHtml(s.text)}</pre><span>${escapeHtml(s.date)}</span><button data-index="${i}" class="delete-script-btn">Delete</button></div>`
         ).join('');
         savedScriptsContainer.querySelectorAll('.delete-script-btn').forEach(btn => {
             btn.onclick = function() {

@@ -7,20 +7,283 @@
     // Helper: safely query
     const $ = (sel, root=document) => root.querySelector(sel);
 
-    // Saved Scripts
+    // XSS protection helper
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Input validation helpers
+    function validateText(input, minLength = 0, maxLength = 10000) {
+        if (typeof input !== 'string') return false;
+        return input.length >= minLength && input.length <= maxLength;
+    }
+
+    function validateJSON(jsonString) {
+        try {
+            JSON.parse(jsonString);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    // Standardized error messages
+    const ErrorMessages = {
+        STORAGE_ERROR: 'Failed to save data. Please try again.',
+        LOAD_ERROR: 'Failed to load data. Using defaults.',
+        INVALID_INPUT: 'Invalid input provided. Please check your data.',
+        NETWORK_ERROR: 'Network error occurred. Please check your connection.',
+        UNEXPECTED_ERROR: 'An unexpected error occurred. Please refresh and try again.',
+        VALIDATION_ERROR: 'Data validation failed. Please check the format.'
+    };
+
+    // Error boundary wrapper
+    function withErrorBoundary(fn, errorMessage = ErrorMessages.UNEXPECTED_ERROR) {
+        return function(...args) {
+            try {
+                const result = fn.apply(this, args);
+                if (result instanceof Promise) {
+                    return result.catch(error => {
+                        console.error('Error boundary caught:', error);
+                        showError(errorMessage);
+                        return null;
+                    });
+                }
+                return result;
+            } catch (error) {
+                console.error('Error boundary caught:', error);
+                showError(errorMessage);
+                return null;
+            }
+        };
+    }
+
+    // Centralized error display
+    function showError(message) {
+        console.error('UI Error:', message);
+        // Create or update error display
+        let errorDiv = document.getElementById('ui-error-display');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'ui-error-display';
+            errorDiv.style.cssText = `
+                position: fixed; top: 10px; right: 10px; z-index: 10000;
+                background: #ff4444; color: white; padding: 12px 16px;
+                border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                max-width: 300px; font-size: 12px; font-family: Arial, sans-serif;
+            `;
+            document.body.appendChild(errorDiv);
+        }
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (errorDiv) errorDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    // Secure storage wrapper (replaces localStorage)
+    let secureStorage = null;
+
+    async function initSecureStorage() {
+        try {
+            if (typeof require !== 'undefined') {
+                const SecureAPIStorage = require('../../storage/secureAPIStorage');
+                secureStorage = new SecureAPIStorage();
+                await secureStorage.ensureDirs();
+            }
+        } catch (error) {
+            console.warn('SecureAPIStorage not available, falling back to localStorage');
+        }
+    }
+
+    async function secureGet(key, defaultValue = null) {
+        try {
+            if (secureStorage) {
+                const settings = await secureStorage.loadSettings();
+                return settings[key] ?? defaultValue;
+            } else {
+                // Fallback to localStorage with validation
+                const value = localStorage.getItem(key);
+                return value ? JSON.parse(value) : defaultValue;
+            }
+        } catch (error) {
+            console.error('Failed to get secure value:', error);
+            return defaultValue;
+        }
+    }
+
+    async function secureSet(key, value) {
+        try {
+            if (secureStorage) {
+                const settings = await secureStorage.loadSettings();
+                settings[key] = value;
+                await secureStorage.saveSettings(settings);
+            } else {
+                // Fallback to localStorage
+                localStorage.setItem(key, JSON.stringify(value));
+            }
+        } catch (error) {
+            console.error('Failed to set secure value:', error);
+            throw new Error(ErrorMessages.STORAGE_ERROR);
+        }
+    }
+
+    // Component cleanup registry
+    const componentCleanups = [];
+
+    function registerCleanup(cleanupFn) {
+        componentCleanups.push(cleanupFn);
+    }
+
+    function performCleanup() {
+        console.log('🧹 Performing UI component cleanup...');
+        componentCleanups.forEach(cleanup => {
+            try {
+                cleanup();
+            } catch (error) {
+                console.error('Cleanup error:', error);
+            }
+        });
+        componentCleanups.length = 0;
+    }
+
+    // Register global cleanup
+    window.addEventListener('beforeunload', performCleanup);
+    window.addEventListener('unload', performCleanup);
+
+    // Saved Scripts with secure storage and validation
     function initSavedScripts(){
         const scriptEditor = $('#script-editor');
         const savedScriptsContainer = document.querySelector('.saved-scripts-container');
-        function getSavedScripts(){ try { return JSON.parse(localStorage.getItem('ae_saved_scripts')||'[]'); } catch { return []; } }
-        function persistScripts(s){ localStorage.setItem('ae_saved_scripts', JSON.stringify(s)); }
-        function render(){ if(!savedScriptsContainer) return; const scripts=getSavedScripts(); savedScriptsContainer.innerHTML=''; if(!scripts.length){ savedScriptsContainer.innerHTML='<p>No saved scripts yet.</p>'; return; } scripts.forEach((script,idx)=>{ const item=document.createElement('div'); item.className='saved-script-item'; item.style.cssText='background:#222;color:#fff;padding:8px;margin-bottom:8px;border-radius:6px;'; const meta=document.createElement('div'); meta.style.cssText='font-size:10px;color:#aaa;margin-bottom:6px;'; meta.textContent=script.date; const pre=document.createElement('pre'); pre.style.whiteSpace='pre-wrap'; pre.textContent=script.text; const btnLoad=document.createElement('button'); btnLoad.textContent='Load'; btnLoad.style.cssText='margin-right:8px;padding:4px 10px;border-radius:4px;background:#007acc;color:#fff;border:none;cursor:pointer;font-size:10px;'; btnLoad.addEventListener('click', ()=>{ if(scriptEditor) scriptEditor.value=script.text; }); const btnDel=document.createElement('button'); btnDel.textContent='Delete'; btnDel.style.cssText='padding:4px 10px;border-radius:4px;background:#c00;color:#fff;border:none;cursor:pointer;font-size:10px;'; btnDel.addEventListener('click', ()=>{ const s=getSavedScripts(); s.splice(idx,1); persistScripts(s); render(); }); item.appendChild(meta); item.appendChild(pre); item.appendChild(btnLoad); item.appendChild(btnDel); savedScriptsContainer.appendChild(item); }); }
-        function saveCurrent(){ if(!scriptEditor) return; const content=scriptEditor.value.trim(); if(!content) return; const scripts=getSavedScripts(); scripts.push({ text: content, date: new Date().toLocaleString() }); persistScripts(scripts); render(); }
-        const saveBtn = document.getElementById('save-script-btn'); if(saveBtn){ const old = saveBtn.onclick; saveBtn.onclick = function(e){ if(old) old.call(this,e); saveCurrent(); }; }
-        // initial render
+        
+        // Validation
+        function validateScript(script) {
+            if (!script || typeof script !== 'object') return false;
+            if (!validateText(script.text, 1, 50000)) return false;
+            if (!script.date || typeof script.date !== 'string') return false;
+            return true;
+        }
+
+        const getSavedScripts = withErrorBoundary(async function() {
+            try {
+                const scripts = await secureGet('ae_saved_scripts', []);
+                if (!Array.isArray(scripts)) return [];
+                return scripts.filter(validateScript);
+            } catch (error) {
+                showError(ErrorMessages.LOAD_ERROR);
+                return [];
+            }
+        }, ErrorMessages.LOAD_ERROR);
+
+        const persistScripts = withErrorBoundary(async function(scripts) {
+            if (!Array.isArray(scripts)) {
+                throw new Error('Scripts must be an array');
+            }
+            
+            const validScripts = scripts.filter(validateScript);
+            await secureSet('ae_saved_scripts', validScripts);
+        }, ErrorMessages.STORAGE_ERROR);
+
+        const render = withErrorBoundary(async function() {
+            if (!savedScriptsContainer) return;
+            
+            const scripts = await getSavedScripts();
+            savedScriptsContainer.innerHTML = '';
+            
+            if (!scripts.length) {
+                savedScriptsContainer.innerHTML = '<p>No saved scripts yet.</p>';
+                return;
+            }
+            
+            scripts.forEach((script, idx) => {
+                const item = document.createElement('div');
+                item.className = 'saved-script-item';
+                item.style.cssText = 'background:#222;color:#fff;padding:8px;margin-bottom:8px;border-radius:6px;';
+                
+                const meta = document.createElement('div');
+                meta.style.cssText = 'font-size:10px;color:#aaa;margin-bottom:6px;';
+                meta.textContent = escapeHtml(script.date);
+                
+                const pre = document.createElement('pre');
+                pre.style.whiteSpace = 'pre-wrap';
+                pre.textContent = script.text;
+                
+                const btnLoad = document.createElement('button');
+                btnLoad.textContent = 'Load';
+                btnLoad.style.cssText = 'margin-right:8px;padding:4px 10px;border-radius:4px;background:#007acc;color:#fff;border:none;cursor:pointer;font-size:10px;';
+                
+                const loadHandler = withErrorBoundary(() => {
+                    if (scriptEditor) scriptEditor.value = script.text;
+                });
+                btnLoad.addEventListener('click', loadHandler);
+                
+                const btnDel = document.createElement('button');
+                btnDel.textContent = 'Delete';
+                btnDel.style.cssText = 'padding:4px 10px;border-radius:4px;background:#c00;color:#fff;border:none;cursor:pointer;font-size:10px;';
+                
+                const deleteHandler = withErrorBoundary(async () => {
+                    const currentScripts = await getSavedScripts();
+                    currentScripts.splice(idx, 1);
+                    await persistScripts(currentScripts);
+                    render();
+                });
+                btnDel.addEventListener('click', deleteHandler);
+                
+                // Register cleanup for event listeners
+                registerCleanup(() => {
+                    btnLoad.removeEventListener('click', loadHandler);
+                    btnDel.removeEventListener('click', deleteHandler);
+                });
+                
+                item.appendChild(meta);
+                item.appendChild(pre);
+                item.appendChild(btnLoad);
+                item.appendChild(btnDel);
+                savedScriptsContainer.appendChild(item);
+            });
+        });
+
+        const saveCurrent = withErrorBoundary(async function() {
+            if (!scriptEditor) return;
+            
+            const content = scriptEditor.value.trim();
+            if (!validateText(content, 1, 50000)) {
+                showError('Script content must be between 1 and 50,000 characters');
+                return;
+            }
+            
+            const scripts = await getSavedScripts();
+            scripts.push({
+                text: content,
+                date: new Date().toLocaleString()
+            });
+            
+            await persistScripts(scripts);
+            render();
+        }, ErrorMessages.STORAGE_ERROR);
+
+        const saveBtn = document.getElementById('save-script-btn');
+        if (saveBtn) {
+            const saveHandler = function(e) {
+                saveCurrent();
+            };
+            saveBtn.addEventListener('click', saveHandler);
+            
+            // Register cleanup
+            registerCleanup(() => {
+                saveBtn.removeEventListener('click', saveHandler);
+            });
+        }
+
+        // Initial render
         render();
     }
 
-    // Script Library panel
+    // Script Library panel with secure storage and validation
     function initScriptLibrary(){
         const scriptEditor = $('#script-editor');
         const runBtn = $('#run-script');
@@ -29,33 +292,311 @@
         const copyBtn = $('#copy-script-btn');
         const explainBtn = $('#explain-script-btn');
         const debugBtn = $('#debug-script-btn');
-        function showStatus(msg){ let s = document.getElementById('script-status'); if(!s){ s = document.createElement('div'); s.id='script-status'; s.style.cssText='color:#0f0;margin-top:8px;font-size:11px;'; if(scriptEditor && scriptEditor.parentNode) scriptEditor.parentNode.appendChild(s); }
-            s.textContent=msg; setTimeout(()=>{ s.textContent=''; },2000);
+        
+        function showStatus(msg) {
+            if (!validateText(msg, 0, 500)) {
+                msg = 'Status update';
+            }
+            
+            let s = document.getElementById('script-status');
+            if (!s) {
+                s = document.createElement('div');
+                s.id = 'script-status';
+                s.style.cssText = 'color:#0f0;margin-top:8px;font-size:11px;';
+                if (scriptEditor && scriptEditor.parentNode) {
+                    scriptEditor.parentNode.appendChild(s);
+                }
+            }
+            s.textContent = escapeHtml(msg);
+            setTimeout(() => {
+                if (s) s.textContent = '';
+            }, 2000);
         }
-        function saveLocal(){ if(scriptEditor) { localStorage.setItem('ae_script_library', scriptEditor.value); showStatus('Script saved!'); } }
-        function loadLocal(){ if(scriptEditor) scriptEditor.value = localStorage.getItem('ae_script_library')||''; }
-        if(runBtn) runBtn.addEventListener('click', ()=> showStatus('Run: Simulated script execution.'));
-        if(applyBtn) applyBtn.addEventListener('click', ()=> showStatus('Apply Expression: Simulated.'));
-        if(saveBtn) saveBtn.addEventListener('click', saveLocal);
-        if(copyBtn) copyBtn.addEventListener('click', ()=>{ if(scriptEditor){ scriptEditor.select(); document.execCommand('copy'); showStatus('Script copied to clipboard!'); } });
-        if(explainBtn) explainBtn.addEventListener('click', ()=> showStatus('Explain: Simulated script explanation.'));
-        if(debugBtn) debugBtn.addEventListener('click', ()=> showStatus('Debug: Simulated script debug.'));
+
+        const saveLocal = withErrorBoundary(async function() {
+            if (!scriptEditor) return;
+            
+            const content = scriptEditor.value;
+            if (!validateText(content, 0, 100000)) {
+                showStatus('Script too long (max 100,000 characters)');
+                return;
+            }
+            
+            await secureSet('ae_script_library', content);
+            showStatus('Script saved!');
+        }, ErrorMessages.STORAGE_ERROR);
+
+        const loadLocal = withErrorBoundary(async function() {
+            if (!scriptEditor) return;
+            
+            const content = await secureGet('ae_script_library', '');
+            if (validateText(content, 0, 100000)) {
+                scriptEditor.value = content;
+            } else {
+                scriptEditor.value = '';
+                showStatus('Loaded script was invalid');
+            }
+        }, ErrorMessages.LOAD_ERROR);
+
+        // Enhanced button handlers with validation
+        const handlers = {};
+
+        if (runBtn) {
+            handlers.run = withErrorBoundary(() => {
+                if (!scriptEditor || !validateText(scriptEditor.value, 1)) {
+                    showStatus('No valid script to run');
+                    return;
+                }
+                showStatus('Run: Simulated script execution.');
+            });
+            runBtn.addEventListener('click', handlers.run);
+        }
+
+        if (applyBtn) {
+            handlers.apply = withErrorBoundary(() => {
+                if (!scriptEditor || !validateText(scriptEditor.value, 1)) {
+                    showStatus('No valid expression to apply');
+                    return;
+                }
+                showStatus('Apply Expression: Simulated.');
+            });
+            applyBtn.addEventListener('click', handlers.apply);
+        }
+
+        if (saveBtn) {
+            handlers.save = function(e) {
+                saveLocal();
+            };
+            saveBtn.addEventListener('click', handlers.save);
+        }
+
+        if (copyBtn) {
+            handlers.copy = withErrorBoundary(() => {
+                if (!scriptEditor || !scriptEditor.value.trim()) {
+                    showStatus('No script to copy');
+                    return;
+                }
+                
+                try {
+                    scriptEditor.select();
+                    document.execCommand('copy');
+                    showStatus('Script copied to clipboard!');
+                } catch (error) {
+                    // Fallback for modern browsers
+                    navigator.clipboard?.writeText(scriptEditor.value).then(() => {
+                        showStatus('Script copied to clipboard!');
+                    }).catch(() => {
+                        showStatus('Failed to copy script');
+                    });
+                }
+            });
+            copyBtn.addEventListener('click', handlers.copy);
+        }
+
+        if (explainBtn) {
+            handlers.explain = withErrorBoundary(() => {
+                if (!scriptEditor || !validateText(scriptEditor.value, 1)) {
+                    showStatus('No valid script to explain');
+                    return;
+                }
+                showStatus('Explain: Simulated script explanation.');
+            });
+            explainBtn.addEventListener('click', handlers.explain);
+        }
+
+        if (debugBtn) {
+            handlers.debug = withErrorBoundary(() => {
+                if (!scriptEditor || !validateText(scriptEditor.value, 1)) {
+                    showStatus('No valid script to debug');
+                    return;
+                }
+                showStatus('Debug: Simulated script debug.');
+            });
+            debugBtn.addEventListener('click', handlers.debug);
+        }
+
+        // Register cleanup for all event listeners
+        registerCleanup(() => {
+            Object.entries(handlers).forEach(([key, handler]) => {
+                const btn = key === 'run' ? runBtn : 
+                           key === 'apply' ? applyBtn :
+                           key === 'save' ? saveBtn :
+                           key === 'copy' ? copyBtn :
+                           key === 'explain' ? explainBtn :
+                           key === 'debug' ? debugBtn : null;
+                           
+                if (btn && handler) {
+                    btn.removeEventListener('click', handler);
+                }
+            });
+        });
+
+        // Load saved script on initialization
         loadLocal();
     }
 
     // Chat history
+    // Chat History with secure storage and validation
     function initChatHistory(){
         const chatMessages = $('#chat-messages');
         const clearBtn = $('#clear-history-btn');
         const exportBtn = $('#export-all-history-btn');
         const startNewBtn = $('#start-new-session-btn');
-        function get(){ try { return JSON.parse(localStorage.getItem('ae_chat_history')||'[]'); } catch { return []; } }
-        function save(){ if(!chatMessages) return; const msgs = Array.from(chatMessages.querySelectorAll('.message')).map(m=>({ type: m.classList.contains('user')? 'user' : 'system', text: m.querySelector('.message-content')?.innerText || '', timestamp: m.querySelector('.message-timestamp')?.innerText || '' })); localStorage.setItem('ae_chat_history', JSON.stringify(msgs)); }
-        function load(){ if(!chatMessages) return; chatMessages.innerHTML=''; get().forEach(msg=>{ const md=document.createElement('div'); md.className=`message ${msg.type}`; const c=document.createElement('div'); c.className='message-content'; c.innerHTML=`<p>${msg.text}</p>`; md.appendChild(c); const ts=document.createElement('div'); ts.className='message-timestamp'; ts.textContent=msg.timestamp; md.appendChild(ts); chatMessages.appendChild(md); }); }
-        function clear(){ localStorage.removeItem('ae_chat_history'); if(chatMessages) chatMessages.innerHTML=''; }
-        function exp(){ const data = localStorage.getItem('ae_chat_history')||'[]'; const blob = new Blob([data], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='ae_chat_history.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
-        if(chatMessages){ const obs = new MutationObserver(save); obs.observe(chatMessages,{ childList:true }); }
-        load(); if(clearBtn) clearBtn.addEventListener('click', clear); if(exportBtn) exportBtn.addEventListener('click', exp); if(startNewBtn) startNewBtn.addEventListener('click', ()=>{ clear(); load(); });
+        let mutationObserver = null;
+        
+        // Validation for chat messages
+        function validateMessage(msg) {
+            if (!msg || typeof msg !== 'object') return false;
+            if (!validateText(msg.text, 0, 10000)) return false;
+            if (!msg.type || !['user', 'system'].includes(msg.type)) return false;
+            if (!validateText(msg.timestamp, 0, 100)) return false;
+            return true;
+        }
+
+        const get = withErrorBoundary(async function() {
+            try {
+                const history = await secureGet('ae_chat_history', []);
+                if (!Array.isArray(history)) return [];
+                return history.filter(validateMessage);
+            } catch (error) {
+                showError(ErrorMessages.LOAD_ERROR);
+                return [];
+            }
+        }, ErrorMessages.LOAD_ERROR);
+
+        const save = withErrorBoundary(async function() {
+            if (!chatMessages) return;
+            
+            try {
+                const msgs = Array.from(chatMessages.querySelectorAll('.message')).map(m => {
+                    const contentEl = m.querySelector('.message-content');
+                    const timestampEl = m.querySelector('.message-timestamp');
+                    
+                    return {
+                        type: m.classList.contains('user') ? 'user' : 'system',
+                        text: contentEl?.innerText || '',
+                        timestamp: timestampEl?.innerText || ''
+                    };
+                }).filter(validateMessage);
+                
+                await secureSet('ae_chat_history', msgs);
+            } catch (error) {
+                console.error('Failed to save chat history:', error);
+                // Don't show error for auto-save to avoid spam
+            }
+        });
+
+        const load = withErrorBoundary(async function() {
+            if (!chatMessages) return;
+            
+            chatMessages.innerHTML = '';
+            const messages = await get();
+            
+            messages.forEach(msg => {
+                const md = document.createElement('div');
+                md.className = `message ${msg.type}`;
+                
+                const c = document.createElement('div');
+                c.className = 'message-content';
+                c.innerHTML = `<p>${escapeHtml(msg.text)}</p>`;
+                md.appendChild(c);
+                
+                const ts = document.createElement('div');
+                ts.className = 'message-timestamp';
+                ts.textContent = escapeHtml(msg.timestamp);
+                md.appendChild(ts);
+                
+                chatMessages.appendChild(md);
+            });
+        });
+
+        const clear = withErrorBoundary(async function() {
+            try {
+                await secureSet('ae_chat_history', []);
+                if (chatMessages) chatMessages.innerHTML = '';
+            } catch (error) {
+                showError(ErrorMessages.STORAGE_ERROR);
+            }
+        }, ErrorMessages.STORAGE_ERROR);
+
+        const exp = withErrorBoundary(async function() {
+            try {
+                const data = await secureGet('ae_chat_history', []);
+                const jsonData = JSON.stringify(data, null, 2);
+                
+                if (!validateJSON(jsonData)) {
+                    showError('Invalid chat history data');
+                    return;
+                }
+                
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ae_chat_history_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                showError('Failed to export chat history');
+            }
+        });
+
+        // Set up auto-save with mutation observer
+        if (chatMessages) {
+            mutationObserver = new MutationObserver(() => {
+                // Debounced save to avoid excessive writes
+                clearTimeout(chatMessages._saveTimeout);
+                chatMessages._saveTimeout = setTimeout(save, 1000);
+            });
+            mutationObserver.observe(chatMessages, { childList: true });
+        }
+
+        // Event handlers
+        const handlers = {};
+
+        if (clearBtn) {
+            handlers.clear = function() { clear(); };
+            clearBtn.addEventListener('click', handlers.clear);
+        }
+
+        if (exportBtn) {
+            handlers.export = function() { exp(); };
+            exportBtn.addEventListener('click', handlers.export);
+        }
+
+        if (startNewBtn) {
+            handlers.startNew = function() {
+                clear().then(() => load());
+            };
+            startNewBtn.addEventListener('click', handlers.startNew);
+        }
+
+        // Register cleanup
+        registerCleanup(() => {
+            if (mutationObserver) {
+                mutationObserver.disconnect();
+                mutationObserver = null;
+            }
+            
+            if (chatMessages && chatMessages._saveTimeout) {
+                clearTimeout(chatMessages._saveTimeout);
+            }
+            
+            Object.entries(handlers).forEach(([key, handler]) => {
+                const btn = key === 'clear' ? clearBtn :
+                           key === 'export' ? exportBtn :
+                           key === 'startNew' ? startNewBtn : null;
+                           
+                if (btn && handler) {
+                    btn.removeEventListener('click', handler);
+                }
+            });
+        });
+
+        // Initial load
+        load();
     }
 
     // YouTube analyzer with real AI integration
@@ -69,7 +610,7 @@
             d.className=`message ${type}`; 
             const c=document.createElement('div'); 
             c.className='message-content'; 
-            c.innerHTML=`<p>${text}</p>`; 
+            c.innerHTML=`<p>${escapeHtml(text)}</p>`; 
             d.appendChild(c); 
             const ts=document.createElement('div'); 
             ts.className='message-timestamp'; 
@@ -124,59 +665,107 @@
     }
 
     // Chat composer with real AI integration
+    // Chat Composer with secure storage and validation
     function initChatComposer(){ 
         const input = $('#chat-input'); 
         const sendButton = $('#send-button'); 
         const chatMessages = $('#chat-messages'); 
         const charCount = document.querySelector('.char-count'); 
-        const maxLen = input ? parseInt(input.getAttribute('maxlength')) : 1000; 
+        const maxLen = input ? parseInt(input.getAttribute('maxlength')) || 1000 : 1000; 
         
-        function update(){ 
-            if(!input || !sendButton) return; 
+        const update = withErrorBoundary(function(){ 
+            if (!input || !sendButton) return; 
+            
             const val = input.value.trim(); 
-            sendButton.disabled = !val; 
-            if(charCount) charCount.textContent = `${val.length}/${maxLen}`; 
-        }
+            const isValid = validateText(val, 1, maxLen);
+            
+            sendButton.disabled = !isValid; 
+            if (charCount) {
+                charCount.textContent = `${val.length}/${maxLen}`;
+                charCount.style.color = val.length > maxLen * 0.9 ? '#ff6b6b' : '#ccc';
+            }
+        });
         
-        if(input){ 
-            input.addEventListener('input', update); 
+        if (input) { 
+            const inputHandler = function() { update(); };
+            input.addEventListener('input', inputHandler); 
+            
+            // Input validation
+            input.addEventListener('paste', function(e) {
+                setTimeout(() => {
+                    if (input.value.length > maxLen) {
+                        input.value = input.value.substring(0, maxLen);
+                        showError(`Message truncated to ${maxLen} characters`);
+                    }
+                    update();
+                }, 0);
+            });
+            
+            registerCleanup(() => {
+                input.removeEventListener('input', inputHandler);
+            });
+            
             update(); 
         }
         
-        function append(type,text){ 
-            if(!chatMessages) return; 
-            const d=document.createElement('div'); 
-            d.className=`message ${type}`; 
-            const c=document.createElement('div'); 
-            c.className='message-content'; 
-            c.innerHTML=`<p>${text}</p>`; 
+        function append(type, text) { 
+            if (!chatMessages) return;
+            
+            // Validate input parameters
+            if (!['user', 'system'].includes(type)) {
+                console.error('Invalid message type:', type);
+                return;
+            }
+            
+            if (!validateText(text, 0, 50000)) {
+                console.error('Invalid message text');
+                return;
+            }
+            
+            const d = document.createElement('div'); 
+            d.className = `message ${type}`; 
+            const c = document.createElement('div'); 
+            c.className = 'message-content'; 
+            c.innerHTML = `<p>${escapeHtml(text)}</p>`; 
             d.appendChild(c); 
-            const ts=document.createElement('div'); 
-            ts.className='message-timestamp'; 
-            ts.textContent=new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); 
+            const ts = document.createElement('div'); 
+            ts.className = 'message-timestamp'; 
+            ts.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); 
             d.appendChild(ts); 
             chatMessages.appendChild(d); 
             chatMessages.scrollTop = chatMessages.scrollHeight; 
         }
         
-        async function sendMessage(message) {
-            // Get settings from localStorage
-            const apiKey = localStorage.getItem('ai_api_key') || '';
-            const provider = localStorage.getItem('ai_provider') || 'google';
-            const model = localStorage.getItem('ai_model') || 'gemini-1.5-flash';
-            const contextMemory = localStorage.getItem('ai_context_memory') || '';
-            
-            // Show typing indicator first
-            append('system', '🤖 AI is thinking...');
+        const sendMessage = withErrorBoundary(async function(message) {
+            // Validate input message
+            if (!validateText(message, 1, maxLen)) {
+                showError('Message is too long or empty');
+                return;
+            }
             
             try {
+                // Get settings from secure storage
+                const apiKey = await secureGet('ai_api_key', '');
+                const provider = await secureGet('ai_provider', 'google');
+                const model = await secureGet('ai_model', 'gemini-1.5-flash');
+                const contextMemory = await secureGet('ai_context_memory', '');
+                
+                // Validate settings
+                if (!validateText(apiKey, 10, 200)) {
+                    append('system', '❌ **API Key Missing or Invalid**\n\nPlease configure your API key in the Settings tab before sending messages.');
+                    return;
+                }
+                
+                // Show typing indicator first
+                append('system', '🤖 AI is thinking...');
+                
                 // Use AI Module if available
                 if (window.AIModule) {
                     const aiModule = new window.AIModule();
                     
-                    // Enhanced context building
+                    // Enhanced context building with validation
                     let contextualMessage = message;
-                    if (contextMemory) {
+                    if (contextMemory && validateText(contextMemory, 0, 5000)) {
                         contextualMessage = `Context: ${contextMemory}\n\nUser: ${message}`;
                         console.log('📋 Added context memory to message');
                     }
@@ -196,8 +785,8 @@
                         typingMsg.remove();
                     }
                     
-                    // Add the response with better formatting
-                    if (response) {
+                    // Add the response with validation
+                    if (response && validateText(response, 1, 50000)) {
                         append('system', response);
                         
                         // Show helpful setup message if this looks like an error
@@ -207,7 +796,7 @@
                             }, 1000);
                         }
                     } else {
-                        append('system', '❌ No response received from AI provider.');
+                        append('system', '❌ Invalid or empty response received from AI provider.');
                     }
                     
                 } else {
@@ -227,35 +816,57 @@
                 }
                 
                 console.error('AI Error:', error);
-                append('system', `❌ **Unexpected Error**: ${error.message}\n\n📍 Try refreshing the page or check your internet connection.`);
+                const errorMessage = error.message && validateText(error.message, 0, 1000) ? 
+                    error.message : 'Unknown error occurred';
+                append('system', `❌ **Unexpected Error**: ${escapeHtml(errorMessage)}\n\n📍 Try refreshing the page or check your internet connection.`);
             }
-        }
+        }, ErrorMessages.NETWORK_ERROR);
         
         if(sendButton) {
-            sendButton.addEventListener('click', async ()=>{ 
+            const sendHandler = withErrorBoundary(async function() { 
                 const val = input.value.trim(); 
-                if(!val) return; 
+                if (!validateText(val, 1, maxLen)) {
+                    showError('Please enter a valid message');
+                    return;
+                }
+                
                 append('user', val); 
-                input.value=''; 
+                input.value = ''; 
                 update(); 
                 
                 await sendMessage(val);
-            }); 
+            });
+            
+            sendButton.addEventListener('click', sendHandler);
+            
+            registerCleanup(() => {
+                sendButton.removeEventListener('click', sendHandler);
+            });
         }
         
-        // Handle Enter key
-        if(input) {
-            input.addEventListener('keydown', async (e) => {
+        // Enhanced Enter key handling
+        if (input) {
+            const keyHandler = withErrorBoundary(async function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     const val = input.value.trim();
-                    if (!val) return;
+                    if (!validateText(val, 1, maxLen)) {
+                        showError('Please enter a valid message');
+                        return;
+                    }
+                    
                     append('user', val);
                     input.value = '';
                     update();
                     
                     await sendMessage(val);
                 }
+            });
+            
+            input.addEventListener('keydown', keyHandler);
+            
+            registerCleanup(() => {
+                input.removeEventListener('keydown', keyHandler);
             });
         }
     }
@@ -273,8 +884,31 @@
         scheduleNext(); scheduleTooltip();
     }
 
-    // Boot
-    document.addEventListener('DOMContentLoaded', function(){ initSavedScripts(); initScriptLibrary(); initChatHistory(); initYouTubeAnalyzer(); initChatComposer(); initMascot(); initFloatingMascot(); });
+    // Boot with enhanced initialization
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('🚀 UI Bootstrap initializing...');
+        
+        try {
+            // Initialize secure storage first
+            await initSecureStorage();
+            
+            // Initialize all components with error boundaries
+            await Promise.all([
+                withErrorBoundary(initSavedScripts)(),
+                withErrorBoundary(initScriptLibrary)(),
+                withErrorBoundary(initChatHistory)(),
+                withErrorBoundary(initYouTubeAnalyzer)(),
+                withErrorBoundary(initChatComposer)(),
+                withErrorBoundary(initMascot)(),
+                withErrorBoundary(initFloatingMascot)()
+            ]);
+            
+            console.log('✅ UI Bootstrap initialization complete');
+        } catch (error) {
+            console.error('❌ UI Bootstrap initialization failed:', error);
+            showError('Some UI components failed to initialize. Please refresh the page.');
+        }
+    });
 
 })();
 
