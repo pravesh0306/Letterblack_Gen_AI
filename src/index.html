@@ -350,6 +350,9 @@
                 </div>
             </div>
             <div class="header-right">
+                <button id="mascot-debug-btn" class="header-btn" title="Test Mascot Visibility" style="background: #ff6b6b; color: white; margin-right: 8px;" onclick="forceMascotVisibility(); testFloatingMascot();">
+                    🎭 TEST
+                </button>
                 <button id="command-menu-trigger" class="header-btn" title="Command Palette (Ctrl+K)">
                     <i class="fa-solid fa-search"></i>
                 </button>
@@ -1344,11 +1347,13 @@
     
     <!-- Floating Mascot with WebM Animation -->
     <div class="floating-mascot" id="floating-mascot" data-tooltip="Let's create something amazing!">
-        <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video">
+        <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video" style="display: none;">
             <source src="assets/Idle.webm" type="video/webm">
             <!-- Fallback for browsers that don't support WebM -->
-            <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback">
         </video>
+        <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback" style="display: none; width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
+        <!-- Ultimate fallback: simple colored circle with emoji - SHOW BY DEFAULT -->
+        <div id="floating-mascot-simple" style="display: flex; width: 70px; height: 70px; background: linear-gradient(135deg, #007acc, #005a9f); border-radius: 50%; align-items: center; justify-content: center; font-size: 24px; color: white; font-weight: bold;">🎭</div>
     </div>
 
     <!-- Force Mascot Visibility - Emergency CSS Override -->
@@ -1377,6 +1382,31 @@
             opacity: 1 !important;
             width: 70px !important;
             height: 70px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+        }
+        
+        /* GIF fallback */
+        #floating-mascot-fallback {
+            width: 70px !important;
+            height: 70px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            display: none !important;
+        }
+        
+        /* Simple emoji fallback */
+        #floating-mascot-simple {
+            width: 70px !important;
+            height: 70px !important;
+            background: linear-gradient(135deg, #007acc, #005a9f) !important;
+            border-radius: 50% !important;
+            display: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 24px !important;
+            color: white !important;
+            font-weight: bold !important;
         }
         
         /* Debug info */
@@ -1534,6 +1564,8 @@
         function forceMascotVisibility() {
             const mascot = document.getElementById('floating-mascot');
             const video = document.getElementById('floating-mascot-video');
+            const fallbackImg = document.getElementById('floating-mascot-fallback');
+            const simpleFallback = document.getElementById('floating-mascot-simple');
             
             if (mascot) {
                 // Force all visibility properties
@@ -1550,6 +1582,45 @@
                     mascot.style.right = '20px';
                 }
                 
+                // Handle video/fallback logic
+                let mediaWorking = false;
+                
+                if (video) {
+                    video.style.display = 'block';
+                    video.style.visibility = 'visible';
+                    video.style.opacity = '1';
+                    
+                    // Check if video is actually playing/loaded
+                    if (video.readyState >= 2 && !video.paused) {
+                        mediaWorking = true;
+                        if (fallbackImg) fallbackImg.style.display = 'none';
+                        if (simpleFallback) simpleFallback.style.display = 'none';
+                        console.log('✅ Video mascot working');
+                    } else {
+                        video.style.display = 'none';
+                    }
+                }
+                
+                // Try GIF fallback if video not working
+                if (!mediaWorking && fallbackImg) {
+                    fallbackImg.style.display = 'block';
+                    fallbackImg.style.visibility = 'visible';
+                    fallbackImg.style.opacity = '1';
+                    if (simpleFallback) simpleFallback.style.display = 'none';
+                    mediaWorking = true;
+                    console.log('🔄 Using GIF fallback');
+                }
+                
+                // Use simple emoji fallback if nothing else works
+                if (!mediaWorking && simpleFallback) {
+                    if (video) video.style.display = 'none';
+                    if (fallbackImg) fallbackImg.style.display = 'none';
+                    simpleFallback.style.display = 'flex';
+                    simpleFallback.style.visibility = 'visible';
+                    simpleFallback.style.opacity = '1';
+                    console.log('🎭 Using simple emoji fallback');
+                }
+                
                 console.log('🔥 FORCED mascot visibility. Current style:', {
                     display: mascot.style.display,
                     visibility: mascot.style.visibility,
@@ -1559,42 +1630,102 @@
                     bottom: mascot.style.bottom,
                     right: mascot.style.right,
                     left: mascot.style.left,
-                    top: mascot.style.top
+                    top: mascot.style.top,
+                    mediaWorking: mediaWorking
                 });
             } else {
                 console.error('❌ MASCOT ELEMENT NOT FOUND!');
-            }
-            
-            if (video) {
-                video.style.display = 'block';
-                video.style.visibility = 'visible';
-                video.style.opacity = '1';
             }
         }
 
         // Test function for mascot
         window.testFloatingMascot = function() {
             const mascot = document.getElementById('floating-mascot');
+            const video = document.getElementById('floating-mascot-video');
+            const gif = document.getElementById('floating-mascot-fallback');
+            const simple = document.getElementById('floating-mascot-simple');
+            
+            console.log('🔍 === MASCOT DEBUG REPORT ===');
+            
             if (mascot) {
-                console.log('🎭 Floating mascot found:', mascot);
-                console.log('🎭 Mascot video element:', document.getElementById('floating-mascot-video'));
-                console.log('🎭 Mascot position:', {
+                console.log('✅ Floating mascot element found:', mascot);
+                console.log('📏 Mascot computed style:', {
+                    display: getComputedStyle(mascot).display,
+                    visibility: getComputedStyle(mascot).visibility,
+                    opacity: getComputedStyle(mascot).opacity,
+                    zIndex: getComputedStyle(mascot).zIndex,
+                    position: getComputedStyle(mascot).position
+                });
+                console.log('📍 Mascot position:', {
                     left: mascot.style.left,
                     top: mascot.style.top,
                     bottom: mascot.style.bottom,
                     right: mascot.style.right
                 });
                 
-                // Test animation if mascot animator is available
-                if (window.mascotAnimator) {
-                    console.log('🎬 Testing mascot animations...');
-                    window.mascotAnimator.testAllAnimations();
-                } else {
-                    console.log('⚠️ MascotAnimator not found');
+                // Check bounding rect
+                const rect = mascot.getBoundingClientRect();
+                console.log('📦 Mascot bounding rect:', rect);
+                
+                if (rect.width === 0 || rect.height === 0) {
+                    console.warn('⚠️ Mascot has zero dimensions!');
                 }
+                
+                // Make mascot flash to indicate it's working
+                mascot.style.background = '#ff0000';
+                setTimeout(() => {
+                    mascot.style.background = '';
+                }, 1000);
+                
             } else {
-                console.error('❌ Floating mascot element not found');
+                console.error('❌ Floating mascot element NOT FOUND!');
             }
+            
+            // Check video element
+            if (video) {
+                console.log('🎥 Video element found. State:', {
+                    src: video.src,
+                    readyState: video.readyState,
+                    paused: video.paused,
+                    ended: video.ended,
+                    muted: video.muted,
+                    loop: video.loop
+                });
+            } else {
+                console.warn('⚠️ Video element not found');
+            }
+            
+            // Check GIF fallback
+            if (gif) {
+                console.log('🖼️ GIF fallback found. Display:', getComputedStyle(gif).display);
+            } else {
+                console.warn('⚠️ GIF fallback not found');
+            }
+            
+            // Check simple fallback
+            if (simple) {
+                console.log('⭕ Simple fallback found. Display:', getComputedStyle(simple).display);
+            } else {
+                console.warn('⚠️ Simple fallback not found');
+            }
+            
+            // Test animation if mascot animator is available
+            if (window.mascotAnimator) {
+                console.log('🎬 MascotAnimator found - testing animations...');
+                window.mascotAnimator.testAllAnimations();
+            } else {
+                console.log('⚠️ MascotAnimator not found');
+            }
+            
+            console.log('🔍 === END MASCOT DEBUG REPORT ===');
+            
+            return {
+                mascotFound: !!mascot,
+                videoFound: !!video,
+                gifFound: !!gif,
+                simpleFound: !!simple,
+                animatorFound: !!window.mascotAnimator
+            };
         };
     </script>
     
