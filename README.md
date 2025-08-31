@@ -1,32 +1,59 @@
-# Adobe AI Generations
+# LetterBlack Gen AI - After Effects Extension
 
-A comprehensive AI-powered creative toolkit with a VS Code-style interface for creative professionals.
+An AI-powered Adobe After Effects CEP extension with VS Code-style interface for creative automation and scripting assistance.
 
-## Project Structure
+## 🚀 Features
+
+- **AI Assistant**: Integrated chat interface with multiple AI providers (OpenAI, Google Gemini, Claude)
+- **Script Editor**: Built-in ExtendScript editor with syntax highlighting
+- **Project Tools**: Automated project analysis and optimization tools
+- **YouTube Integration**: Analyze and learn from After Effects tutorials
+- **Smart Suggestions**: Context-aware recommendations based on your workflow
+- **Save & Organize**: Manage your custom scripts and expressions
+
+## 📁 Project Structure
 
 ```
-Adobe_AI_Generations/
-├── src/                          # Main application source code
-│   ├── index.html               # Main application entry point
-│   ├── main.jsx                 # Host application file
-│   ├── assets/                  # Static assets
-│   │   └── mascot/             # Mascot animations and graphics
-│   ├── components/             # Reusable UI components
-│   ├── scripts/                # JavaScript modules
-│   │   ├── main.js            # Main application script
-│   │   └── modules/           # Feature modules
-│   └── styles/                 # CSS stylesheets
-│       ├── foundation/        # Base styles (colors, typography, layout)
-│       ├── components/        # Component-specific styles
-│       └── *.css             # Feature-specific styles
-├── config/                      # Configuration files
-│   └── CSXS/                   # Adobe CEP configuration
+LetterBlack_Gen_AI/
+├── src/                          # CEP Extension source code
+│   ├── index.html               # Main extension UI
+│   ├── assets/                  # Extension assets (mascot, icons)
+│   ├── js/                      # JavaScript modules
+│   │   ├── ai/                 # AI integration modules
+│   │   ├── core/               # Core functionality
+│   │   ├── ui/                 # UI enhancement modules
+│   │   └── utils/              # Utility functions
+│   ├── styles/                  # CSS stylesheets
+│   │   ├── foundation/         # Base styles
+│   │   ├── themes/             # VS Code themes
+│   │   └── *.css              # Component styles
+│   └── css/                     # Legacy CSS (to be organized)
+├── config/                      # Adobe CEP configuration
+│   └── CSXS/                   
+│       └── manifest.xml        # Extension manifest
 ├── reference/                   # Reference implementations
-│   ├── typescript-clean-version/  # TypeScript/Svelte reference
-│   └── reusable-mascot-system/   # Standalone mascot system
+│   └── src/                    # Clean reference version
 ├── docs/                        # Documentation
-├── package.json                 # Node.js dependencies
-└── .gitignore                  # Git ignore rules
+└── package.json                # Extension metadata
+```
+
+## 🛠 Installation
+
+### Method 1: Manual Installation
+1. Clone this repository
+2. Copy the entire folder to your CEP extensions directory:
+   - **Windows**: `%APPDATA%\Adobe\CEP\extensions\`
+   - **macOS**: `~/Library/Application Support/Adobe/CEP/extensions/`
+3. Restart After Effects
+4. Open the extension: `Window > Extensions > LetterBlack Gen AI`
+
+### Method 2: Using Package Scripts
+```bash
+# Install extension to CEP directory
+npm run install-extension
+
+# Uninstall extension
+npm run uninstall-extension
 ```
 
 ## Features
