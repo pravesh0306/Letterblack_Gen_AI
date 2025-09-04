@@ -10,10 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveSettings() {
         const settings = {
-            apiKey: apiKeyInput.value,
-            provider: providerSelect.value,
-            model: modelSelect.value,
-            memory: memoryTextarea.value
+            apiKey: apiKeyInput ? apiKeyInput.value : '',
+            provider: providerSelect ? providerSelect.value : '',
+            model: modelSelect ? modelSelect.value : '',
+            memory: memoryTextarea ? memoryTextarea.value : ''
         };
         localStorage.setItem('ae_settings', JSON.stringify(settings));
         alert('Settings saved!');
@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exportBtn) exportBtn.onclick = exportSettings;
     // Load settings on panel open
     const settings = JSON.parse(localStorage.getItem('ae_settings') || '{}');
-    if (settings.apiKey) apiKeyInput.value = settings.apiKey;
-    if (settings.provider) providerSelect.value = settings.provider;
-    if (settings.model) modelSelect.value = settings.model;
-    if (settings.memory) memoryTextarea.value = settings.memory;
+    if (settings.apiKey && apiKeyInput) apiKeyInput.value = settings.apiKey;
+    if (settings.provider && providerSelect) providerSelect.value = settings.provider;
+    if (settings.model && modelSelect) modelSelect.value = settings.model;
+    if (settings.memory && memoryTextarea) memoryTextarea.value = settings.memory;
 });

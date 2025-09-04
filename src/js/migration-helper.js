@@ -2,12 +2,15 @@
 // Migration helper to transition from localStorage to persistent storage
 
 // Use global chatStore or create minimal compatibility layer
-const chatStore = window.chatStore || {
-  createConversation: () => Promise.resolve('default'),
-  appendMessage: () => Promise.resolve(),
-  getConversationList: () => Promise.resolve([]),
-  clearAll: () => Promise.resolve()
-};
+if (typeof chatStore === 'undefined') {
+  window.chatStore = window.chatStore || {
+    createConversation: () => Promise.resolve('default'),
+    appendMessage: () => Promise.resolve(),
+    getConversationList: () => Promise.resolve([]),
+    clearAll: () => Promise.resolve()
+  };
+}
+const chatStore = window.chatStore;
 
 class ChatMigrationHelper {
   constructor() {

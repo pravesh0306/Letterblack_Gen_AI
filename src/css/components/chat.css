@@ -1249,3 +1249,350 @@
 .dynamic-ui-control button.dynamic-btn:hover {
     background-color: var(--vscode-button-hover-background);
 }
+
+/* ===== VS CODE-STYLE CODE BLOCKS ===== */
+/* VS Code Assistant-style code block formatting */
+.vscode-code-block {
+    background: var(--vscode-text-block-quote-background);
+    border: 1px solid var(--vscode-text-block-quote-border);
+    border-radius: 6px;
+    margin: 12px 0;
+    overflow: hidden;
+    font-family: var(--vscode-editor-font-family);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.vscode-code-block .code-header {
+    background: var(--vscode-sidebar-background);
+    border-bottom: 1px solid var(--vscode-text-block-quote-border);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.vscode-code-block .code-type {
+    color: var(--vscode-text-link-foreground);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.vscode-code-block.expression .code-type::before {
+    content: "💫";
+    font-size: 1.1em;
+}
+
+.vscode-code-block.script .code-type::before {
+    content: "📄";
+    font-size: 1.1em;
+}
+
+.code-action-btn {
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: 1px solid var(--vscode-button-border, transparent);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.code-action-btn:hover {
+    background: var(--vscode-button-hover-background);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.code-action-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.vscode-code-block pre {
+    margin: 0;
+    padding: 12px;
+    background: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
+    overflow-x: auto;
+    font-family: var(--vscode-editor-font-family);
+    font-size: 0.9em;
+    line-height: 1.4;
+    border: none;
+}
+
+.vscode-code-block code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-family: inherit;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Expression-specific styling */
+.vscode-code-block.expression {
+    border-left: 3px solid var(--vscode-text-link-foreground);
+}
+
+.vscode-code-block.expression .code-header {
+    background: linear-gradient(45deg, var(--vscode-sidebar-background), var(--vscode-text-block-quote-background));
+}
+
+/* Script-specific styling */
+.vscode-code-block.script {
+    border-left: 3px solid var(--vscode-editor-selection-highlight-background);
+}
+
+.vscode-code-block.script .code-preview {
+    position: relative;
+}
+
+.vscode-code-block.script .code-preview::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, transparent, var(--vscode-editor-background));
+    pointer-events: none;
+}
+
+/* Inline expression styling */
+.inline-expression {
+    background: var(--vscode-text-block-quote-background) !important;
+    color: var(--vscode-text-link-foreground) !important;
+    border: 1px solid var(--vscode-text-link-foreground) !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-family: var(--vscode-editor-font-family) !important;
+    font-size: 0.9em !important;
+}
+
+.inline-expression:hover {
+    background: var(--vscode-text-link-foreground) !important;
+    color: var(--vscode-button-foreground) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Tab flash animation for when expressions are auto-populated */
+.tab-btn.flash {
+    animation: tabFlash 1s ease-in-out;
+}
+
+@keyframes tabFlash {
+    0% { background: var(--vscode-tab-inactive-background); }
+    50% { background: var(--vscode-text-link-foreground); color: var(--vscode-button-foreground); }
+    100% { background: var(--vscode-tab-inactive-background); }
+}
+
+/* Welcome Message */
+.welcome-message {
+    background: linear-gradient(135deg, var(--vscode-accent) 0%, var(--vscode-accent-hover) 100%);
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.welcome-message h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+}
+
+.welcome-message p {
+    margin: 0 0 12px 0;
+    opacity: 0.9;
+}
+
+.quick-examples {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+/* Enhanced Code Blocks for Chat */
+.expression-result, .script-result {
+    margin: 16px 0;
+    padding: 16px;
+    background: var(--vscode-bg-secondary);
+    border: 1px solid var(--vscode-border);
+    border-radius: 8px;
+}
+
+.expression-result h4, .script-result h4 {
+    margin: 0 0 8px 0;
+    color: var(--vscode-text-primary);
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.expression-result p, .script-result p {
+    margin: 0 0 12px 0;
+    color: var(--vscode-text-secondary);
+    font-size: 0.9em;
+}
+
+.code-block-container {
+    margin: 12px 0;
+}
+
+.code-block {
+    background: #1e1e1e !important;
+    border: 1px solid #3e3e3e !important;
+    border-radius: 6px !important;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.code-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    background: #2d2d2d !important;
+    border-bottom: 1px solid #3e3e3e !important;
+}
+
+.code-language {
+    font-size: 0.85em !important;
+    color: #cccccc !important;
+    font-weight: 500 !important;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+}
+
+.code-actions {
+    display: flex !important;
+    gap: 4px !important;
+}
+
+.code-btn {
+    background: #0e639c !important;
+    border: 1px solid #3e3e3e !important;
+    color: white !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 0.8em !important;
+    transition: all 0.2s ease !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+.code-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.code-btn.copy-btn {
+    background: #0e639c !important;
+}
+
+.code-btn.apply-btn {
+    background: #107c10 !important;
+}
+
+.code-btn.run-btn {
+    background: #ff8c00 !important;
+}
+
+.code-content {
+    margin: 0 !important;
+    padding: 12px !important;
+    background: #1e1e1e !important;
+    overflow-x: auto !important;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 0.9em !important;
+    line-height: 1.4 !important;
+    color: #d4d4d4 !important;
+    white-space: pre !important;
+    border: none !important;
+}
+
+.code-content code {
+    font-family: inherit !important;
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* Effects Indicator */
+.effects-indicator {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 6px;
+    font-size: 0.85em;
+    color: #ffc107;
+    font-weight: 500;
+}
+
+.effects-indicator i {
+    color: #ffc107;
+}
+
+.effects-text {
+    flex: 1;
+}
+
+.help-section {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border-left: 3px solid var(--vscode-accent);
+}
+
+.help-section h5 {
+    margin: 0 0 8px 0;
+    color: var(--vscode-accent);
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.help-section ul {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.help-section li {
+    margin-bottom: 4px;
+    line-height: 1.4;
+    color: var(--vscode-text-secondary);
+    font-size: 0.85em;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .vscode-code-block .code-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .code-action-btn {
+        font-size: 0.75em;
+        padding: 3px 8px;
+    }
+    
+    .vscode-code-block pre {
+        padding: 8px;
+        font-size: 0.8em;
+    }
+}

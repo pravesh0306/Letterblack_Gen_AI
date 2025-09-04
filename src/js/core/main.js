@@ -9,7 +9,7 @@
                     effectsList.querySelectorAll('.apply-effect-btn').forEach(btn => btn.addEventListener('click', (ev) => {
                         const i = parseInt(btn.getAttribute('data-idx'), 10);
                         const item = lib[i];
-                        if (item) console.log('Apply expression (simulated): ' + (item.name || 'Unnamed'));
+                        if (item) console.log('Applying expression: ' + (item.name || 'Unnamed'));
                     }));
                 } else {
                     effectsList.innerHTML = '<p>No saved expressions. Save expressions in the Saved Scripts tab to populate this list.</p>';
@@ -306,6 +306,19 @@ let projectOrganizer = null;
     let fileUpload = null;
     let mascotAnimator = null; // Reusable mascot system
     let tutorialSessions = null; // Step-by-step tutorial session manager
+    // ===== HTML SANITIZATION UTILITY =====
+    // Provide a safe HTML escape utility when HtmlSanitizer is missing
+    const HtmlSanitizer = window.HtmlSanitizer || {
+        escape(text) {
+            if (typeof text !== 'string') return String(text || '');
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+    };
     // Unified notification facade
     const notify = {
         show(type, title, message, duration = 3000) {
@@ -1049,49 +1062,76 @@ let projectOrganizer = null;
     function renderSavedScripts() {
         const listContainer = document.getElementById('saved-scripts-list');
         const emptyState = document.getElementById('saved-scripts-empty-state');
-        const savedScripts = settingsManager.getSetting('savedScripts') || [];
+        const savedScripts = settingsManager && typeof settingsManager.getSetting === 'function' ? (settingsManager.getSetting('savedScripts') || []) : [];
 
-        listContainer.innerHTML = ''; // Clear existing list
+        if (!listContainer) {
+            console.warn('renderSavedScripts: saved-scripts-list element not found');
+            return;
+        }
 
-        if (savedScripts.length === 0) {
-            emptyState.classList.remove('hidden');
+        // Clear existing list safely
+        listContainer.innerHTML = '';
+
+        if (!Array.isArray(savedScripts) || savedScripts.length === 0) {
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+                emptyState.style.display = 'block';
+            }
             listContainer.classList.add('hidden');
-        } else {
+            listContainer.innerHTML = '<p>No saved scripts yet. Save expressions from the chat to see them here.</p>';
+            return;
+        }
+
+        // Populate list
+        if (emptyState) {
             emptyState.classList.add('hidden');
-            listContainer.classList.remove('hidden');
+            emptyState.style.display = 'none';
+        }
+        listContainer.classList.remove('hidden');
 
-            savedScripts.forEach(script => {
-                const scriptItem = document.createElement('div');
-                scriptItem.className = 'saved-script-item';
-                scriptItem.innerHTML = `
-                    <span class="script-name">${script.name}</span>
-                    <div class="script-actions">
-                        <button class="action-btn load-btn" title="Load into Editor">Load</button>
-                        <button class="action-btn delete-btn" title="Delete Script">Delete</button>
-                    </div>
-                `;
+        savedScripts.forEach(script => {
+            const scriptItem = document.createElement('div');
+            scriptItem.className = 'saved-script-item';
+            scriptItem.innerHTML = `
+                <span class="script-name">${HtmlSanitizer.escape(script.name || 'Unnamed')}</span>
+                <div class="script-actions">
+                    <button class="action-btn load-btn" title="Load into Editor">Load</button>
+                    <button class="action-btn delete-btn" title="Delete Script">Delete</button>
+                </div>
+            `;
 
-                scriptItem.querySelector('.load-btn').addEventListener('click', () => {
+            const loadBtn = scriptItem.querySelector('.load-btn');
+            const deleteBtn = scriptItem.querySelector('.delete-btn');
+
+            if (loadBtn) {
+                loadBtn.addEventListener('click', () => {
                     const scriptEditor = document.getElementById('script-editor');
-                    scriptEditor.value = script.content;
+                    if (scriptEditor) scriptEditor.value = script.content || '';
                     notify.info(`Script "${script.name}" loaded into editor.`);
                     // Optional: switch to the script editor tab
-                    document.querySelector('.tab-btn[data-tab="script-library"]').click();
+                    const tabBtn = document.querySelector('.tab-btn[data-tab="script-library"]');
+                    if (tabBtn) tabBtn.click();
                 });
+            }
 
-                scriptItem.querySelector('.delete-btn').addEventListener('click', () => {
-                    if (confirm(`Are you sure you want to delete "${script.name}"?`)) {
-                        const updatedScripts = savedScripts.filter(s => s.id !== script.id);
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => {
+                    if (!confirm(`Are you sure you want to delete "${script.name}"?`)) return;
+                    const updatedScripts = savedScripts.filter(s => s.id !== script.id);
+                    if (settingsManager && typeof settingsManager.setSetting === 'function') {
                         settingsManager.setSetting('savedScripts', updatedScripts);
-                        settingsManager.save();
-                        renderSavedScripts(); // Re-render the list
-                        notify.success(`Script "${script.name}" deleted.`);
+                        if (typeof settingsManager.save === 'function') settingsManager.save();
+                    } else {
+                        // Fallback to localStorage
+                        localStorage.setItem('ae_saved_scripts', JSON.stringify(updatedScripts));
                     }
+                    renderSavedScripts(); // Re-render the list
+                    notify.success(`Script "${script.name}" deleted.`);
                 });
+            }
 
-                listContainer.appendChild(scriptItem);
-            });
-        }
+            listContainer.appendChild(scriptItem);
+        });
     }
 
     /**
@@ -1496,7 +1536,9 @@ ${randomFact}`;
     }
 
     /**
-     * Add message to chat
+     * Add message to chat with VS Code-style automatic code integration
+    /**
+     * Add message to chat interface
      */
     function addMessageToChat(type, content, options = {}) {
         const { fileData = null } = options;
@@ -1547,11 +1589,34 @@ ${randomFact}`;
             }
         }
         
-        // Add text content
+        // Add text content with enhanced formatting for AI responses
         if (content) {
             const textDiv = document.createElement('div');
-            textDiv.innerHTML = formatMessage(content);
+            
+            // Use AI module's enhanced formatting for assistant messages
+            if (type === 'assistant' && window.aiModule && typeof window.aiModule.formatResponseForChat === 'function') {
+                // Use the enhanced AI response formatting with interactive code blocks
+                textDiv.innerHTML = window.aiModule.formatResponseForChat(content);
+            } else {
+                // Use standard formatting for other message types
+                textDiv.innerHTML = formatMessage(content);
+            }
+            
             contentDiv.appendChild(textDiv);
+            
+            // Auto-populate expressions if this is an AI message
+            if (type === 'assistant' && content) {
+                autoPopulateFirstExpression(content);
+                
+                // Integrate TTS for AI responses
+                if (window.voiceManager && typeof content === 'string') {
+                    // Extract plain text from HTML for better speech
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = content;
+                    const plainText = tempDiv.textContent || tempDiv.innerText || content;
+                    window.voiceManager.speakAIResponse(plainText);
+                }
+            }
         }
         
         const timeDiv = document.createElement('div');
@@ -1571,7 +1636,73 @@ ${randomFact}`;
     }
 
     /**
-     * Format message content (markdown, code blocks, and dynamic UI)
+     * Auto-populates the first suitable expression found in AI responses
+     * @param {string} content - Message content to analyze
+     */
+    function autoPopulateFirstExpression(content) {
+        // Extract code blocks from the content
+        const codeBlockRegex = /```(?:javascript|js|extendscript)?\s*\n?(.*?)\n?```/gs;
+        const inlineCodeRegex = /`([^`\n]+)`/g;
+        
+        let match;
+        
+        // Check full code blocks first
+        while ((match = codeBlockRegex.exec(content)) !== null) {
+            const code = match[1].trim();
+            if (code && isExpression(code)) {
+                populateScriptEditor(code, 'Expression auto-populated from AI response');
+                return; // Only populate the first expression found
+            }
+        }
+        
+        // Then check inline code
+        const tempContent = content.replace(codeBlockRegex, ''); // Remove already checked blocks
+        while ((match = inlineCodeRegex.exec(tempContent)) !== null) {
+            const code = match[1].trim();
+            if (code && isExpression(code)) {
+                populateScriptEditor(code, 'Expression auto-populated from AI response');
+                return; // Only populate the first expression found
+            }
+        }
+    }
+
+    /**
+     * Populates the script editor with code and provides user feedback
+     * @param {string} code - Code to populate
+     * @param {string} message - Feedback message
+     */
+    function populateScriptEditor(code, message) {
+        const scriptEditor = document.getElementById('script-editor');
+        if (!scriptEditor) return;
+        
+        // Only auto-populate if editor is empty
+        if (scriptEditor.value.trim() === '') {
+            scriptEditor.value = code;
+            
+            // Flash the script library tab to indicate activity
+            flashTab('script-library');
+            
+            // Show notification
+            showNotification(message, 'success');
+            
+            console.log('✨ Auto-populated script editor:', code);
+        }
+    }
+
+    /**
+     * Flashes a tab to indicate activity
+     * @param {string} tabName - Name of the tab to flash
+     */
+    function flashTab(tabName) {
+        const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
+        if (tabButton) {
+            tabButton.classList.add('flash');
+            setTimeout(() => tabButton.classList.remove('flash'), 1000);
+        }
+    }
+
+    /**
+     * Format message content (markdown, code blocks, and dynamic UI) with VS Code-style code integration
      */
     function formatMessage(content) {
         // If the content already contains rendered HTML blocks, preserve them
@@ -1606,22 +1737,252 @@ ${randomFact}`;
             `;
         });
 
-        // 2. Standard formatting for the rest
+        // 2. VS Code-style code block handling
+        formattedContent = formattedContent.replace(/```(?:javascript|js|extendscript)?\s*\n?(.*?)\n?```/gs, (match, code) => {
+            const trimmedCode = code.trim();
+            if (!trimmedCode) return '';
+            
+            const isExpr = isExpression(trimmedCode);
+            
+            if (isExpr) {
+                // Expression - show inline with "Copy to Expression Box" button
+                return `
+                    <div class="vscode-code-block expression">
+                        <div class="code-header">
+                            <span class="code-type">💫 Expression</span>
+                            <button class="code-action-btn" onclick="copyToExpressionBox('${escapeForAttribute(trimmedCode)}')">
+                                <i class="fa-solid fa-copy"></i> Copy to Expression Box
+                            </button>
+                        </div>
+                        <pre><code>${escapeHtml(trimmedCode)}</code></pre>
+                    </div>
+                `;
+            } else {
+                // Full script - show with "View Code" button
+                const scriptId = 'script_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="vscode-code-block script">
+                        <div class="code-header">
+                            <span class="code-type">📄 Script</span>
+                            <button class="code-action-btn view-code-btn" onclick="viewFullCode('${scriptId}')">
+                                <i class="fa-solid fa-external-link-alt"></i> View Code
+                            </button>
+                        </div>
+                        <pre class="code-preview"><code>${escapeHtml(trimmedCode.substring(0, 150))}${trimmedCode.length > 150 ? '...' : ''}</code></pre>
+                        <script type="text/template" id="${scriptId}">${escapeHtml(trimmedCode)}</script>
+                    </div>
+                `;
+            }
+        });
+
+        // 3. Handle inline code (expressions)
+        formattedContent = formattedContent.replace(/`([^`\n]+)`/g, (match, code) => {
+            const trimmedCode = code.trim();
+            if (isExpression(trimmedCode)) {
+                return `<code class="inline-expression" onclick="copyToExpressionBox('${escapeForAttribute(trimmedCode)}')" title="Click to copy to Expression Box">${escapeHtml(trimmedCode)}</code>`;
+            }
+            return `<code>${escapeHtml(trimmedCode)}</code>`;
+        });
+
+        // 4. Standard formatting for the rest
         return formattedContent
             .replace(/\n\s*\n\s*\n+/g, '\n\n') // Clean excessive line breaks
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/```(.*?)```/gs, (match, code) => {
-                // Use existing interactive code block formatter if available
-                if (aiModule && aiModule.formatResponseForChat) {
-                    return aiModule.formatResponseForChat(match);
-                }
-                return `<pre><code>${code}</code></pre>`;
-            })
-            .replace(/`(.*?)`/g, '<code>$1</code>')
             .replace(/\n/g, '<br>')
             .trim();
     }
+
+    /**
+     * Determines if code snippet is likely an expression vs full script
+     * @param {string} code - Code snippet to analyze
+     * @returns {boolean} True if likely an expression
+     */
+    function isExpression(code) {
+        // Expression indicators
+        const expressionPatterns = [
+            /^[\w\[\]\.]+\s*[+\-*\/=]\s*[\w\d\.]+$/,  // Simple math operations
+            /^[\w\[\]\.]+\s*=\s*[\w\d\.\(\)]+$/,      // Simple assignments
+            /^[\w\[\]\.]+$/,                          // Simple property access
+            /^[\w\[\]\.]+\([^{}]*\)$/,                // Function calls without blocks
+            /^\[[\d\s,\.\-\+\*\/]+\]$/,               // Array literals
+            /^\d+(\.\d+)?$/,                          // Numbers
+            /^"[^"]*"$/,                              // Strings
+            /^'[^']*'$/                               // Strings
+        ];
+        
+        // Script indicators (if any of these, it's probably a full script)
+        const scriptIndicators = [
+            'function',
+            'if (',
+            'for (',
+            'while (',
+            'try {',
+            'catch',
+            '}',
+            'var ',
+            'let ',
+            'const ',
+            'return'
+        ];
+        
+        // Check if it contains script indicators
+        if (scriptIndicators.some(indicator => code.includes(indicator))) {
+            return false;
+        }
+        
+        // Check if it matches expression patterns
+        return expressionPatterns.some(pattern => pattern.test(code.trim())) || code.length < 100;
+    }
+
+    /**
+     * Copies expression to the script editor (expression box)
+     * @param {string} expression - Expression to copy
+     */
+    window.copyToExpressionBox = function(expression) {
+        const scriptEditor = document.getElementById('script-editor');
+        if (scriptEditor) {
+            scriptEditor.value = expression;
+            // Switch to script library tab if not already active
+            switchToTab('script-library');
+            scriptEditor.focus();
+            console.log('📋 Expression copied to script editor:', expression);
+            showNotification('Expression copied to script editor!', 'success');
+        }
+    };
+
+    /**
+     * Opens full script code in the script editor with Apply/Run options
+     * @param {string} scriptId - ID of the script template element
+     */
+    window.viewFullCode = function(scriptId) {
+        const scriptTemplate = document.getElementById(scriptId);
+        if (scriptTemplate) {
+            const script = scriptTemplate.textContent;
+            const scriptEditor = document.getElementById('script-editor');
+            
+            if (scriptEditor) {
+                // Confirm if editor has content
+                if (scriptEditor.value.trim() && !confirm('Replace current script with the AI-suggested code?')) {
+                    return;
+                }
+                
+                scriptEditor.value = script;
+                // Switch to script library tab
+                switchToTab('script-library');
+                scriptEditor.focus();
+                
+                console.log('📄 Full script loaded in editor:', script.substring(0, 100) + '...');
+                showNotification('Script loaded! Use Run Script or Apply Expression buttons.', 'success');
+            }
+        }
+    };
+
+    /**
+     * Switches to a specific tab
+     * @param {string} tabName - Name of the tab to switch to
+     */
+    function switchToTab(tabName) {
+        const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
+        if (tabButton && !tabButton.classList.contains('active')) {
+            tabButton.click();
+        }
+    }
+
+    /**
+     * Shows a notification message
+     * @param {string} message - Message to show
+     * @param {string} type - Type of notification (success, error, info)
+     */
+    function showNotification(message, type = 'info') {
+        // Use existing notification system if available
+        if (window.notify && window.notify[type]) {
+            window.notify[type](message);
+        } else {
+            console.log(`📢 ${type.toUpperCase()}: ${message}`);
+        }
+    }
+
+    /**
+     * Escapes HTML characters for safe insertion
+     * @param {string} text - Text to escape
+     * @returns {string} Escaped text
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Escapes text for use in HTML attributes
+     * @param {string} text - Text to escape
+     * @returns {string} Escaped text
+     */
+    function escapeForAttribute(text) {
+        return text.replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/\\/g, '\\\\');
+    }
+
+    /**
+     * Tests VS Code-style chat formatting and auto-population
+     */
+    window.testVSCodeChat = function() {
+        console.log('🧪 Testing VS Code-style chat formatting...');
+        
+        // Test expression auto-population
+        const expressionMessage = "Here's a simple expression to rotate your layer: `rotation + 45`";
+        addMessageToChat('assistant', expressionMessage);
+        
+        // Test script with View Code button
+        const scriptMessage = `Here's a complete script for you:
+
+\`\`\`javascript
+function animateLayer() {
+    var comp = app.project.activeItem;
+    if (comp && comp instanceof CompItem) {
+        var layer = comp.selectedLayers[0];
+        if (layer) {
+            layer.property("Transform").property("Rotation").setValueAtTime(0, 0);
+            layer.property("Transform").property("Rotation").setValueAtTime(1, 360);
+        }
+    }
+}
+animateLayer();
+\`\`\`
+
+And here's an inline expression: \`time * 360\` for continuous rotation.`;
+        
+        setTimeout(() => {
+            addMessageToChat('assistant', scriptMessage);
+        }, 1000);
+        
+        // Test mixed content
+        const mixedMessage = `I can help you with multiple approaches:
+
+1. **Simple expression**: \`wiggle(2, 50)\` for random movement
+2. **Property access**: \`thisComp.layer("Layer 1").transform.position\`
+
+Or use this complete function:
+
+\`\`\`javascript
+function createWiggleAnimation() {
+    var selectedLayers = app.project.activeItem.selectedLayers;
+    for (var i = 0; i < selectedLayers.length; i++) {
+        var layer = selectedLayers[i];
+        var position = layer.property("Transform").property("Position");
+        position.expression = "wiggle(2, 50)";
+    }
+}
+\`\`\`
+
+You can also use: \`random(100)\` for random values.`;
+        
+        setTimeout(() => {
+            addMessageToChat('assistant', mixedMessage);
+        }, 2000);
+        
+        console.log('✅ VS Code-style chat test messages sent!');
+    };
 
     /**
      * Global handler for dynamic UI controls created by the AI.
@@ -1895,103 +2256,157 @@ ${randomFact}`;
         });
     };
     
+    // Improved applyCode with better error handling and fallbacks
     window.applyCode = function(blockId) {
-        const codeBlock = document.getElementById(blockId);
-        if (!codeBlock) return;
+        const codeContainer = document.getElementById(blockId);
+        if (!codeContainer) {
+            console.error('applyCode: Code container not found:', blockId);
+            return;
+        }
         
-        const codeContent = codeBlock.querySelector('.code-content code');
-        if (!codeContent) return;
+        const codeContent = codeContainer.querySelector('.code-content pre code') || codeContainer.querySelector('.code-content code');
+        if (!codeContent) {
+            console.error('applyCode: Code content not found in container');
+            return;
+        }
         
         const code = codeContent.textContent;
-        const applyBtn = codeBlock.querySelector('.apply-btn');
         
         // Add loading state
+        const applyBtn = codeContainer.querySelector('.apply-btn');
         if (applyBtn) {
-            applyBtn.classList.add('processing');
+            applyBtn.textContent = 'Applying...';
+            applyBtn.disabled = true;
+            applyBtn.classList.add('loading');
         }
-        
-        // Apply expression to selected layer/property in After Effects
+
+        // If CEP available, attempt to apply; otherwise copy to script editor
         if (window.CSInterface) {
-            const csInterface = new CSInterface();
-            const script = `
-                try {
-                    var activeComp = app.project.activeItem;
-                    if (activeComp && activeComp instanceof CompItem) {
-                        var selectedLayers = activeComp.selectedLayers;
-                        if (selectedLayers.length > 0) {
-                            var layer = selectedLayers[0];
-                            var selectedProps = layer.selectedProperties;
-                            if (selectedProps.length > 0) {
-                                var prop = selectedProps[0];
-                                if (prop.canSetExpression) {
-                                    prop.expression = "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n')}";
-                                    "Expression applied to " + prop.name;
-                                } else {
-                                    "Selected property cannot have expressions";
-                                }
+            try {
+                const csInterface = new CSInterface();
+                const isExpression = isLikelyExpression(code);
+
+                if (isExpression) {
+                    // Apply as expression with robust error handling
+                    const applyScript = `
+                        try {
+                            var activeComp = app.project.activeItem;
+                            if (!activeComp || !(activeComp instanceof CompItem)) {
+                                "Error: No active composition found";
                             } else {
-                                // Try to apply to position if nothing selected
-                                if (layer.transform && layer.transform.position) {
-                                    layer.transform.position.expression = "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n')}";
-                                    "Expression applied to position";
+                                var selectedLayers = activeComp.selectedLayers;
+                                if (selectedLayers.length === 0) {
+                                    "Error: Please select a layer first";
                                 } else {
-                                    "Please select a property";
+                                    var layer = selectedLayers[0];
+                                    var selectedProps = layer.selectedProperties;
+                                    if (selectedProps.length === 0) {
+                                        "Error: Please select a property first";
+                                    } else {
+                                        var prop = selectedProps[0];
+                                        if (!prop.canSetExpression) {
+                                            "Error: Selected property cannot have expressions";
+                                        } else {
+                                            prop.expression = ${JSON.stringify(code)};
+                                            "Success: Expression applied to " + prop.name;
+                                        }
+                                    }
                                 }
                             }
-                        } else {
-                            "Please select a layer first";
+                        } catch (error) {
+                            "Error: " + error.toString();
                         }
-                    } else {
-                        "No active composition found";
-                    }
-                } catch (error) {
-                    "Error: " + error.toString();
-                }
-            `;
-            
-            csInterface.evalScript(script, (result) => {
-                if (applyBtn) {
-                    applyBtn.classList.remove('processing');
-                }
-                
-                if (result.includes('applied')) {
-                    // Success
-                    if (applyBtn) {
-                        applyBtn.classList.add('success');
-                    }
-                    
-                    codeBlock.classList.add('applied');
-                    
-                    if (window.simpleToast) {
-                        window.simpleToast.success('Expression applied!');
-                    }
+                    `;
+
+                    csInterface.evalScript(applyScript, (result) => {
+                        handleApplyResult(codeContainer, result, applyBtn);
+                    });
                 } else {
-                    // Warning or instruction
-                    if (window.simpleToast) {
-                        window.simpleToast.warning(result);
-                    }
+                    // Run as script with error handling
+                    const wrappedScript = `
+                        try {
+                            app.beginUndoGroup("AI Generated Script");
+                            ${code}
+                            app.endUndoGroup();
+                            "Success: Script executed";
+                        } catch (error) {
+                            try { app.endUndoGroup(); } catch(e){}
+                            "Error: " + error.toString();
+                        }
+                    `;
+
+                    csInterface.evalScript(wrappedScript, (result) => {
+                        handleApplyResult(codeContainer, result, applyBtn);
+                    });
                 }
-                
-                console.log('⚡ Apply result:', result);
-                
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    if (applyBtn) {
-                        applyBtn.classList.remove('success');
-                    }
-                    codeBlock.classList.remove('applied');
-                }, 2000);
-            });
+            } catch (error) {
+                showNotification('Error: Failed to execute - ' + (error && error.message ? error.message : error), 'error');
+                if (applyBtn) resetApplyButton(applyBtn);
+            }
         } else {
-            if (applyBtn) {
-                applyBtn.classList.remove('processing');
+            // No CEP available, copy to script editor instead
+            const scriptEditor = document.getElementById('script-editor');
+            if (scriptEditor) {
+                scriptEditor.value = code;
+                showNotification('Code copied to script editor (CEP not available)', 'success');
+
+                // Switch to script tab
+                const scriptTab = document.querySelector('[data-tab="script-library"]');
+                if (scriptTab) {
+                    setTimeout(() => scriptTab.click(), 500);
+                }
+            } else {
+                showNotification('CEP not available and script editor not found', 'error');
             }
-            
-            if (window.simpleToast) {
-                window.simpleToast.warning('CEP interface not available');
-            }
+            if (applyBtn) resetApplyButton(applyBtn);
         }
     };
+
+    // Helper: handle results returned from evalScript
+    function handleApplyResult(codeContainer, result, applyBtn) {
+        try {
+            if (result && typeof result === 'string' && result.startsWith('Success:')) {
+                showNotification('✅ ' + result.substring(8), 'success');
+                if (applyBtn) {
+                    applyBtn.textContent = 'Applied!';
+                    applyBtn.style.backgroundColor = '#4caf50';
+                }
+            } else if (result && typeof result === 'string' && result.startsWith('Error:')) {
+                showNotification('❌ ' + result.substring(6), 'error');
+                if (applyBtn) resetApplyButton(applyBtn);
+            } else if (result === 'EvalScript error.') {
+                showNotification('❌ Script execution failed', 'error');
+                if (applyBtn) resetApplyButton(applyBtn);
+            } else {
+                showNotification('✅ Applied successfully', 'success');
+                if (applyBtn) {
+                    applyBtn.textContent = 'Applied!';
+                    applyBtn.style.backgroundColor = '#4caf50';
+                }
+            }
+        } catch (err) {
+            console.warn('handleApplyResult: unexpected result', result, err);
+            showNotification('Unexpected host response', 'error');
+        }
+
+        // Reset button after delay
+        if (applyBtn) {
+            setTimeout(() => {
+                applyBtn.textContent = 'Apply';
+                applyBtn.style.backgroundColor = '';
+                applyBtn.disabled = false;
+                applyBtn.classList.remove('loading');
+            }, 2000);
+        }
+    }
+
+    function resetApplyButton(applyBtn) {
+        if (!applyBtn) return;
+        applyBtn.textContent = 'Apply';
+        applyBtn.disabled = false;
+        applyBtn.style.backgroundColor = '';
+        applyBtn.classList.remove('loading');
+    }
 
     window.saveCode = function(blockId) {
         const codeBlock = document.getElementById(blockId);

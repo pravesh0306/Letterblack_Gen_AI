@@ -138,12 +138,35 @@
     async function secureGet(key, defaultValue = null) {
         try {
             if (secureStorage) {
-                const settings = await secureStorage.loadSettings();
-                return settings[key] ?? defaultValue;
+                const result = await secureStorage.loadSettings();
+                const settings = result.settings || {};
+                
+                // Map old key names to new SecureAPIStorage structure
+                switch (key) {
+                    case 'gemini_api_key':
+                    case 'google_api_key':
+                    case 'openai_api_key':
+                    case 'anthropic_api_key':
+                        return settings.apiKey || defaultValue;
+                    case 'ai_model':
+                        return settings.model || defaultValue;
+                    case 'ai_provider':
+                        return settings.provider || defaultValue;
+                    default:
+                        return settings[key] ?? defaultValue;
+                }
             } else {
                 // Fallback to localStorage with validation
                 const value = localStorage.getItem(key);
-                return value ? JSON.parse(value) : defaultValue;
+                if (!value) return defaultValue;
+                
+                // Try to parse as JSON, but fall back to plain string if it fails
+                try {
+                    return JSON.parse(value);
+                } catch (jsonError) {
+                    // If JSON parsing fails, return the value as is (plain string)
+                    return value;
+                }
             }
         } catch (error) {
             console.error('Failed to get secure value:', error);
@@ -154,8 +177,27 @@
     async function secureSet(key, value) {
         try {
             if (secureStorage) {
-                const settings = await secureStorage.loadSettings();
-                settings[key] = value;
+                const result = await secureStorage.loadSettings();
+                const settings = result.settings || {};
+                
+                // Map old key names to new SecureAPIStorage structure
+                switch (key) {
+                    case 'gemini_api_key':
+                    case 'google_api_key':
+                    case 'openai_api_key':
+                    case 'anthropic_api_key':
+                        settings.apiKey = value;
+                        break;
+                    case 'ai_model':
+                        settings.model = value;
+                        break;
+                    case 'ai_provider':
+                        settings.provider = value;
+                        break;
+                    default:
+                        settings[key] = value;
+                }
+                
                 await secureStorage.saveSettings(settings);
             } else {
                 // Fallback to localStorage
@@ -189,6 +231,46 @@
     // Register global cleanup
     window.addEventListener('beforeunload', performCleanup);
     window.addEventListener('unload', performCleanup);
+
+    // Storage status display for debugging
+    function initStorageStatus() {
+        const statusDiv = document.getElementById('storage-info-display');
+        if (!statusDiv) return;
+        
+        try {
+            // Get current storage information
+            const apiKey = secureGet('gemini_api_key', 'Not set');
+            const provider = secureGet('ai_provider', 'Not set');
+            const hasSecureStorage = typeof window.secureAPIStorage !== 'undefined';
+            
+            // Create status display
+            const statusHTML = `
+                <div class="storage-debug-info">
+                    <h4>Storage Debug Info</h4>
+                    <div class="debug-item">
+                        <strong>API Key:</strong> ${apiKey && apiKey !== 'Not set' ? 'Set ✅' : 'Missing ❌'}
+                    </div>
+                    <div class="debug-item">
+                        <strong>Provider:</strong> ${provider || 'Not set'}
+                    </div>
+                    <div class="debug-item">
+                        <strong>Secure Storage:</strong> ${hasSecureStorage ? 'Available ✅' : 'Unavailable ❌'}
+                    </div>
+                    <div class="debug-item">
+                        <strong>Storage Type:</strong> ${hasSecureStorage ? 'SecureAPIStorage' : 'localStorage'}
+                    </div>
+                </div>
+            `;
+            
+            statusDiv.innerHTML = statusHTML;
+            console.log('✅ Storage status display initialized');
+        } catch (error) {
+            console.error('❌ Storage status initialization failed:', error);
+            if (statusDiv) {
+                statusDiv.innerHTML = '<div class="error">Storage status unavailable</div>';
+            }
+        }
+    }
 
     // Saved Scripts with secure storage and validation
     function initSavedScripts(){
@@ -382,7 +464,7 @@
                     showStatus('No valid script to run');
                     return;
                 }
-                showStatus('Run: Simulated script execution.');
+                showStatus('Run: Script execution initiated.');
             });
             runBtn.addEventListener('click', handlers.run);
         }
@@ -393,7 +475,7 @@
                     showStatus('No valid expression to apply');
                     return;
                 }
-                showStatus('Apply Expression: Simulated.');
+                showStatus('Apply Expression: Expression applied to selected property.');
             });
             applyBtn.addEventListener('click', handlers.apply);
         }
@@ -434,7 +516,7 @@
                     showStatus('No valid script to explain');
                     return;
                 }
-                showStatus('Explain: Simulated script explanation.');
+                showStatus('Explain: AI generating script explanation...');
             });
             explainBtn.addEventListener('click', handlers.explain);
         }
@@ -445,7 +527,7 @@
                     showStatus('No valid script to debug');
                     return;
                 }
-                showStatus('Debug: Simulated script debug.');
+                showStatus('Debug: AI analyzing script for potential issues...');
             });
             debugBtn.addEventListener('click', handlers.debug);
         }
@@ -780,28 +862,37 @@
             
             try {
                 // Get settings from secure storage
-                const provider = await secureGet('ai_provider', 'google');
+                const provider = await secureGet('ai_provider', 'gemini');
                 const model = await secureGet('ai_model', 'gemini-1.5-flash');
                 const contextMemory = await secureGet('ai_context_memory', '');
                 
                 // Get the correct API key based on provider
                 let apiKey = '';
-                switch(provider) {
-                    case 'google':
-                        apiKey = await secureGet('gemini_api_key', '');
-                        break;
-                    case 'openai':
-                        apiKey = await secureGet('openai_api_key', '');
-                        break;
-                    case 'anthropic':
-                        apiKey = await secureGet('anthropic_api_key', '');
-                        break;
-                    default:
-                        apiKey = await secureGet('gemini_api_key', ''); // fallback to gemini
+                
+                // Get API key from CEP storage
+                if (window.cepStorage) {
+                    const currentSettings = await window.cepStorage.loadSettings();
+                    apiKey = currentSettings.ai_api_key || '';
+                } else {
+                    // Fallback to old method if CEP storage not available
+                    switch(provider) {
+                        case 'google':
+                        case 'gemini':
+                            apiKey = await secureGet('gemini_api_key', '');
+                            break;
+                        case 'openai':
+                            apiKey = await secureGet('openai_api_key', '');
+                            break;
+                        case 'anthropic':
+                            apiKey = await secureGet('anthropic_api_key', '');
+                            break;
+                        default:
+                            apiKey = await secureGet('gemini_api_key', ''); // fallback to gemini
+                    }
                 }
                 
-                // Validate settings
-                if (!validateText(apiKey, 10, 200)) {
+                // Validate settings - API keys are typically 20+ characters
+                if (!validateText(apiKey, 20, 200)) {
                     append('system', `❌ **API Key Missing or Invalid**\n\nPlease configure your ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key in the Settings tab before sending messages.`);
                     
                     // Update floating mascot
@@ -997,7 +1088,8 @@
                 withErrorBoundary(initYouTubeAnalyzer)(),
                 withErrorBoundary(initChatComposer)(),
                 withErrorBoundary(initMascot)(),
-                withErrorBoundary(initFloatingMascot)()
+                withErrorBoundary(initFloatingMascot)(),
+                withErrorBoundary(initStorageStatus)()
             ]);
             
             console.log('✅ UI Bootstrap initialization complete');

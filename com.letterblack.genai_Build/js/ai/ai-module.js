@@ -18,6 +18,44 @@ class AIModule {
         
         // Initialize effects module (will be set when chat memory is available)
         this.effectsModule = null;
+        
+        // Initialize utility modules
+        this.performanceCache = null;
+        this.enhancedChatMemory = null;
+        this.youtubeTutorialHelper = null;
+        this.browserVideoTranscriber = null;
+        
+        // Try to connect utility modules
+        this.initializeUtilityModules();
+    }
+
+    /**
+     * Initialize utility modules if available
+     */
+    initializeUtilityModules() {
+        // Connect performance cache
+        if (window.performanceCache) {
+            this.performanceCache = window.performanceCache;
+            console.log('📦 Performance Cache connected to AI Module');
+        }
+        
+        // Connect enhanced chat memory  
+        if (window.enhancedChatMemory) {
+            this.enhancedChatMemory = window.enhancedChatMemory;
+            console.log('🧠 Enhanced Chat Memory connected to AI Module');
+        }
+        
+        // Connect YouTube tutorial helper
+        if (window.youtubeTutorialHelper) {
+            this.youtubeTutorialHelper = window.youtubeTutorialHelper;
+            console.log('🎬 YouTube Tutorial Helper connected to AI Module');
+        }
+        
+        // Connect browser video transcriber
+        if (window.browserVideoTranscriber) {
+            this.browserVideoTranscriber = window.browserVideoTranscriber;
+            console.log('🎥 Browser Video Transcriber connected to AI Module');
+        }
     }
 
     /**
@@ -98,6 +136,53 @@ class AIModule {
         
         // Check for YouTube URLs
         const youtubeMatches = message.match(youtubeRegex);
+        
+        if (youtubeMatches) {
+            console.log('🎬 YouTube link detected, processing with enhanced modules...');
+            
+            // Use YouTube Tutorial Helper if available
+            if (this.youtubeTutorialHelper) {
+                try {
+                    const tutorialResponse = await this.youtubeTutorialHelper.processYouTubeLink(message);
+                    if (tutorialResponse) {
+                        // Add to enhanced chat memory
+                        if (this.enhancedChatMemory) {
+                            this.enhancedChatMemory.addMessage(message, 'user', { type: 'youtube_tutorial' });
+                            this.enhancedChatMemory.addMessage(tutorialResponse.content, 'assistant', { type: 'tutorial_response' });
+                        }
+                        return tutorialResponse;
+                    }
+                } catch (error) {
+                    console.warn('YouTube Tutorial Helper error:', error);
+                }
+            }
+            
+            // Fallback to browser video transcriber
+            if (this.browserVideoTranscriber) {
+                try {
+                    const videoUrl = youtubeMatches[0];
+                    const transcription = await this.browserVideoTranscriber.processVideoUrl(videoUrl);
+                    
+                    if (transcription) {
+                        const response = {
+                            type: 'video_analysis',
+                            content: `🎥 **Video Analysis Complete**\n\n${transcription.summary}\n\n**Key Points:**\n${transcription.keyPoints.map(p => `• ${p}`).join('\n')}\n\n**Suggested Actions:**\n${transcription.suggestedActions.map(a => `• ${a}`).join('\n')}`,
+                            transcription: transcription
+                        };
+                        
+                        // Cache the response
+                        if (this.performanceCache) {
+                            const cacheKey = this.performanceCache.generateKey(videoUrl);
+                            this.performanceCache.set(cacheKey, response);
+                        }
+                        
+                        return response;
+                    }
+                } catch (error) {
+                    console.warn('Browser Video Transcriber error:', error);
+                }
+            }
+        }
         if (youtubeMatches) {
             try {
                 if (window.realisticYouTubeHelper) {
@@ -627,45 +712,81 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
             return formattedResponse;
         }
         
-        // Fallback: detect common expressions without code blocks
-        const expressionPatterns = [
-            /\bwiggle\s*\([^)]+\)/g,
-            /\btime\s*\*\s*[\d.]+/g,
-            /\blinear\s*\([^)]+\)/g,
-            /\bease\s*\([^)]+\)/g,
-            /\bvalue\s*\[[^\]]+\]/g,
-            /\bindex\s*[*+\-\/]\s*[\d.]+/g,
-            /\btransform\.\w+/g,
-            /\bloop[a-zA-Z]*\s*\([^)]+\)/g
-        ];
-        
-        let hasExpressions = false;
+        // Fallback: smarter content-based detection for inline expressions and short code snippets
+        // Goal: detect expression-like snippets (wiggle, function calls, value[], app./comp./layer usage)
         let formattedResponse = response;
-        
-        expressionPatterns.forEach((pattern, index) => {
-            const matches = response.match(pattern);
-            if (matches) {
-                hasExpressions = true;
-                matches.forEach(match => {
-                    const blockId = `code-block-fallback-${Date.now()}-${index}`;
-                    const interactiveBlock = this.createInteractiveCodeBlock(match, blockId);
-                    
-                    // Replace the match with interactive block
-                    formattedResponse = formattedResponse.replace(match, interactiveBlock);
-                });
+
+        // Candidate function-call / expression pattern (keeps within a single line)
+        const candidateCallRegex = /[A-Za-z_][\w.]*\s*\([^\)\n]{1,160}\)/g;
+
+        // Additional specific short patterns
+        const specificPatterns = [
+            /\bvalue\s*\[[^\]]+\]/gi,
+            /\btransform\.[A-Za-z_]+/gi,
+            /\bapp\.\w+/gi,
+            /\bcomp\b/gi,
+            /\blayer\b/gi,
+            /\bindex\b/gi
+        ];
+
+        // Collect replacements from candidateCallRegex but only accept those that look AE-related
+        const candidates = [];
+        let m;
+        while ((m = candidateCallRegex.exec(response)) !== null) {
+            const text = m[0];
+            const lower = text.toLowerCase();
+
+            // Accept the candidate if it contains numeric arguments, commas, or AE-specific keywords
+            const likelyCode = /[0-9,]|\b(wiggle|linear|ease|time|value|transform|app|comp|layer|index)\b/i.test(text) || /\./.test(text);
+            if (likelyCode && text.length <= 180) {
+                candidates.push({ start: m.index, text });
+            }
+        }
+
+        // Also check specific patterns (value[], transform., app. etc.) in the response
+        specificPatterns.forEach(pat => {
+            let mm;
+            while ((mm = pat.exec(response)) !== null) {
+                const txt = mm[0];
+                candidates.push({ start: mm.index, text: txt });
             }
         });
-        
-        if (hasExpressions) {
-            // Clean up spacing for fallback blocks too
+
+        // De-duplicate by text and sort by occurrence
+        const uniq = {};
+        const deduped = candidates
+            .sort((a,b) => a.start - b.start)
+            .filter(c => {
+                if (uniq[c.text]) return false; uniq[c.text] = true; return true;
+            });
+
+        // Replace matches from end to start to avoid shifting indexes
+        for (let i = deduped.length - 1; i >= 0; i--) {
+            const entry = deduped[i];
+            const code = entry.text.trim();
+            // Avoid wrapping if it's obviously part of a longer paragraph (heuristic: contains spaces and length > 120)
+            if (code.length > 120 && code.indexOf('\n') === -1 && code.split(' ').length > 12) continue;
+
+            const blockId = `code-block-fallback-${Date.now()}-${i}`;
+            const interactiveBlock = this.createInteractiveCodeBlock(code, blockId);
+
+            // Replace only the first occurrence of this exact substring (near the index)
+            const before = formattedResponse.slice(0, entry.start);
+            const after = formattedResponse.slice(entry.start);
+            const replacedAfter = after.replace(code, interactiveBlock);
+            formattedResponse = before + replacedAfter;
+        }
+
+        // Final cleanup when replacements happened
+        if (deduped.length > 0) {
             formattedResponse = formattedResponse
-                .replace(/\n\s*\n\s*\n+/g, '\n') // Reduce multiple line breaks to single
-                .replace(/\s*(<div[^>]*compact-code-block[^>]*>)/g, '\n$1') // Single line before code block
-                .replace(/(<\/div>)\s*\n+/g, '$1\n') // Single line after code block
-                .replace(/^\s+|\s+$/gm, '') // Remove leading/trailing spaces from each line
+                .replace(/\n\s*\n\s*\n+/g, '\n')
+                .replace(/\s*(<div[^>]*compact-code-block[^>]*>)/g, '\n$1')
+                .replace(/(<\/div>)\s*\n+/g, '$1\n')
+                .replace(/^\s+|\s+$/gm, '')
                 .trim();
         }
-        
+
         return formattedResponse;
     }
 

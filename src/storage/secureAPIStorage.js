@@ -1,18 +1,34 @@
 /**
  * Secure API Settings Storage Module
+ * Browser and Node.js compatible version
  * Integrates with the persistent chat storage system to securely store API configurations
- * Replaces the insecure localStorage-based API storage
  */
 
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+// Check if we're in Node.js or browser environment
+const isNode = typeof window === 'undefined' && typeof require !== 'undefined';
+const isBrowser = typeof window !== 'undefined';
+
+// Environment-specific imports
+let crypto, fs, path, os;
+if (isNode) {
+  crypto = require('crypto');
+  fs = require('fs');
+  path = require('path');
+  os = require('os');
+}
 
 class SecureAPIStorage {
   constructor() {
-    this.paths = this.getPaths();
-    this.encryptionKey = this.getOrCreateEncryptionKey();
+    this.isNode = isNode;
+    this.isBrowser = isBrowser;
+    
+    if (this.isNode) {
+      this.paths = this.getPaths();
+      this.encryptionKey = this.getOrCreateEncryptionKey();
+    } else {
+      // Browser fallback - use localStorage with basic encoding
+      console.log('🌐 SecureAPIStorage running in browser mode with localStorage fallback');
+    }
   }
 
   /**
@@ -118,6 +134,11 @@ class SecureAPIStorage {
    */
   async saveSettings(settings) {
     try {
+      if (this.isBrowser) {
+        // Browser mode - use localStorage
+        return this.saveSettingsBrowser(settings);
+      }
+      
       this.ensureDirs();
       
       const secureSettings = {
@@ -150,10 +171,35 @@ class SecureAPIStorage {
   }
 
   /**
+   * Browser-compatible saveSettings
+   */
+  saveSettingsBrowser(settings) {
+    try {
+      const settingsToSave = {
+        ...settings,
+        timestamp: new Date().toISOString(),
+        version: '1.0'
+      };
+      
+      localStorage.setItem('letterblack_genai_api_settings', JSON.stringify(settingsToSave));
+      console.log('✅ API settings saved to browser storage');
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Failed to save API settings to browser storage:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
    * Load API settings securely
    */
   async loadSettings() {
     try {
+      if (this.isBrowser) {
+        // Browser mode - use localStorage
+        return this.loadSettingsBrowser();
+      }
+      
       if (!fs.existsSync(this.paths.settings)) {
         return this.getDefaultSettings();
       }
@@ -192,17 +238,51 @@ class SecureAPIStorage {
   }
 
   /**
+   * Browser-compatible loadSettings
+   */
+  loadSettingsBrowser() {
+    try {
+      const stored = localStorage.getItem('letterblack_genai_api_settings');
+      if (!stored) {
+        return this.getDefaultSettings();
+      }
+      
+      const settings = JSON.parse(stored);
+      return {
+        success: true,
+        settings: {
+          apiKey: settings.apiKey || '',
+          model: settings.model || 'gemini-2.5-flash-preview-05-20',
+          provider: settings.provider || 'gemini',
+          endpoint: settings.endpoint || '',
+          timeout: settings.timeout || 30000,
+          maxTokens: settings.maxTokens || 4096,
+          temperature: settings.temperature || 0.7,
+          lastUpdated: settings.lastUpdated
+        }
+      };
+    } catch (error) {
+      console.error('❌ Failed to load API settings from browser storage:', error);
+      return this.getDefaultSettings();
+    }
+  }
+
+  /**
    * Get default settings
    */
   getDefaultSettings() {
     return {
-      apiKey: '',
-      model: 'gemini-2.5-flash-preview-05-20',
-      provider: 'gemini',
-      endpoint: '',
-      timeout: 30000,
-      maxTokens: 4096,
-      temperature: 0.7
+      success: true,
+      settings: {
+        apiKey: '',
+        model: 'gemini-2.5-flash-preview-05-20',
+        provider: 'gemini',
+        endpoint: '',
+        timeout: 30000,
+        maxTokens: 4096,
+        temperature: 0.7,
+        lastUpdated: null
+      }
     };
   }
 
@@ -310,8 +390,10 @@ class SecureAPIStorage {
   }
 }
 
-// Export for use in other modules
-module.exports = { SecureAPIStorage };
+// Export for use in other modules (Node.js environment)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { SecureAPIStorage };
+}
 
 // Browser compatibility layer
 if (typeof window !== 'undefined') {

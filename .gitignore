@@ -11,6 +11,16 @@ lerna-debug.log*
 archive/
 *.backup
 
+# Debug and test files (cleanup maintenance)
+debug-*.html
+debug-*.js
+test-*.html
+chat-api-test.html
+button-test-helper.html
+*-test-helper.html
+notification-test.html
+*-test.html
+
 # Build output
 build/
 dist/
@@ -44,6 +54,20 @@ build/
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary and cache files
+*.tmp
+*.cache
+*.swp
+*~
+Thumbs.db
+desktop.ini
+
+# Old CSS fixes (cleanup maintenance) 
+emergency-warning-fix.css
+fix-overlay-issue.css
+targeted-warning-fix.css
+remove-warning-overlays.js
 
 # macOS
 .DS_Store

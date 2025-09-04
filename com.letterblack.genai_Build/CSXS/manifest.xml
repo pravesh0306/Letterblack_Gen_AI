@@ -20,7 +20,7 @@
             <DispatchInfo>
                 <Resources>
                     <MainPath>./index.html</MainPath>
-                    <ScriptPath>./main.jsx</ScriptPath>
+                    <ScriptPath>./host-script.jsx</ScriptPath>
                     <CEFCommandLine>
                         <Parameter>--enable-nodejs</Parameter>
                         <Parameter>--mixed-context</Parameter>
@@ -50,7 +50,6 @@
                         </MaxSize>
                     </Geometry>
                 </UI>
-                <DebugPort>8000</DebugPort>
             </DispatchInfo>
         </Extension>
     </DispatchInfoList>

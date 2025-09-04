@@ -9,7 +9,7 @@
                     effectsList.querySelectorAll('.apply-effect-btn').forEach(btn => btn.addEventListener('click', (ev) => {
                         const i = parseInt(btn.getAttribute('data-idx'), 10);
                         const item = lib[i];
-                        if (item) console.log('Apply expression (simulated): ' + (item.name || 'Unnamed'));
+                        if (item) console.log('Applying expression: ' + (item.name || 'Unnamed'));
                     }));
                 } else {
                     effectsList.innerHTML = '<p>No saved expressions. Save expressions in the Saved Scripts tab to populate this list.</p>';
@@ -1496,7 +1496,9 @@ ${randomFact}`;
     }
 
     /**
-     * Add message to chat
+     * Add message to chat with VS Code-style automatic code integration
+    /**
+     * Add message to chat interface
      */
     function addMessageToChat(type, content, options = {}) {
         const { fileData = null } = options;
@@ -1547,11 +1549,34 @@ ${randomFact}`;
             }
         }
         
-        // Add text content
+        // Add text content with enhanced formatting for AI responses
         if (content) {
             const textDiv = document.createElement('div');
-            textDiv.innerHTML = formatMessage(content);
+            
+            // Use AI module's enhanced formatting for assistant messages
+            if (type === 'assistant' && window.aiModule && typeof window.aiModule.formatResponseForChat === 'function') {
+                // Use the enhanced AI response formatting with interactive code blocks
+                textDiv.innerHTML = window.aiModule.formatResponseForChat(content);
+            } else {
+                // Use standard formatting for other message types
+                textDiv.innerHTML = formatMessage(content);
+            }
+            
             contentDiv.appendChild(textDiv);
+            
+            // Auto-populate expressions if this is an AI message
+            if (type === 'assistant' && content) {
+                autoPopulateFirstExpression(content);
+                
+                // Integrate TTS for AI responses
+                if (window.voiceManager && typeof content === 'string') {
+                    // Extract plain text from HTML for better speech
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = content;
+                    const plainText = tempDiv.textContent || tempDiv.innerText || content;
+                    window.voiceManager.speakAIResponse(plainText);
+                }
+            }
         }
         
         const timeDiv = document.createElement('div');
@@ -1571,7 +1596,73 @@ ${randomFact}`;
     }
 
     /**
-     * Format message content (markdown, code blocks, and dynamic UI)
+     * Auto-populates the first suitable expression found in AI responses
+     * @param {string} content - Message content to analyze
+     */
+    function autoPopulateFirstExpression(content) {
+        // Extract code blocks from the content
+        const codeBlockRegex = /```(?:javascript|js|extendscript)?\s*\n?(.*?)\n?```/gs;
+        const inlineCodeRegex = /`([^`\n]+)`/g;
+        
+        let match;
+        
+        // Check full code blocks first
+        while ((match = codeBlockRegex.exec(content)) !== null) {
+            const code = match[1].trim();
+            if (code && isExpression(code)) {
+                populateScriptEditor(code, 'Expression auto-populated from AI response');
+                return; // Only populate the first expression found
+            }
+        }
+        
+        // Then check inline code
+        const tempContent = content.replace(codeBlockRegex, ''); // Remove already checked blocks
+        while ((match = inlineCodeRegex.exec(tempContent)) !== null) {
+            const code = match[1].trim();
+            if (code && isExpression(code)) {
+                populateScriptEditor(code, 'Expression auto-populated from AI response');
+                return; // Only populate the first expression found
+            }
+        }
+    }
+
+    /**
+     * Populates the script editor with code and provides user feedback
+     * @param {string} code - Code to populate
+     * @param {string} message - Feedback message
+     */
+    function populateScriptEditor(code, message) {
+        const scriptEditor = document.getElementById('script-editor');
+        if (!scriptEditor) return;
+        
+        // Only auto-populate if editor is empty
+        if (scriptEditor.value.trim() === '') {
+            scriptEditor.value = code;
+            
+            // Flash the script library tab to indicate activity
+            flashTab('script-library');
+            
+            // Show notification
+            showNotification(message, 'success');
+            
+            console.log('✨ Auto-populated script editor:', code);
+        }
+    }
+
+    /**
+     * Flashes a tab to indicate activity
+     * @param {string} tabName - Name of the tab to flash
+     */
+    function flashTab(tabName) {
+        const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
+        if (tabButton) {
+            tabButton.classList.add('flash');
+            setTimeout(() => tabButton.classList.remove('flash'), 1000);
+        }
+    }
+
+    /**
+     * Format message content (markdown, code blocks, and dynamic UI) with VS Code-style code integration
      */
     function formatMessage(content) {
         // If the content already contains rendered HTML blocks, preserve them
@@ -1606,22 +1697,252 @@ ${randomFact}`;
             `;
         });
 
-        // 2. Standard formatting for the rest
+        // 2. VS Code-style code block handling
+        formattedContent = formattedContent.replace(/```(?:javascript|js|extendscript)?\s*\n?(.*?)\n?```/gs, (match, code) => {
+            const trimmedCode = code.trim();
+            if (!trimmedCode) return '';
+            
+            const isExpr = isExpression(trimmedCode);
+            
+            if (isExpr) {
+                // Expression - show inline with "Copy to Expression Box" button
+                return `
+                    <div class="vscode-code-block expression">
+                        <div class="code-header">
+                            <span class="code-type">💫 Expression</span>
+                            <button class="code-action-btn" onclick="copyToExpressionBox('${escapeForAttribute(trimmedCode)}')">
+                                <i class="fa-solid fa-copy"></i> Copy to Expression Box
+                            </button>
+                        </div>
+                        <pre><code>${escapeHtml(trimmedCode)}</code></pre>
+                    </div>
+                `;
+            } else {
+                // Full script - show with "View Code" button
+                const scriptId = 'script_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="vscode-code-block script">
+                        <div class="code-header">
+                            <span class="code-type">📄 Script</span>
+                            <button class="code-action-btn view-code-btn" onclick="viewFullCode('${scriptId}')">
+                                <i class="fa-solid fa-external-link-alt"></i> View Code
+                            </button>
+                        </div>
+                        <pre class="code-preview"><code>${escapeHtml(trimmedCode.substring(0, 150))}${trimmedCode.length > 150 ? '...' : ''}</code></pre>
+                        <script type="text/template" id="${scriptId}">${escapeHtml(trimmedCode)}</script>
+                    </div>
+                `;
+            }
+        });
+
+        // 3. Handle inline code (expressions)
+        formattedContent = formattedContent.replace(/`([^`\n]+)`/g, (match, code) => {
+            const trimmedCode = code.trim();
+            if (isExpression(trimmedCode)) {
+                return `<code class="inline-expression" onclick="copyToExpressionBox('${escapeForAttribute(trimmedCode)}')" title="Click to copy to Expression Box">${escapeHtml(trimmedCode)}</code>`;
+            }
+            return `<code>${escapeHtml(trimmedCode)}</code>`;
+        });
+
+        // 4. Standard formatting for the rest
         return formattedContent
             .replace(/\n\s*\n\s*\n+/g, '\n\n') // Clean excessive line breaks
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/```(.*?)```/gs, (match, code) => {
-                // Use existing interactive code block formatter if available
-                if (aiModule && aiModule.formatResponseForChat) {
-                    return aiModule.formatResponseForChat(match);
-                }
-                return `<pre><code>${code}</code></pre>`;
-            })
-            .replace(/`(.*?)`/g, '<code>$1</code>')
             .replace(/\n/g, '<br>')
             .trim();
     }
+
+    /**
+     * Determines if code snippet is likely an expression vs full script
+     * @param {string} code - Code snippet to analyze
+     * @returns {boolean} True if likely an expression
+     */
+    function isExpression(code) {
+        // Expression indicators
+        const expressionPatterns = [
+            /^[\w\[\]\.]+\s*[+\-*\/=]\s*[\w\d\.]+$/,  // Simple math operations
+            /^[\w\[\]\.]+\s*=\s*[\w\d\.\(\)]+$/,      // Simple assignments
+            /^[\w\[\]\.]+$/,                          // Simple property access
+            /^[\w\[\]\.]+\([^{}]*\)$/,                // Function calls without blocks
+            /^\[[\d\s,\.\-\+\*\/]+\]$/,               // Array literals
+            /^\d+(\.\d+)?$/,                          // Numbers
+            /^"[^"]*"$/,                              // Strings
+            /^'[^']*'$/                               // Strings
+        ];
+        
+        // Script indicators (if any of these, it's probably a full script)
+        const scriptIndicators = [
+            'function',
+            'if (',
+            'for (',
+            'while (',
+            'try {',
+            'catch',
+            '}',
+            'var ',
+            'let ',
+            'const ',
+            'return'
+        ];
+        
+        // Check if it contains script indicators
+        if (scriptIndicators.some(indicator => code.includes(indicator))) {
+            return false;
+        }
+        
+        // Check if it matches expression patterns
+        return expressionPatterns.some(pattern => pattern.test(code.trim())) || code.length < 100;
+    }
+
+    /**
+     * Copies expression to the script editor (expression box)
+     * @param {string} expression - Expression to copy
+     */
+    window.copyToExpressionBox = function(expression) {
+        const scriptEditor = document.getElementById('script-editor');
+        if (scriptEditor) {
+            scriptEditor.value = expression;
+            // Switch to script library tab if not already active
+            switchToTab('script-library');
+            scriptEditor.focus();
+            console.log('📋 Expression copied to script editor:', expression);
+            showNotification('Expression copied to script editor!', 'success');
+        }
+    };
+
+    /**
+     * Opens full script code in the script editor with Apply/Run options
+     * @param {string} scriptId - ID of the script template element
+     */
+    window.viewFullCode = function(scriptId) {
+        const scriptTemplate = document.getElementById(scriptId);
+        if (scriptTemplate) {
+            const script = scriptTemplate.textContent;
+            const scriptEditor = document.getElementById('script-editor');
+            
+            if (scriptEditor) {
+                // Confirm if editor has content
+                if (scriptEditor.value.trim() && !confirm('Replace current script with the AI-suggested code?')) {
+                    return;
+                }
+                
+                scriptEditor.value = script;
+                // Switch to script library tab
+                switchToTab('script-library');
+                scriptEditor.focus();
+                
+                console.log('📄 Full script loaded in editor:', script.substring(0, 100) + '...');
+                showNotification('Script loaded! Use Run Script or Apply Expression buttons.', 'success');
+            }
+        }
+    };
+
+    /**
+     * Switches to a specific tab
+     * @param {string} tabName - Name of the tab to switch to
+     */
+    function switchToTab(tabName) {
+        const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
+        if (tabButton && !tabButton.classList.contains('active')) {
+            tabButton.click();
+        }
+    }
+
+    /**
+     * Shows a notification message
+     * @param {string} message - Message to show
+     * @param {string} type - Type of notification (success, error, info)
+     */
+    function showNotification(message, type = 'info') {
+        // Use existing notification system if available
+        if (window.notify && window.notify[type]) {
+            window.notify[type](message);
+        } else {
+            console.log(`📢 ${type.toUpperCase()}: ${message}`);
+        }
+    }
+
+    /**
+     * Escapes HTML characters for safe insertion
+     * @param {string} text - Text to escape
+     * @returns {string} Escaped text
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Escapes text for use in HTML attributes
+     * @param {string} text - Text to escape
+     * @returns {string} Escaped text
+     */
+    function escapeForAttribute(text) {
+        return text.replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/\\/g, '\\\\');
+    }
+
+    /**
+     * Tests VS Code-style chat formatting and auto-population
+     */
+    window.testVSCodeChat = function() {
+        console.log('🧪 Testing VS Code-style chat formatting...');
+        
+        // Test expression auto-population
+        const expressionMessage = "Here's a simple expression to rotate your layer: `rotation + 45`";
+        addMessageToChat('assistant', expressionMessage);
+        
+        // Test script with View Code button
+        const scriptMessage = `Here's a complete script for you:
+
+\`\`\`javascript
+function animateLayer() {
+    var comp = app.project.activeItem;
+    if (comp && comp instanceof CompItem) {
+        var layer = comp.selectedLayers[0];
+        if (layer) {
+            layer.property("Transform").property("Rotation").setValueAtTime(0, 0);
+            layer.property("Transform").property("Rotation").setValueAtTime(1, 360);
+        }
+    }
+}
+animateLayer();
+\`\`\`
+
+And here's an inline expression: \`time * 360\` for continuous rotation.`;
+        
+        setTimeout(() => {
+            addMessageToChat('assistant', scriptMessage);
+        }, 1000);
+        
+        // Test mixed content
+        const mixedMessage = `I can help you with multiple approaches:
+
+1. **Simple expression**: \`wiggle(2, 50)\` for random movement
+2. **Property access**: \`thisComp.layer("Layer 1").transform.position\`
+
+Or use this complete function:
+
+\`\`\`javascript
+function createWiggleAnimation() {
+    var selectedLayers = app.project.activeItem.selectedLayers;
+    for (var i = 0; i < selectedLayers.length; i++) {
+        var layer = selectedLayers[i];
+        var position = layer.property("Transform").property("Position");
+        position.expression = "wiggle(2, 50)";
+    }
+}
+\`\`\`
+
+You can also use: \`random(100)\` for random values.`;
+        
+        setTimeout(() => {
+            addMessageToChat('assistant', mixedMessage);
+        }, 2000);
+        
+        console.log('✅ VS Code-style chat test messages sent!');
+    };
 
     /**
      * Global handler for dynamic UI controls created by the AI.

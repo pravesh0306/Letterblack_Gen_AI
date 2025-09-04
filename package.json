@@ -6,14 +6,19 @@
   "type": "commonjs",
   "scripts": {
     "test": "node tests/run-tests.js",
-    "build": "npm run clean && npm run copy-to-build",
+    "build": "npm run clean && npm run copy-to-build && npm run copy-fa",
+    "copy-fa": "xcopy \"node_modules\\@fortawesome\\fontawesome-free\\css\\all.min.css\" \"src\\js\\libs\\fontawesome\\css\\\" /Y && xcopy \"node_modules\\@fortawesome\\fontawesome-free\\webfonts\" \"src\\js\\libs\\fontawesome\\webfonts\\\" /E /I /Y",
     "start": "echo 'Open Adobe After Effects and load the extension'",
     "test-storage": "node src/storage/chatStore.test.js",
     "test-security": "echo 'Open src/index.html in browser and check console for security tests'",
     "demo-storage": "node src/storage/demo.js",
-    "clean": "rimraf build/* || rm -rf build/* || echo 'Build directory cleaned'",
-    "copy-to-build": "cp -r src/* build/ || xcopy src build\\ /E /I /Y",
+    "clean": "if exist build rmdir /s /q build && mkdir build",
+    "copy-to-build": "xcopy \"src\" \"build\\\" /E /I /Y",
     "copy-to-cep": "echo 'Copy build/* to your CEP extensions folder'",
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-extension.ps1",
+    "deploy:quick": "powershell -ExecutionPolicy Bypass -File scripts/quick-deploy.ps1",
+    "deploy:auto": "powershell -ExecutionPolicy Bypass -File scripts/auto-deploy.ps1",
+    "deploy:force": "powershell -ExecutionPolicy Bypass -File scripts/deploy-extension.ps1 -Force",
     "archive": "echo 'Creating backup...' && cp -r . ../Adobe_AI_Generations_backup_$(date +%Y%m%d) || echo 'Manual backup recommended'",
     "organize": "echo 'Workspace organization complete - see docs/PROJECT_ORGANIZATION_GUIDE.md'"
   },
@@ -33,6 +38,10 @@
     "type": "git",
     "url": "https://github.com/pravesh0306/Letterblack_Gen_AI.git"
   },
-  "devDependencies": {},
-  "dependencies": {}
+  "devDependencies": {
+    "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.2"
+  }
 }

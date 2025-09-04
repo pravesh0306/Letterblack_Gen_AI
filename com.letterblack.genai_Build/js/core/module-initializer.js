@@ -22,6 +22,10 @@ class ModuleInitializer {
       'accessibilityManager',
       'diContainer',
       'chatStore',
+      'performanceCache',
+      'enhancedChatMemory',
+      'youtubeTutorialHelper',
+      'browserVideoTranscriber',
       'aiModule',
       'uiBootstrap'
     ];
@@ -250,6 +254,10 @@ class ModuleInitializer {
     const featureInitializations = [
       this.initializeDIContainer(),
       this.initializeChatStore(),
+      this.initializePerformanceCache(),
+      this.initializeEnhancedChatMemory(),
+      this.initializeYouTubeTutorialHelper(),
+      this.initializeBrowserVideoTranscriber(),
       this.initializeAIModule(),
       this.initializeUIBootstrap()
     ];
@@ -257,8 +265,9 @@ class ModuleInitializer {
     // Initialize features in parallel but handle failures gracefully
     const results = await Promise.allSettled(featureInitializations);
     
+    const moduleNames = ['diContainer', 'chatStore', 'performanceCache', 'enhancedChatMemory', 'youtubeTutorialHelper', 'browserVideoTranscriber', 'aiModule', 'uiBootstrap'];
     results.forEach((result, index) => {
-      const moduleName = ['diContainer', 'chatStore', 'aiModule', 'uiBootstrap'][index];
+      const moduleName = moduleNames[index];
       if (result.status === 'fulfilled') {
         console.log(`✅ ${moduleName} initialized`);
       } else {
@@ -322,6 +331,82 @@ class ModuleInitializer {
       }
     } catch (error) {
       console.error('❌ AI module initialization failed:', error);
+    }
+  }
+
+  /**
+   * Initialize Performance Cache
+   */
+  async initializePerformanceCache() {
+    try {
+      if (typeof PerformanceCache !== 'undefined') {
+        if (!window.performanceCache) {
+          window.performanceCache = new PerformanceCache();
+        }
+        this.registerModule('performanceCache', window.performanceCache);
+        console.log('✅ Performance Cache initialized');
+      } else {
+        throw new Error('PerformanceCache class not available');
+      }
+    } catch (error) {
+      console.error('❌ Performance Cache initialization failed:', error);
+    }
+  }
+
+  /**
+   * Initialize Enhanced Chat Memory
+   */
+  async initializeEnhancedChatMemory() {
+    try {
+      if (typeof EnhancedChatMemory !== 'undefined') {
+        if (!window.enhancedChatMemory) {
+          window.enhancedChatMemory = new EnhancedChatMemory();
+        }
+        this.registerModule('enhancedChatMemory', window.enhancedChatMemory);
+        console.log('✅ Enhanced Chat Memory initialized');
+      } else {
+        throw new Error('EnhancedChatMemory class not available');
+      }
+    } catch (error) {
+      console.error('❌ Enhanced Chat Memory initialization failed:', error);
+    }
+  }
+
+  /**
+   * Initialize YouTube Tutorial Helper
+   */
+  async initializeYouTubeTutorialHelper() {
+    try {
+      if (typeof YouTubeTutorialHelper !== 'undefined') {
+        if (!window.youtubeTutorialHelper) {
+          window.youtubeTutorialHelper = new YouTubeTutorialHelper();
+        }
+        this.registerModule('youtubeTutorialHelper', window.youtubeTutorialHelper);
+        console.log('✅ YouTube Tutorial Helper initialized');
+      } else {
+        throw new Error('YouTubeTutorialHelper class not available');
+      }
+    } catch (error) {
+      console.error('❌ YouTube Tutorial Helper initialization failed:', error);
+    }
+  }
+
+  /**
+   * Initialize Browser Video Transcriber
+   */
+  async initializeBrowserVideoTranscriber() {
+    try {
+      if (typeof BrowserVideoTranscriber !== 'undefined') {
+        if (!window.browserVideoTranscriber) {
+          window.browserVideoTranscriber = new BrowserVideoTranscriber();
+        }
+        this.registerModule('browserVideoTranscriber', window.browserVideoTranscriber);
+        console.log('✅ Browser Video Transcriber initialized');
+      } else {
+        throw new Error('BrowserVideoTranscriber class not available');
+      }
+    } catch (error) {
+      console.error('❌ Browser Video Transcriber initialization failed:', error);
     }
   }
 

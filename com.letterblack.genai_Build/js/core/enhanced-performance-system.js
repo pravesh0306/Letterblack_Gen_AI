@@ -157,10 +157,15 @@ class EnhancedPerformanceSystem {
      * Get health status based on score
      */
     getHealthStatus() {
-        const report = this.baseMonitor.generateReport();
-        if (report.score >= 80) return 'EXCELLENT';
-        if (report.score >= 60) return 'GOOD';
-        if (report.score >= 40) return 'FAIR';
+        // Get current metrics to calculate score
+        const memoryInfo = this.getMemoryInfo();
+        const renderingInfo = this.getRenderingInfo();
+        const errorInfo = this.getErrorInfo();
+        
+        const score = this.calculateOverallScore(memoryInfo, renderingInfo, errorInfo);
+        if (score >= 80) return 'EXCELLENT';
+        if (score >= 60) return 'GOOD';
+        if (score >= 40) return 'FAIR';
         return 'POOR';
     }
 

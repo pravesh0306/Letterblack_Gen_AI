@@ -2,13 +2,16 @@
 // UI integration for persistent chat storage
 
 // Use global chatStore or create minimal compatibility layer
-const chatStore = window.chatStore || {
-  createConversation: () => Promise.resolve('default'),
-  appendMessage: () => Promise.resolve(),
-  getConversationList: () => Promise.resolve([]),
-  getConversationMessages: () => Promise.resolve([]),
-  clearAll: () => Promise.resolve()
-};
+if (typeof chatStore === 'undefined') {
+  window.chatStore = window.chatStore || {
+    createConversation: () => Promise.resolve('default'),
+    appendMessage: () => Promise.resolve(),
+    getConversationList: () => Promise.resolve([]),
+    getConversationMessages: () => Promise.resolve([]),
+    clearAll: () => Promise.resolve()
+  };
+}
+const chatStore = window.chatStore;
 
 class ChatStorageManager {
   constructor() {
