@@ -7,7 +7,7 @@
 	display: inline-block;
 }
 
-/* VS Code Style Dropdown Panels */
+/* VS Code Style Dropdown Panels - AE Panel Optimized */
 .workflow-menu-panel,
 .settings-panel {
 	position: absolute;
@@ -26,7 +26,7 @@
 	visibility: hidden;
 	transform: translateY(-4px);
 	transition: var(--vscode-transition);
-	font-size: 13px;
+	font-size: var(--font-size-base); /* 12px standard */
 }
 
 .workflow-menu-panel.active,
@@ -72,23 +72,23 @@
 .setting-group label {
 	display: block;
 	color: var(--vscode-text-primary);
-	font-size: 13px;
+	font-size: var(--font-size-base); /* 12px */
 	margin-bottom: 4px;
-	font-weight: 400;
+	font-weight: var(--font-weight-normal);
 }
 
 .menu-section h4,
 .settings-section h4 {
 	margin: 0 0 8px 0;
-	font-size: 13px;
-	font-weight: 600;
+	font-size: var(--font-size-md); /* 13px for headers */
+	font-weight: var(--font-weight-medium);
 	color: var(--vscode-text-primary);
 	display: flex;
 	align-items: center;
 	gap: 6px;
 }
 
-/* VS Code Style Form Controls */
+/* VS Code Style Form Controls - AE Panel Optimized */
 .compact-input,
 .compact-select,
 .compact-textarea {
@@ -98,8 +98,9 @@
 	border-radius: var(--vscode-border-radius);
 	padding: 4px 8px;
 	color: var(--vscode-text-primary);
-	font-size: 13px;
-	font-family: inherit;
+	font-size: var(--font-size-base); /* 12px */
+	font-family: var(--font-family-primary);
+	line-height: var(--line-height-snug);
 	transition: var(--vscode-transition);
 	margin-bottom: 6px;
 	height: var(--vscode-input-height);

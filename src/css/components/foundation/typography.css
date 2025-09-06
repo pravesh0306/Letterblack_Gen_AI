@@ -12,17 +12,17 @@
   --font-family-system: system-ui, -apple-system, sans-serif;
   
   /* ================================================
-     FONT SIZES
+     FONT SIZES - After Effects Panel Standard
      ================================================ */
-  --font-size-xs: 10px;
-  --font-size-sm: 12px;
-  --font-size-base: 13px;
-  --font-size-md: 14px;
-  --font-size-lg: 16px;
-  --font-size-xl: 18px;
-  --font-size-2xl: 20px;
-  --font-size-3xl: 22px;
-  --font-size-4xl: 24px;
+  --font-size-xs: 9px;     /* Very small labels */
+  --font-size-sm: 11px;    /* Small text, secondary info */
+  --font-size-base: 12px;  /* Standard panel text */
+  --font-size-md: 13px;    /* Section headers */
+  --font-size-lg: 14px;    /* Primary headers */
+  --font-size-xl: 16px;    /* Large headers */
+  --font-size-2xl: 18px;   /* Rarely used */
+  --font-size-3xl: 20px;   /* Rarely used */
+  --font-size-4xl: 22px;   /* Rarely used */
   
   /* ================================================
      FONT WEIGHTS
@@ -58,46 +58,46 @@
 }
 
 /* ================================================
-   BASE TYPOGRAPHY
+   BASE TYPOGRAPHY - After Effects Panel Standard
    ================================================ */
 body {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-base);  /* 12px standard */
   font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-snug);  /* Tighter spacing */
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* ================================================
-   HEADINGS
+   HEADINGS - Adjusted for Panel Use
    ================================================ */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);  /* Less bold for panels */
   line-height: var(--line-height-tight);
   color: var(--color-text-primary);
 }
 
 h1 {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xl);        /* 16px */
+  font-weight: var(--font-weight-semibold);
 }
 
 h2 {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);        /* 14px */
+  font-weight: var(--font-weight-semibold);
 }
 
 h3 {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);        /* 13px */
+  font-weight: var(--font-weight-medium);
 }
 
 h4 {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);      /* 12px */
+  font-weight: var(--font-weight-medium);
 }
 
 h5 {

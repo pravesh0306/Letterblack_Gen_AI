@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "node",
+      "args": [
+        "G:\\Developments\\15_AI_AE\\Adobe_AI_Generations\\.mcp\\github-server.js"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_TOKEN_HERE"
+      }
+    }
+  }
+}

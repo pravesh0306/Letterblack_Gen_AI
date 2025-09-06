@@ -103,48 +103,55 @@
         
         /* Interface now has flexible sizing - users can resize as needed */
         
-        /* Enable flexible window sizing */
+        /* Enable flexible window sizing - Resizable from all sides */
         html, body {
-            width: auto !important;
-            height: 100vh !important; /* Fixed viewport height */
-            min-width: 320px; /* Minimum usable width */
-            min-height: 240px; /* Minimum usable height */
-            overflow: hidden !important; /* No scrolling on main container */
-            resize: both !important; /* Allow manual resizing */
+            width: 100% !important;
+            height: 100% !important; /* Use full available space */
+            min-width: 350px; /* Minimum usable width */
+            min-height: 450px; /* Minimum usable height */
+            overflow: auto !important; /* Allow scrolling when needed */
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
         }
         
-        /* Make the app container flexible - Fixed layout */
+        /* Make the app container fully flexible */
         .vscode-app {
             width: 100% !important;
-            height: 100vh !important; /* Full viewport height */
+            height: 100% !important; /* Use full container space */
             max-width: none !important;
             max-height: none !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: hidden !important; /* No scrolling on app container */
+            overflow: auto !important; /* Allow scrolling when content exceeds */
+            box-sizing: border-box !important;
         }
         
-        /* Fixed layout structure */
+        /* Flexible layout structure - Responsive to resizing */
         .main-content {
             flex: 1 !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: hidden !important;
+            overflow: auto !important; /* Allow scrolling when needed */
+            min-height: 0 !important; /* Allow shrinking */
         }
         
-        /* Chat area should not scroll - fixed height */
+        /* Chat area should be flexible and responsive */
         .chat-area {
             flex: 1 !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: hidden !important;
+            overflow: auto !important; /* Allow scrolling when needed */
+            min-height: 200px !important; /* Minimum chat area height */
         }
         
-        /* Messages container should be scrollable */
+        /* Messages container should be scrollable and flexible */
         .messages-container {
             flex: 1 !important;
             overflow-y: auto !important;
             overflow-x: hidden !important;
+            min-height: 150px !important; /* Minimum for usability */
+            max-height: none !important; /* Remove height restrictions */
         }
         
         /* Bottom panel fixed positioning */
@@ -175,13 +182,13 @@
             padding: 4px 8px !important;
         }
         
-        /* Individual tab styling */
+        /* Individual tab styling - After Effects Standard */
         .tab-btn {
             display: flex !important;
             align-items: center !important;
             gap: 4px !important;
             padding: 6px 12px !important;
-            font-size: 12px !important;
+            font-size: var(--font-size-base) !important; /* 12px standard */
             white-space: nowrap !important;
             min-width: auto !important;
             flex-shrink: 0 !important;
@@ -350,4 +357,197 @@
         
         .model-indicator i {
             font-size: 14px;
+        }
+
+        /* ===== DEMO MODE STYLING ===== */
+        .demo-notice {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid #ff9800;
+            color: #ff9800;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .demo-indicator {
+            color: var(--color-text-secondary);
+            font-size: 11px;
+            font-style: italic;
+            margin-top: 8px;
+            display: block;
+        }
+
+        /* ===== IMPROVED BATCH LAYER LIST ===== */
+        .batch-layer-checkbox {
+            margin-right: 8px;
+        }
+
+        .batch-layer-list label {
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        .batch-layer-list label:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding-left: 4px;
+            margin-left: -4px;
+        }
+
+        .batch-layer-list small {
+            color: var(--color-text-secondary);
+            margin-left: 8px;
+        }
+
+        /* ===== SAVED SCRIPTS IMPROVEMENTS ===== */
+        .saved-script-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border: 1px solid var(--color-border);
+        }
+
+        .saved-script-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--color-accent);
+        }
+
+        .script-name {
+            font-weight: 500;
+            color: var(--color-text);
+            flex-grow: 1;
+            margin-right: 12px;
+        }
+
+        .script-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--color-background-hover);
+            color: var(--color-text);
+            border-color: var(--color-accent);
+        }
+
+        .action-btn.load-btn:hover {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .action-btn.delete-btn:hover {
+            background: rgba(244, 67, 54, 0.1);
+            border-color: #f44336;
+            color: #f44336;
+        }
+
+        /* ===== ERROR STATE STYLING ===== */
+        .error-state {
+            color: var(--color-error);
+            font-style: italic;
+            padding: 12px;
+            text-align: center;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--color-error);
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+
+        .loading-state {
+            color: var(--color-text-secondary);
+            font-style: italic;
+            padding: 12px;
+            text-align: center;
+            background: rgba(0, 122, 204, 0.1);
+            border: 1px solid var(--color-accent);
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+
+        /* ===== IMPROVED STATUS MESSAGES ===== */
+        .status-message-pending {
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        .status-message-error {
+            color: var(--color-error);
+            font-weight: 500;
+        }
+
+        .status-message-success {
+            color: var(--color-success);
+            font-weight: 500;
+        }
+
+        /* ===== BUTTON LOADING STATES ===== */
+        .code-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .code-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .code-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: 50%;
+            left: 50%;
+            margin: -6px 0 0 -6px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: button-loading-spin 1s linear infinite;
+        }
+
+        @keyframes button-loading-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE IMPROVEMENTS ===== */
+        @media (max-width: 480px) {
+            .saved-script-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+    
+            .script-actions {
+                justify-content: center;
+            }
+    
+            .demo-notice {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+    
+            .batch-layer-list label {
+                font-size: 12px;
+            }
         }

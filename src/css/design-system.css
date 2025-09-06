@@ -27,10 +27,15 @@
 @import url('./components/chat.css');
 @import url('./components/header.css');
 @import url('./components/settings.css');
+@import url('./components/api-actions.css');
 
 /* ===== SECURITY & SPECIALIZED COMPONENTS ===== */
 /* Enterprise security and specialized UI */
 @import url('./components/secure-api-settings.css');
+
+/* ===== AFTER EFFECTS PANEL OPTIMIZATIONS ===== */
+/* Panel-specific typography and spacing overrides */
+@import url('./components/ae-panel-overrides.css');
 
 /* ===== LEGACY COMPATIBILITY ===== */
 /* Keep for backward compatibility during transition */

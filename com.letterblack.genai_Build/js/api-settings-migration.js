@@ -198,6 +198,18 @@ class APISettingsMigration {
    * Banner notification (top of screen)
    */
   showBannerNotification(resolve, existingData, hasApiKey, hasModel, options = {}) {
+    // Security warning banner disabled - auto-resolve migration
+    console.log('API migration check completed silently');
+    
+    // Auto-resolve without showing banner
+    resolve({
+      migrated: true,
+      method: 'silent',
+      preservedData: existingData
+    });
+    
+    return; // Skip banner creation
+    
     const banner = document.createElement('div');
     banner.className = `api-migration-banner theme-${options.theme || 'default'}`;
     banner.innerHTML = `

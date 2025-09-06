@@ -103,48 +103,55 @@
         
         /* Interface now has flexible sizing - users can resize as needed */
         
-        /* Enable flexible window sizing */
+        /* Enable flexible window sizing - Resizable from all sides */
         html, body {
-            width: auto !important;
-            height: 100vh !important; /* Fixed viewport height */
-            min-width: 320px; /* Minimum usable width */
-            min-height: 240px; /* Minimum usable height */
-            overflow: hidden !important; /* No scrolling on main container */
-            resize: both !important; /* Allow manual resizing */
+            width: 100% !important;
+            height: 100% !important; /* Use full available space */
+            min-width: 350px; /* Minimum usable width */
+            min-height: 450px; /* Minimum usable height */
+            overflow: auto !important; /* Allow scrolling when needed */
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
         }
         
-        /* Make the app container flexible - Fixed layout */
+        /* Make the app container fully flexible */
         .vscode-app {
             width: 100% !important;
-            height: 100vh !important; /* Full viewport height */
+            height: 100% !important; /* Use full container space */
             max-width: none !important;
             max-height: none !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: hidden !important; /* No scrolling on app container */
+            overflow: auto !important; /* Allow scrolling when content exceeds */
+            box-sizing: border-box !important;
         }
         
-        /* Fixed layout structure */
+        /* Flexible layout structure - Responsive to resizing */
         .main-content {
             flex: 1 !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: hidden !important;
+            overflow: auto !important; /* Allow scrolling when needed */
+            min-height: 0 !important; /* Allow shrinking */
         }
         
-        /* Chat area should not scroll - fixed height */
+        /* Chat area should be flexible and responsive */
         .chat-area {
             flex: 1 !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: hidden !important;
+            overflow: auto !important; /* Allow scrolling when needed */
+            min-height: 200px !important; /* Minimum chat area height */
         }
         
-        /* Messages container should be scrollable */
+        /* Messages container should be scrollable and flexible */
         .messages-container {
             flex: 1 !important;
             overflow-y: auto !important;
             overflow-x: hidden !important;
+            min-height: 150px !important; /* Minimum for usability */
+            max-height: none !important; /* Remove height restrictions */
         }
         
         /* Bottom panel fixed positioning */
@@ -175,13 +182,13 @@
             padding: 4px 8px !important;
         }
         
-        /* Individual tab styling */
+        /* Individual tab styling - After Effects Standard */
         .tab-btn {
             display: flex !important;
             align-items: center !important;
             gap: 4px !important;
             padding: 6px 12px !important;
-            font-size: 12px !important;
+            font-size: var(--font-size-base) !important; /* 12px standard */
             white-space: nowrap !important;
             min-width: auto !important;
             flex-shrink: 0 !important;

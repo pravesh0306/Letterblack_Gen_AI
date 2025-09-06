@@ -306,6 +306,19 @@ let projectOrganizer = null;
     let fileUpload = null;
     let mascotAnimator = null; // Reusable mascot system
     let tutorialSessions = null; // Step-by-step tutorial session manager
+    // ===== HTML SANITIZATION UTILITY =====
+    // Provide a safe HTML escape utility when HtmlSanitizer is missing
+    const HtmlSanitizer = window.HtmlSanitizer || {
+        escape(text) {
+            if (typeof text !== 'string') return String(text || '');
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+    };
     // Unified notification facade
     const notify = {
         show(type, title, message, duration = 3000) {
@@ -1049,49 +1062,76 @@ let projectOrganizer = null;
     function renderSavedScripts() {
         const listContainer = document.getElementById('saved-scripts-list');
         const emptyState = document.getElementById('saved-scripts-empty-state');
-        const savedScripts = settingsManager.getSetting('savedScripts') || [];
+        const savedScripts = settingsManager && typeof settingsManager.getSetting === 'function' ? (settingsManager.getSetting('savedScripts') || []) : [];
 
-        listContainer.innerHTML = ''; // Clear existing list
+        if (!listContainer) {
+            console.warn('renderSavedScripts: saved-scripts-list element not found');
+            return;
+        }
 
-        if (savedScripts.length === 0) {
-            emptyState.classList.remove('hidden');
+        // Clear existing list safely
+        listContainer.innerHTML = '';
+
+        if (!Array.isArray(savedScripts) || savedScripts.length === 0) {
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+                emptyState.style.display = 'block';
+            }
             listContainer.classList.add('hidden');
-        } else {
+            listContainer.innerHTML = '<p>No saved scripts yet. Save expressions from the chat to see them here.</p>';
+            return;
+        }
+
+        // Populate list
+        if (emptyState) {
             emptyState.classList.add('hidden');
-            listContainer.classList.remove('hidden');
+            emptyState.style.display = 'none';
+        }
+        listContainer.classList.remove('hidden');
 
-            savedScripts.forEach(script => {
-                const scriptItem = document.createElement('div');
-                scriptItem.className = 'saved-script-item';
-                scriptItem.innerHTML = `
-                    <span class="script-name">${script.name}</span>
-                    <div class="script-actions">
-                        <button class="action-btn load-btn" title="Load into Editor">Load</button>
-                        <button class="action-btn delete-btn" title="Delete Script">Delete</button>
-                    </div>
-                `;
+        savedScripts.forEach(script => {
+            const scriptItem = document.createElement('div');
+            scriptItem.className = 'saved-script-item';
+            scriptItem.innerHTML = `
+                <span class="script-name">${HtmlSanitizer.escape(script.name || 'Unnamed')}</span>
+                <div class="script-actions">
+                    <button class="action-btn load-btn" title="Load into Editor">Load</button>
+                    <button class="action-btn delete-btn" title="Delete Script">Delete</button>
+                </div>
+            `;
 
-                scriptItem.querySelector('.load-btn').addEventListener('click', () => {
+            const loadBtn = scriptItem.querySelector('.load-btn');
+            const deleteBtn = scriptItem.querySelector('.delete-btn');
+
+            if (loadBtn) {
+                loadBtn.addEventListener('click', () => {
                     const scriptEditor = document.getElementById('script-editor');
-                    scriptEditor.value = script.content;
+                    if (scriptEditor) scriptEditor.value = script.content || '';
                     notify.info(`Script "${script.name}" loaded into editor.`);
                     // Optional: switch to the script editor tab
-                    document.querySelector('.tab-btn[data-tab="script-library"]').click();
+                    const tabBtn = document.querySelector('.tab-btn[data-tab="script-library"]');
+                    if (tabBtn) tabBtn.click();
                 });
+            }
 
-                scriptItem.querySelector('.delete-btn').addEventListener('click', () => {
-                    if (confirm(`Are you sure you want to delete "${script.name}"?`)) {
-                        const updatedScripts = savedScripts.filter(s => s.id !== script.id);
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => {
+                    if (!confirm(`Are you sure you want to delete "${script.name}"?`)) return;
+                    const updatedScripts = savedScripts.filter(s => s.id !== script.id);
+                    if (settingsManager && typeof settingsManager.setSetting === 'function') {
                         settingsManager.setSetting('savedScripts', updatedScripts);
-                        settingsManager.save();
-                        renderSavedScripts(); // Re-render the list
-                        notify.success(`Script "${script.name}" deleted.`);
+                        if (typeof settingsManager.save === 'function') settingsManager.save();
+                    } else {
+                        // Fallback to localStorage
+                        localStorage.setItem('ae_saved_scripts', JSON.stringify(updatedScripts));
                     }
+                    renderSavedScripts(); // Re-render the list
+                    notify.success(`Script "${script.name}" deleted.`);
                 });
+            }
 
-                listContainer.appendChild(scriptItem);
-            });
-        }
+            listContainer.appendChild(scriptItem);
+        });
     }
 
     /**
@@ -2216,103 +2256,157 @@ You can also use: \`random(100)\` for random values.`;
         });
     };
     
+    // Improved applyCode with better error handling and fallbacks
     window.applyCode = function(blockId) {
-        const codeBlock = document.getElementById(blockId);
-        if (!codeBlock) return;
+        const codeContainer = document.getElementById(blockId);
+        if (!codeContainer) {
+            console.error('applyCode: Code container not found:', blockId);
+            return;
+        }
         
-        const codeContent = codeBlock.querySelector('.code-content code');
-        if (!codeContent) return;
+        const codeContent = codeContainer.querySelector('.code-content pre code') || codeContainer.querySelector('.code-content code');
+        if (!codeContent) {
+            console.error('applyCode: Code content not found in container');
+            return;
+        }
         
         const code = codeContent.textContent;
-        const applyBtn = codeBlock.querySelector('.apply-btn');
         
         // Add loading state
+        const applyBtn = codeContainer.querySelector('.apply-btn');
         if (applyBtn) {
-            applyBtn.classList.add('processing');
+            applyBtn.textContent = 'Applying...';
+            applyBtn.disabled = true;
+            applyBtn.classList.add('loading');
         }
-        
-        // Apply expression to selected layer/property in After Effects
+
+        // If CEP available, attempt to apply; otherwise copy to script editor
         if (window.CSInterface) {
-            const csInterface = new CSInterface();
-            const script = `
-                try {
-                    var activeComp = app.project.activeItem;
-                    if (activeComp && activeComp instanceof CompItem) {
-                        var selectedLayers = activeComp.selectedLayers;
-                        if (selectedLayers.length > 0) {
-                            var layer = selectedLayers[0];
-                            var selectedProps = layer.selectedProperties;
-                            if (selectedProps.length > 0) {
-                                var prop = selectedProps[0];
-                                if (prop.canSetExpression) {
-                                    prop.expression = "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n')}";
-                                    "Expression applied to " + prop.name;
-                                } else {
-                                    "Selected property cannot have expressions";
-                                }
+            try {
+                const csInterface = new CSInterface();
+                const isExpression = isLikelyExpression(code);
+
+                if (isExpression) {
+                    // Apply as expression with robust error handling
+                    const applyScript = `
+                        try {
+                            var activeComp = app.project.activeItem;
+                            if (!activeComp || !(activeComp instanceof CompItem)) {
+                                "Error: No active composition found";
                             } else {
-                                // Try to apply to position if nothing selected
-                                if (layer.transform && layer.transform.position) {
-                                    layer.transform.position.expression = "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n')}";
-                                    "Expression applied to position";
+                                var selectedLayers = activeComp.selectedLayers;
+                                if (selectedLayers.length === 0) {
+                                    "Error: Please select a layer first";
                                 } else {
-                                    "Please select a property";
+                                    var layer = selectedLayers[0];
+                                    var selectedProps = layer.selectedProperties;
+                                    if (selectedProps.length === 0) {
+                                        "Error: Please select a property first";
+                                    } else {
+                                        var prop = selectedProps[0];
+                                        if (!prop.canSetExpression) {
+                                            "Error: Selected property cannot have expressions";
+                                        } else {
+                                            prop.expression = ${JSON.stringify(code)};
+                                            "Success: Expression applied to " + prop.name;
+                                        }
+                                    }
                                 }
                             }
-                        } else {
-                            "Please select a layer first";
+                        } catch (error) {
+                            "Error: " + error.toString();
                         }
-                    } else {
-                        "No active composition found";
-                    }
-                } catch (error) {
-                    "Error: " + error.toString();
-                }
-            `;
-            
-            csInterface.evalScript(script, (result) => {
-                if (applyBtn) {
-                    applyBtn.classList.remove('processing');
-                }
-                
-                if (result.includes('applied')) {
-                    // Success
-                    if (applyBtn) {
-                        applyBtn.classList.add('success');
-                    }
-                    
-                    codeBlock.classList.add('applied');
-                    
-                    if (window.simpleToast) {
-                        window.simpleToast.success('Expression applied!');
-                    }
+                    `;
+
+                    csInterface.evalScript(applyScript, (result) => {
+                        handleApplyResult(codeContainer, result, applyBtn);
+                    });
                 } else {
-                    // Warning or instruction
-                    if (window.simpleToast) {
-                        window.simpleToast.warning(result);
-                    }
+                    // Run as script with error handling
+                    const wrappedScript = `
+                        try {
+                            app.beginUndoGroup("AI Generated Script");
+                            ${code}
+                            app.endUndoGroup();
+                            "Success: Script executed";
+                        } catch (error) {
+                            try { app.endUndoGroup(); } catch(e){}
+                            "Error: " + error.toString();
+                        }
+                    `;
+
+                    csInterface.evalScript(wrappedScript, (result) => {
+                        handleApplyResult(codeContainer, result, applyBtn);
+                    });
                 }
-                
-                console.log('⚡ Apply result:', result);
-                
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    if (applyBtn) {
-                        applyBtn.classList.remove('success');
-                    }
-                    codeBlock.classList.remove('applied');
-                }, 2000);
-            });
+            } catch (error) {
+                showNotification('Error: Failed to execute - ' + (error && error.message ? error.message : error), 'error');
+                if (applyBtn) resetApplyButton(applyBtn);
+            }
         } else {
-            if (applyBtn) {
-                applyBtn.classList.remove('processing');
+            // No CEP available, copy to script editor instead
+            const scriptEditor = document.getElementById('script-editor');
+            if (scriptEditor) {
+                scriptEditor.value = code;
+                showNotification('Code copied to script editor (CEP not available)', 'success');
+
+                // Switch to script tab
+                const scriptTab = document.querySelector('[data-tab="script-library"]');
+                if (scriptTab) {
+                    setTimeout(() => scriptTab.click(), 500);
+                }
+            } else {
+                showNotification('CEP not available and script editor not found', 'error');
             }
-            
-            if (window.simpleToast) {
-                window.simpleToast.warning('CEP interface not available');
-            }
+            if (applyBtn) resetApplyButton(applyBtn);
         }
     };
+
+    // Helper: handle results returned from evalScript
+    function handleApplyResult(codeContainer, result, applyBtn) {
+        try {
+            if (result && typeof result === 'string' && result.startsWith('Success:')) {
+                showNotification('✅ ' + result.substring(8), 'success');
+                if (applyBtn) {
+                    applyBtn.textContent = 'Applied!';
+                    applyBtn.style.backgroundColor = '#4caf50';
+                }
+            } else if (result && typeof result === 'string' && result.startsWith('Error:')) {
+                showNotification('❌ ' + result.substring(6), 'error');
+                if (applyBtn) resetApplyButton(applyBtn);
+            } else if (result === 'EvalScript error.') {
+                showNotification('❌ Script execution failed', 'error');
+                if (applyBtn) resetApplyButton(applyBtn);
+            } else {
+                showNotification('✅ Applied successfully', 'success');
+                if (applyBtn) {
+                    applyBtn.textContent = 'Applied!';
+                    applyBtn.style.backgroundColor = '#4caf50';
+                }
+            }
+        } catch (err) {
+            console.warn('handleApplyResult: unexpected result', result, err);
+            showNotification('Unexpected host response', 'error');
+        }
+
+        // Reset button after delay
+        if (applyBtn) {
+            setTimeout(() => {
+                applyBtn.textContent = 'Apply';
+                applyBtn.style.backgroundColor = '';
+                applyBtn.disabled = false;
+                applyBtn.classList.remove('loading');
+            }, 2000);
+        }
+    }
+
+    function resetApplyButton(applyBtn) {
+        if (!applyBtn) return;
+        applyBtn.textContent = 'Apply';
+        applyBtn.disabled = false;
+        applyBtn.style.backgroundColor = '';
+        applyBtn.classList.remove('loading');
+    }
 
     window.saveCode = function(blockId) {
         const codeBlock = document.getElementById(blockId);

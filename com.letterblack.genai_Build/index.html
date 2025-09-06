@@ -239,8 +239,21 @@
                                     <label for="api-key-setting">API Key</label>
                                     <input type="password" id="api-key-setting" class="setting-input" placeholder="Paste your API key">
                                 </div>
+                                
+                                <!-- Quick Actions next to API Settings -->
+                                <div class="api-quick-actions">
+                                    <button id="auto-detect-btn" class="toolbar-btn compact" type="button" onclick="window.smartAPIManager?.manualDetect()">
+                                        <i class="fa-solid fa-magic-wand-sparkles"></i> Auto-Detect
+                                    </button>
+                                    <button id="save-and-test-btn" class="toolbar-btn primary compact" type="button">Save</button>
+                                    <button id="export-settings-btn" class="toolbar-btn compact" type="button">Export Settings</button>
+                                </div>
                             </fieldset>
-                            <fieldset class="setting-group">
+                            
+                            <!-- Draggable Divider -->
+                            <div class="draggable-divider" data-target="additional-context" title="Drag to resize section"></div>
+                            
+                            <fieldset class="setting-group resizable-section" id="additional-context">
                                 <legend>Additional Context</legend>
                                 <div class="config-field">
                                     <label for="memory-textarea">Project Context</label>
@@ -248,8 +261,11 @@
                                 </div>
                             </fieldset>
                             
+                            <!-- Draggable Divider -->
+                            <div class="draggable-divider" data-target="speech-settings" title="Drag to resize speech section"></div>
+                            
                             <!-- Speech & Voice Settings -->
-                            <fieldset class="setting-group">
+                            <fieldset class="setting-group resizable-section" id="speech-settings">
                                 <legend>Speech & Voice Settings</legend>
                                 <div class="config-field">
                                     <label for="enable-speech">
@@ -281,14 +297,6 @@
                                     </label>
                                 </div>
                             </fieldset>
-                            
-                            <div class="settings-actions">
-                                <button id="auto-detect-btn" class="toolbar-btn" type="button" onclick="window.smartAPIManager?.manualDetect()">
-                                    <i class="fa-solid fa-magic-wand-sparkles"></i> Auto-Detect
-                                </button>
-                                <button id="save-and-test-btn" class="toolbar-btn primary" type="button">Save</button>
-                                <button id="export-settings-btn" class="toolbar-btn" type="button">Export Settings</button>
-                            </div>
                         </form>
                     </div>
                     
@@ -505,6 +513,7 @@
     
     <!-- Advanced Features -->
     <script src="js/utils/dependency-checker.js"></script>
+    <script src="js/utils/draggable-dividers.js"></script>
     <script src="js/features/voice-features.js"></script>
     <script src="js/features/youtube-analysis-cascade.js"></script>
     
@@ -1727,4 +1736,3 @@
     <!-- <script src="js/core/module-initializer.js"></script> -->
 </body>
 </html>
-

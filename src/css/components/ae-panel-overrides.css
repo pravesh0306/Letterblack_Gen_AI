@@ -1,0 +1,112 @@
+/* After Effects Panel Typography & Spacing Overrides */
+/* This file ensures consistent AE panel styling */
+
+/* Global text sizing for all panel elements */
+.vscode-app,
+.vscode-app * {
+    font-size: var(--font-size-base) !important; /* 12px base */
+}
+
+/* Panel section headers */
+.settings-section h4,
+.menu-section h4,
+.panel-header,
+.section-title {
+    font-size: var(--font-size-md) !important; /* 13px for headers */
+    font-weight: var(--font-weight-medium) !important;
+    margin-bottom: 6px !important;
+    line-height: var(--line-height-tight) !important;
+}
+
+/* Button text sizing */
+button,
+.btn,
+.tab-btn,
+.action-btn {
+    font-size: var(--font-size-base) !important; /* 12px */
+    line-height: var(--line-height-snug) !important;
+}
+
+/* Input and form element sizing */
+input,
+select,
+textarea,
+.form-control,
+.compact-input,
+.compact-select,
+.compact-textarea {
+    font-size: var(--font-size-base) !important; /* 12px */
+    line-height: var(--line-height-snug) !important;
+    padding: 4px 8px !important;
+}
+
+/* Label and description text */
+label,
+.form-label,
+.setting-label,
+.description,
+.help-text {
+    font-size: var(--font-size-base) !important; /* 12px */
+    line-height: var(--line-height-snug) !important;
+}
+
+/* Small text elements */
+.small-text,
+.secondary-text,
+.hint-text,
+.meta-text {
+    font-size: var(--font-size-sm) !important; /* 11px */
+    line-height: var(--line-height-snug) !important;
+}
+
+/* Very small text elements */
+.tiny-text,
+.status-text,
+.counter-text {
+    font-size: var(--font-size-xs) !important; /* 9px */
+    line-height: var(--line-height-tight) !important;
+}
+
+/* Panel spacing adjustments */
+.settings-panel,
+.workflow-menu-panel {
+    padding: 6px !important;
+}
+
+.settings-section,
+.menu-section {
+    padding: 8px !important;
+    margin-bottom: 6px !important;
+}
+
+.setting-group {
+    margin-bottom: 8px !important;
+}
+
+.setting-group:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Tab navigation spacing */
+.tab-navigation {
+    padding: 0 4px !important;
+}
+
+.tab-btn {
+    padding: 6px 10px !important;
+    margin: 0 1px !important;
+}
+
+/* Consistent panel spacing */
+.panel,
+.content-panel {
+    padding: 8px !important;
+}
+
+/* Icon sizing to match text */
+.tab-btn i,
+.btn i,
+button i {
+    font-size: inherit !important;
+    line-height: inherit !important;
+}

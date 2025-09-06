@@ -47,16 +47,16 @@
                     <Menu>LetterBlack Gen AI</Menu>
                     <Geometry>
                         <Size>
-                            <Width>400</Width>
-                            <Height>600</Height>
+                            <Width>450</Width>
+                            <Height>650</Height>
                         </Size>
                         <MinSize>
-                            <Width>300</Width>
-                            <Height>400</Height>
+                            <Width>350</Width>
+                            <Height>450</Height>
                         </MinSize>
                         <MaxSize>
-                            <Width>1200</Width>
-                            <Height>1000</Height>
+                            <Width>1600</Width>
+                            <Height>1200</Height>
                         </MaxSize>
                     </Geometry>
                     <Icons>
