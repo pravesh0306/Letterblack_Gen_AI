@@ -682,40 +682,6 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
     }
 
     /**
-     * Create professional code block with blue header (GitHub Copilot style)
-     */
-    createProfessionalCodeBlock(code, blockId, language, codeType) {
-        const typeIcon = this.getTypeIcon(codeType);
-        const languageDisplay = language.charAt(0).toUpperCase() + language.slice(1);
-        
-        return `<div class="code-block-container" id="${blockId}">
-            <div class="code-header">
-                <div class="code-language">
-                    ${typeIcon}
-                    <span>${languageDisplay}</span>
-                </div>
-                <div class="code-actions">
-                    <button class="code-btn copy-btn" onclick="copyCode('${blockId}')" title="Copy code">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
-                        </svg>
-                        Copy
-                    </button>
-                    <button class="code-btn apply-btn" onclick="applyCode('${blockId}')" title="Apply to After Effects">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
-                        </svg>
-                        Apply
-                    </button>
-                </div>
-            </div>
-            <div class="code-block">
-                <pre><code class="language-${language}">${this.escapeHtml(code)}</code></pre>
-            </div>
-        </div>`;
-    }
-
-    /**
      * Detect the type of code for better labeling
      */
     detectCodeType(code) {
@@ -1034,9 +1000,16 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
             return response;
         }
 
-        console.log('🎨 Formatting response with professional code blocks...');
+        console.log('🎨 Formatting response with Chat Assistant...');
         
-        // Handle code blocks with professional styling
+        // Use Chat Assistant's processMarkdown for consistent rendering
+        if (window.chatAssistant && typeof window.chatAssistant.processMarkdown === 'function') {
+            return window.chatAssistant.processMarkdown(response);
+        }
+        
+        // Fallback to original method if Chat Assistant not available
+        console.warn('⚠️ Chat Assistant not available, using fallback formatting');
+        
         const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
         let formattedResponse = response;
         
