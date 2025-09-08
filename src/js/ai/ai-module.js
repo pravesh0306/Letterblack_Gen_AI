@@ -682,138 +682,35 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
     }
 
     /**
-     * Format response with interactive code blocks
+     * Create professional code block with blue header (GitHub Copilot style)
      */
-    formatResponseForChat(response) {
-        // Check if response contains code blocks first
-        const codeBlockRegex = /```[\s\S]*?```/g;
-        const codeBlocks = response.match(codeBlockRegex);
+    createProfessionalCodeBlock(code, blockId, language, codeType) {
+        const typeIcon = this.getTypeIcon(codeType);
+        const languageDisplay = language.charAt(0).toUpperCase() + language.slice(1);
         
-        if (codeBlocks) {
-            // Replace code blocks with interactive ones
-            let formattedResponse = response;
-            
-            codeBlocks.forEach((block, index) => {
-                const code = block.replace(/```\w*\n?/, '').replace(/```$/, '').trim();
-                const blockId = `code-block-${Date.now()}-${index}`;
-                
-                const interactiveBlock = this.createInteractiveCodeBlock(code, blockId);
-                formattedResponse = formattedResponse.replace(block, interactiveBlock);
-            });
-            
-            // Clean up excessive whitespace around code blocks
-            formattedResponse = formattedResponse
-                .replace(/\n\s*\n\s*\n+/g, '\n') // Reduce multiple line breaks to single
-                .replace(/\s*(<div[^>]*compact-code-block[^>]*>)/g, '\n$1') // Single line before code block
-                .replace(/(<\/div>)\s*\n+/g, '$1\n') // Single line after code block
-                .replace(/^\s+|\s+$/gm, '') // Remove leading/trailing spaces from each line
-                .trim();
-            
-            return formattedResponse;
-        }
-        
-        // Fallback: smarter content-based detection for inline expressions and short code snippets
-        // Goal: detect expression-like snippets (wiggle, function calls, value[], app./comp./layer usage)
-        let formattedResponse = response;
-
-        // Candidate function-call / expression pattern (keeps within a single line)
-        const candidateCallRegex = /[A-Za-z_][\w.]*\s*\([^\)\n]{1,160}\)/g;
-
-        // Additional specific short patterns
-        const specificPatterns = [
-            /\bvalue\s*\[[^\]]+\]/gi,
-            /\btransform\.[A-Za-z_]+/gi,
-            /\bapp\.\w+/gi,
-            /\bcomp\b/gi,
-            /\blayer\b/gi,
-            /\bindex\b/gi
-        ];
-
-        // Collect replacements from candidateCallRegex but only accept those that look AE-related
-        const candidates = [];
-        let m;
-        while ((m = candidateCallRegex.exec(response)) !== null) {
-            const text = m[0];
-            const lower = text.toLowerCase();
-
-            // Accept the candidate if it contains numeric arguments, commas, or AE-specific keywords
-            const likelyCode = /[0-9,]|\b(wiggle|linear|ease|time|value|transform|app|comp|layer|index)\b/i.test(text) || /\./.test(text);
-            if (likelyCode && text.length <= 180) {
-                candidates.push({ start: m.index, text });
-            }
-        }
-
-        // Also check specific patterns (value[], transform., app. etc.) in the response
-        specificPatterns.forEach(pat => {
-            let mm;
-            while ((mm = pat.exec(response)) !== null) {
-                const txt = mm[0];
-                candidates.push({ start: mm.index, text: txt });
-            }
-        });
-
-        // De-duplicate by text and sort by occurrence
-        const uniq = {};
-        const deduped = candidates
-            .sort((a,b) => a.start - b.start)
-            .filter(c => {
-                if (uniq[c.text]) return false; uniq[c.text] = true; return true;
-            });
-
-        // Replace matches from end to start to avoid shifting indexes
-        for (let i = deduped.length - 1; i >= 0; i--) {
-            const entry = deduped[i];
-            const code = entry.text.trim();
-            // Avoid wrapping if it's obviously part of a longer paragraph (heuristic: contains spaces and length > 120)
-            if (code.length > 120 && code.indexOf('\n') === -1 && code.split(' ').length > 12) continue;
-
-            const blockId = `code-block-fallback-${Date.now()}-${i}`;
-            const interactiveBlock = this.createInteractiveCodeBlock(code, blockId);
-
-            // Replace only the first occurrence of this exact substring (near the index)
-            const before = formattedResponse.slice(0, entry.start);
-            const after = formattedResponse.slice(entry.start);
-            const replacedAfter = after.replace(code, interactiveBlock);
-            formattedResponse = before + replacedAfter;
-        }
-
-        // Final cleanup when replacements happened
-        if (deduped.length > 0) {
-            formattedResponse = formattedResponse
-                .replace(/\n\s*\n\s*\n+/g, '\n')
-                .replace(/\s*(<div[^>]*compact-code-block[^>]*>)/g, '\n$1')
-                .replace(/(<\/div>)\s*\n+/g, '$1\n')
-                .replace(/^\s+|\s+$/gm, '')
-                .trim();
-        }
-
-        return formattedResponse;
-    }
-
-    /**
-     * Create compact interactive code block HTML (matches reference design)
-     */
-    createInteractiveCodeBlock(code, blockId) {
-        return `<div class="compact-code-block" id="${blockId}">
-            <div class="code-content">
-                <pre><code>${this.escapeHtml(code)}</code></pre>
+        return `<div class="code-block-container" id="${blockId}">
+            <div class="code-header">
+                <div class="code-language">
+                    ${typeIcon}
+                    <span>${languageDisplay}</span>
+                </div>
+                <div class="code-actions">
+                    <button class="code-btn copy-btn" onclick="copyCode('${blockId}')" title="Copy code">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
+                        </svg>
+                        Copy
+                    </button>
+                    <button class="code-btn apply-btn" onclick="applyCode('${blockId}')" title="Apply to After Effects">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+                        </svg>
+                        Apply
+                    </button>
+                </div>
             </div>
-            <div class="code-actions">
-                <button class="compact-btn copy-btn" onclick="copyCode('${blockId}')" title="Copy">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
-                    </svg>
-                </button>
-                <button class="compact-btn apply-btn" onclick="applyCode('${blockId}')" title="Apply">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
-                    </svg>
-                </button>
-                <button class="compact-btn save-btn" onclick="saveCode('${blockId}')" title="Save">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
-                    </svg>
-                </button>
+            <div class="code-block">
+                <pre><code class="language-${language}">${this.escapeHtml(code)}</code></pre>
             </div>
         </div>`;
     }
@@ -1128,6 +1025,353 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
         
         return analysisKeywords.some(keyword => lowerMessage.includes(keyword));
     }
+
+    /**
+     * Format AI response with professional code blocks and enhanced styling
+     */
+    formatResponseForChat(response) {
+        if (!response || typeof response !== 'string') {
+            return response;
+        }
+
+        console.log('🎨 Formatting response with professional code blocks...');
+        
+        // Handle code blocks with professional styling
+        const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
+        let formattedResponse = response;
+        
+        formattedResponse = formattedResponse.replace(codeBlockRegex, (match, language, code) => {
+            const cleanLang = language || 'text';
+            const cleanCode = code.trim();
+            console.log(`📝 Processing code block: ${cleanLang}, ${cleanCode.length} chars`);
+            return this.createProfessionalCodeBlock(cleanCode, cleanLang);
+        });
+
+        // Convert line breaks to HTML
+        formattedResponse = formattedResponse.replace(/\n/g, '<br>');
+
+        console.log('✅ Response formatting complete');
+        return formattedResponse;
+    }
+
+    /**
+     * Create professional code block with blue header like GitHub Copilot
+     */
+    createProfessionalCodeBlock(code, language) {
+        const escapedCode = this.escapeHtml(code);
+        const detectedType = this.detectCodeType(code, language);
+        const blockId = `code-block-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        
+        return `
+            <div class="code-block-container" id="${blockId}">
+                <div class="code-header">
+                    <span class="code-language">${detectedType.display}</span>
+                    <div class="code-actions">
+                        <button class="copy-btn" onclick="window.copyCodeBlock('${blockId}')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        ${detectedType.canApply ? `
+                            <button class="apply-btn" onclick="window.applyCodeBlock('${blockId}')">
+                                <i class="fas fa-play"></i> Apply
+                            </button>
+                        ` : ''}
+                        <button class="view-btn" onclick="window.viewCodeBlock('${blockId}')">
+                            <i class="fas fa-expand"></i> View
+                        </button>
+                    </div>
+                </div>
+                <div class="code-content" data-code="${this.escapeHtml(code).replace(/"/g, '&quot;')}" data-type="${detectedType.type}">
+                    <pre><code class="language-${language}">${escapedCode}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Detect code type and determine if it can be applied to expressions
+     */
+    detectCodeType(code, language) {
+        const lowerCode = code.toLowerCase();
+        const lowerLang = (language || '').toLowerCase();
+
+        // After Effects Expression detection
+        if (lowerLang === 'javascript' || lowerLang === 'js' || lowerLang === 'expression') {
+            if (lowerCode.includes('wiggle') || 
+                lowerCode.includes('time') || 
+                lowerCode.includes('transform') ||
+                lowerCode.includes('rotation') ||
+                lowerCode.includes('position') ||
+                lowerCode.includes('scale') ||
+                lowerCode.includes('opacity') ||
+                lowerCode.includes('loopout') ||
+                lowerCode.includes('ease')) {
+                return { type: 'expression', display: 'After Effects Expression', canApply: true };
+            }
+        }
+
+        // ExtendScript detection
+        if (lowerLang === 'javascript' || lowerLang === 'js' || lowerLang === 'extendscript') {
+            if (lowerCode.includes('app.project') || 
+                lowerCode.includes('compitem') ||
+                lowerCode.includes('layer') ||
+                lowerCode.includes('property') ||
+                lowerCode.includes('effect') ||
+                lowerCode.includes('footage')) {
+                return { type: 'extendscript', display: 'After Effects Script', canApply: true };
+            }
+        }
+
+        // Default cases
+        const displayMap = {
+            'javascript': 'JavaScript',
+            'js': 'JavaScript', 
+            'html': 'HTML',
+            'css': 'CSS',
+            'json': 'JSON',
+            'xml': 'XML',
+            'python': 'Python',
+            'jsx': 'JSX'
+        };
+
+        return { 
+            type: lowerLang || 'text', 
+            display: displayMap[lowerLang] || (language || 'Code').toUpperCase(), 
+            canApply: false 
+        };
+    }
+
+    /**
+     * Escape HTML characters for safe display
+     */
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+}
+
+// Global code block functions for CEP environment
+window.copyCodeBlock = function(blockId) {
+    console.log('📋 copyCodeBlock called for:', blockId);
+    const codeBlock = document.getElementById(blockId);
+    if (!codeBlock) {
+        console.error('❌ Code block not found:', blockId);
+        return;
+    }
+    
+    const codeContent = codeBlock.querySelector('.code-content');
+    const code = codeContent.getAttribute('data-code') || codeContent.textContent.trim();
+    
+    try {
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(() => {
+                console.log('✅ Code copied via clipboard API');
+                showCodeFeedback(blockId, '📋 Copied!', 'success');
+            }).catch(err => {
+                console.warn('⚠️ Clipboard API failed, using fallback');
+                fallbackCopy(code, blockId);
+            });
+        } else {
+            fallbackCopy(code, blockId);
+        }
+    } catch (error) {
+        console.error('❌ Copy failed:', error);
+        fallbackCopy(code, blockId);
+    }
+};
+
+window.applyCodeBlock = function(blockId) {
+    console.log('✨ applyCodeBlock called for:', blockId);
+    const codeBlock = document.getElementById(blockId);
+    if (!codeBlock) {
+        console.error('❌ Code block not found:', blockId);
+        return;
+    }
+    
+    const codeContent = codeBlock.querySelector('.code-content');
+    const code = codeContent.getAttribute('data-code') || codeContent.textContent.trim();
+    const codeType = codeContent.getAttribute('data-type') || 'expression';
+    
+    try {
+        if (window.__adobe_cep__) {
+            // CEP environment - apply to After Effects with robust script
+            const cleanCode = code.replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '');
+            const script = `
+                try {
+                    // Check if we have an active composition
+                    if (!app.project.activeItem) {
+                        alert("❌ No active composition. Please open a composition first.");
+                    } else if (app.project.activeItem.typeName !== "Composition") {
+                        alert("❌ Active item is not a composition. Please select a composition.");
+                    } else {
+                        var comp = app.project.activeItem;
+                        
+                        // Check if we have selected layers
+                        if (comp.selectedLayers.length === 0) {
+                            alert("⚠️ No layers selected. Please select a layer first.");
+                        } else {
+                            var layer = comp.selectedLayers[0];
+                            
+                            // Try to apply to Position property first
+                            try {
+                                var positionProp = layer.property("Transform").property("Position");
+                                if (positionProp && positionProp.canSetExpression) {
+                                    positionProp.expression = "${cleanCode}";
+                                    alert("✅ Expression applied to Position property of layer: " + layer.name);
+                                } else {
+                                    alert("❌ Cannot set expression on Position property. Layer may be locked or not animatable.");
+                                }
+                            } catch (propError) {
+                                // If Position fails, try other common properties
+                                try {
+                                    var rotationProp = layer.property("Transform").property("Rotation");
+                                    if (rotationProp && rotationProp.canSetExpression) {
+                                        rotationProp.expression = "${cleanCode}";
+                                        alert("✅ Expression applied to Rotation property of layer: " + layer.name);
+                                    } else {
+                                        var opacityProp = layer.property("Transform").property("Opacity");
+                                        if (opacityProp && opacityProp.canSetExpression) {
+                                            opacityProp.expression = "${cleanCode}";
+                                            alert("✅ Expression applied to Opacity property of layer: " + layer.name);
+                                        } else {
+                                            alert("❌ Cannot apply expression to any transform property on this layer type.");
+                                        }
+                                    }
+                                } catch (fallbackError) {
+                                    alert("❌ Error applying expression: " + fallbackError.toString());
+                                }
+                            }
+                        }
+                    }
+                } catch (mainError) {
+                    alert("❌ Script error: " + mainError.toString());
+                }
+            `;
+            
+            console.log('🔧 Sending script to After Effects:', script);
+            window.__adobe_cep__.evalScript(script, function(result) {
+                console.log('📝 After Effects script result:', result);
+                if (result && result.indexOf('✅') !== -1) {
+                    showCodeFeedback(blockId, '✨ Applied!', 'success');
+                } else {
+                    showCodeFeedback(blockId, '⚠️ Check AE alert', 'warning');
+                }
+            });
+            
+        } else {
+            // Browser environment - copy to script editor if available
+            const scriptEditor = document.getElementById('script-editor');
+            if (scriptEditor) {
+                scriptEditor.value = code;
+                showCodeFeedback(blockId, '✨ Added to Script Editor!', 'success');
+            } else {
+                // Fallback to copy
+                window.copyCodeBlock(blockId);
+                showCodeFeedback(blockId, '📋 Copied (Apply not available)', 'warning');
+            }
+        }
+    } catch (error) {
+        console.error('❌ Apply failed:', error);
+        showCodeFeedback(blockId, '❌ Apply failed', 'error');
+    }
+};
+
+window.viewCodeBlock = function(blockId) {
+    console.log('👁️ viewCodeBlock called for:', blockId);
+    const codeBlock = document.getElementById(blockId);
+    if (!codeBlock) {
+        console.error('❌ Code block not found:', blockId);
+        return;
+    }
+    
+    const codeContent = codeBlock.querySelector('.code-content');
+    const code = codeContent.getAttribute('data-code') || codeContent.textContent.trim();
+    const codeType = codeContent.getAttribute('data-type') || 'code';
+    
+    // Create a modal to show the full code
+    const modal = document.createElement('div');
+    modal.className = 'code-modal-overlay';
+    modal.innerHTML = `
+        <div class="code-modal">
+            <div class="code-modal-header">
+                <h3>View Code - ${codeType.toUpperCase()}</h3>
+                <button class="code-modal-close" onclick="this.closest('.code-modal-overlay').remove()">×</button>
+            </div>
+            <div class="code-modal-body">
+                <pre><code>${escapeHtml(code)}</code></pre>
+            </div>
+            <div class="code-modal-footer">
+                <button onclick="window.copyCodeBlock('${blockId}')">📋 Copy</button>
+                <button onclick="window.applyCodeBlock('${blockId}')">✨ Apply</button>
+                <button onclick="this.closest('.code-modal-overlay').remove()">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    showCodeFeedback(blockId, '👁️ Opened!', 'info');
+};
+
+// Helper functions
+function fallbackCopy(text, blockId) {
+    try {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        console.log('✅ Code copied via fallback method');
+        showCodeFeedback(blockId, '📋 Copied!', 'success');
+    } catch (error) {
+        console.error('❌ Fallback copy failed:', error);
+        showCodeFeedback(blockId, '❌ Copy failed', 'error');
+    }
+}
+
+function showCodeFeedback(blockId, message, type = 'info') {
+    const codeBlock = document.getElementById(blockId);
+    if (!codeBlock) return;
+    
+    // Remove existing feedback
+    const existing = codeBlock.querySelector('.code-feedback');
+    if (existing) existing.remove();
+    
+    // Add new feedback
+    const feedback = document.createElement('div');
+    feedback.className = `code-feedback ${type}`;
+    feedback.textContent = message;
+    feedback.style.cssText = `
+        position: absolute;
+        top: -30px;
+        right: 10px;
+        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : type === 'warning' ? '#FF9800' : '#2196F3'};
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+    `;
+    
+    codeBlock.style.position = 'relative';
+    codeBlock.appendChild(feedback);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        if (feedback.parentNode) {
+            feedback.remove();
+        }
+    }, 3000);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Export for global use

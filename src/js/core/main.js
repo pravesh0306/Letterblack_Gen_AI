@@ -897,7 +897,38 @@ let projectOrganizer = null;
                     handleSendMessage();
                 }
             });
+        }
 
+        // Set up event delegation for code block interactions
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            chatMessages.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+                
+                // Handle code block buttons
+                if (button.classList.contains('copy-btn')) {
+                    const blockId = button.closest('[id]')?.id;
+                    if (blockId && window.copyCode) {
+                        window.copyCode(blockId);
+                    }
+                } else if (button.classList.contains('apply-btn')) {
+                    const blockId = button.closest('[id]')?.id;
+                    if (blockId && window.applyCode) {
+                        window.applyCode(blockId);
+                    }
+                } else if (button.classList.contains('save-btn')) {
+                    const blockId = button.closest('[id]')?.id;
+                    if (blockId && window.saveCode) {
+                        window.saveCode(blockId);
+                    }
+                }
+            });
+            console.log('✅ Event delegation set up for code block interactions');
+        }
+
+        // Continue with chat input event listeners
+        if (sendButton && chatInput) {
             // Enable/disable send button based on input
             chatInput.addEventListener('input', (e) => {
                 const value = e.target.value;
@@ -1252,13 +1283,20 @@ let projectOrganizer = null;
                 if (response) {
                     console.log('📝 Raw AI response:', response);
                     
-                    // Format response with interactive code blocks
-                    const formattedResponse = aiModule.formatResponseForChat ? 
-                        aiModule.formatResponseForChat(response) : response;
+                    // Use global aiModule to ensure we have the correct instance with formatResponseForChat
+                    const activeAIModule = window.aiModule || aiModule;
+                    console.log('🔍 Using AI Module:', !!activeAIModule);
+                    console.log('🔍 formatResponseForChat available:', !!activeAIModule?.formatResponseForChat);
                     
-                    const hasInteractive = formattedResponse.includes('response-block') || formattedResponse.includes('interactive-code-block');
+                    // Format response with interactive code blocks
+                    const formattedResponse = activeAIModule?.formatResponseForChat ? 
+                        activeAIModule.formatResponseForChat(response) : response;
+                    
+                    const hasInteractive = formattedResponse.includes('code-block-container') || formattedResponse.includes('interactive-code-block');
                     console.log('🎨 Formatted response:', formattedResponse);
-                    console.log('✅ Contains interactive blocks:', hasInteractive);
+                    console.log('✅ Contains professional code blocks:', hasInteractive);
+                    console.log('🔍 Raw response length:', response.length);
+                    console.log('🔍 Formatted response length:', formattedResponse.length);
                     
                     addMessageToChat('assistant', formattedResponse);
                     
@@ -1277,7 +1315,12 @@ let projectOrganizer = null;
             hideTypingIndicator();
             try { if (window.__mascot && typeof window.__mascot.hideThinking === 'function') window.__mascot.hideThinking(); } catch (e) { }
             console.error('Chat error:', error);
+            // Show prominent error banner instead of hiding errors
+            showErrorBanner(`AI Error: ${error.message}`);
             addMessageToChat('error', `Error: ${error.message}`);
+        } finally {
+            // Always re-enable the send button regardless of success or failure
+            document.getElementById('send-button').disabled = false;
         }
     }
 
@@ -1593,10 +1636,11 @@ ${randomFact}`;
         if (content) {
             const textDiv = document.createElement('div');
             
-            // Use AI module's enhanced formatting for assistant messages
-            if (type === 'assistant' && window.aiModule && typeof window.aiModule.formatResponseForChat === 'function') {
-                // Use the enhanced AI response formatting with interactive code blocks
-                textDiv.innerHTML = window.aiModule.formatResponseForChat(content);
+            // For assistant messages, content is already formatted by formatResponseForChat in handleSendMessage
+            // Only apply standard formatting for non-assistant messages
+            if (type === 'assistant') {
+                // Content is already formatted HTML from handleSendMessage - use it directly
+                textDiv.innerHTML = content;
             } else {
                 // Use standard formatting for other message types
                 textDiv.innerHTML = formatMessage(content);
@@ -1640,7 +1684,7 @@ ${randomFact}`;
      * @param {string} content - Message content to analyze
      */
     function autoPopulateFirstExpression(content) {
-        // Extract code blocks from the content
+        // First try to extract from Markdown code blocks
         const codeBlockRegex = /```(?:javascript|js|extendscript)?\s*\n?(.*?)\n?```/gs;
         const inlineCodeRegex = /`([^`\n]+)`/g;
         
@@ -1659,6 +1703,19 @@ ${randomFact}`;
         const tempContent = content.replace(codeBlockRegex, ''); // Remove already checked blocks
         while ((match = inlineCodeRegex.exec(tempContent)) !== null) {
             const code = match[1].trim();
+            if (code && isExpression(code)) {
+                populateScriptEditor(code, 'Expression auto-populated from AI response');
+                return; // Only populate the first expression found
+            }
+        }
+        
+        // If no Markdown code found, check HTML <pre><code> elements (formatted responses)
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+        const codeElements = tempDiv.querySelectorAll('pre code');
+        
+        for (const codeElement of codeElements) {
+            const code = codeElement.textContent.trim();
             if (code && isExpression(code)) {
                 populateScriptEditor(code, 'Expression auto-populated from AI response');
                 return; // Only populate the first expression found
@@ -2069,6 +2126,46 @@ You can also use: \`random(100)\` for random values.`;
         }
     }
 
+    /**
+     * Show prominent error banner for critical issues
+     */
+    function showErrorBanner(message) {
+        // Create or update error banner
+        let banner = document.getElementById('error-banner');
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'error-banner';
+            banner.style.cssText = `
+                position: fixed;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #ff4444;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                max-width: 90%;
+                text-align: center;
+                font-weight: bold;
+                cursor: pointer;
+            `;
+            banner.onclick = () => banner.remove();
+            document.body.appendChild(banner);
+        }
+        
+        banner.textContent = message;
+        banner.style.display = 'block';
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (banner && banner.parentNode) {
+                banner.remove();
+            }
+        }, 5000);
+    }
+
     // React to mascot enabled/disabled toggle
     document.addEventListener('mascot:toggle', (e) => {
         const enabled = e.detail.enabled;
@@ -2202,6 +2299,81 @@ You can also use: \`random(100)\` for random values.`;
                 window.simpleToast.error('API test failed: ' + error.message);
             }
             return false;
+        }
+    };
+    
+    // Essential global helpers for code block functionality
+    window.escapeHtml = window.escapeHtml || ((s = "") =>
+        s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])));
+
+    window.copyToExpressionBox = window.copyToExpressionBox || function(code) {
+        const box = document.getElementById('expression-box') || 
+                   document.getElementById('ae-code-input') || 
+                   document.getElementById('script-editor');
+        if (box) { 
+            box.value = code; 
+            box.dispatchEvent(new Event('input')); 
+            if (window.simpleToast) {
+                window.simpleToast.success('Code added to script editor!');
+            }
+        }
+    };
+
+    window.viewFullCode = window.viewFullCode || function(id) {
+        const full = document.querySelector(`[data-full-code-id="${id}"]`);
+        if (full) full.classList.toggle('expanded');
+    };
+
+    window.handleDynamicUIChange = window.handleDynamicUIChange || function(action, payload) {
+        console.log('🔄 Dynamic UI action:', action, payload);
+    };
+
+    // Test function for professional code blocks
+    window.testProfessionalCodeBlocks = function() {
+        console.log('🧪 Testing Professional Code Blocks...');
+        
+        const testResponse = `Here's a wiggle expression for you:
+
+\`\`\`javascript
+wiggle(2, 30)
+\`\`\`
+
+And here's an ExtendScript example:
+
+\`\`\`javascript
+app.project.activeItem.layers[1].transform.position.expression = "wiggle(1, 50)";
+\`\`\`
+
+Both should show blue headers with copy/apply buttons!`;
+
+        const activeAIModule = window.aiModule;
+        if (activeAIModule?.formatResponseForChat) {
+            try {
+                const formatted = activeAIModule.formatResponseForChat(testResponse);
+                console.log('✅ Formatting successful!');
+                console.log('📝 Original length:', testResponse.length);
+                console.log('🎨 Formatted length:', formatted.length);
+                console.log('✓ Has code-block-container:', formatted.includes('code-block-container'));
+                console.log('✓ Has blue headers:', formatted.includes('code-header'));
+                console.log('✓ Has copy buttons:', formatted.includes('copy-btn'));
+                
+                // Add to chat for visual verification
+                if (typeof addMessageToChat === 'function') {
+                    addMessageToChat('assistant', formatted);
+                    console.log('📤 Test message added to chat - check for blue headers!');
+                } else {
+                    console.log('❌ addMessageToChat function not available');
+                }
+                
+                return formatted;
+            } catch (error) {
+                console.error('❌ Formatting error:', error);
+                return null;
+            }
+        } else {
+            console.log('❌ AI Module or formatResponseForChat not available');
+            console.log('Available on window.aiModule:', Object.keys(window.aiModule || {}));
+            return null;
         }
     };
     

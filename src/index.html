@@ -528,6 +528,9 @@
     <script src="js/ai/chat-memory.js"></script>
     <script src="js/ai/enhanced-ai-learning-system.js"></script>
     <script src="js/ai/smart-ai-suggestion-engine.js"></script>
+    
+    <!-- Test Functions -->
+    <script src="js/test-code-blocks.js"></script>
     <script src="js/ai/ai-training-data-collector.js"></script>
     <script src="js/ai/smart-api-detector.js"></script>
     
@@ -919,6 +922,12 @@
                     window.appModules = modules;
                     window.AppModules = modules; // Legacy compatibility
                     
+                    // Make AI module directly accessible for formatResponseForChat
+                    if (modules.aiModule) {
+                        window.aiModule = modules.aiModule;
+                        console.log('✅ AI Module assigned to window.aiModule for chat formatting');
+                    }
+                    
                     console.log('🎉 All available modules initialized successfully');
                     
                 } catch (error) {
@@ -1288,30 +1297,9 @@
             console.log(`✅ Added click logging to ${allButtons.length} buttons with VISUAL feedback`);
         })();
         
-        // Targeted error message hider - only for specific error messages
-        setInterval(() => {
-            try {
-                // Only hide elements that specifically contain the exact error messages we want to hide
-                const allElements = document.querySelectorAll('*');
-                allElements.forEach(element => {
-                    const text = element.textContent || '';
-                    const isSmallElement = element.children.length === 0; // Only target leaf elements
-                    
-                    // Only hide very specific error messages
-                    const isTargetError = text.includes('❌ **Network Error**: Could not connect to the AI service') ||
-                                         text.includes('Network Error**: Could not connect') ||
-                                         text.includes('Could not connect to the AI service') ||
-                                         (text.includes('Network Error') && text.includes('Could not connect'));
-                    
-                    if (isTargetError && isSmallElement && element.tagName !== 'SCRIPT' && element.tagName !== 'STYLE') {
-                        element.style.display = 'none';
-                    }
-                });
-                
-            } catch (e) {
-                // Silent failure
-            }
-        }, 1000); // Less frequent checking
+        // Error message sweeper REMOVED - Let users see legitimate API/network errors
+        // Previously this was hiding important error messages from the AI module
+        
     </script>
     
     <!-- Floating Mascot with WebM Animation -->
@@ -1714,7 +1702,8 @@
                 'js/utils/performance-cache.js',
                 'js/utils/enhanced-chat-memory.js', 
                 'js/utils/youtube-tutorial-helper.js',
-                'js/utils/browser-video-transcriber.js'
+                'js/utils/browser-video-transcriber.js',
+                'js/browser-diagnostics.js'
             ];
             
             for (const module of utilityModules) {

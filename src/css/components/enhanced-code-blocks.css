@@ -15,22 +15,30 @@
     font-family: 'Consolas', 'SF Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
 }
 
-/* Code Header with Language Label and Buttons */
+/* Code Header with Language Label and Buttons - Enhanced Blue Theme */
 .code-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #2d2d30;
+    background: linear-gradient(135deg, #0e639c 0%, #1177bb 100%);
     padding: 8px 12px;
-    border-bottom: 1px solid #3e3e42;
+    border-bottom: 1px solid #0e639c;
+    color: white;
 }
 
 .code-language {
     font-size: 11px;
     font-weight: 600;
-    color: #9cdcfe;
+    color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.code-language svg {
+    opacity: 0.9;
 }
 
 .code-actions {
@@ -38,11 +46,11 @@
     gap: 8px;
 }
 
-/* Copy and Apply Buttons */
+/* Copy and Apply Buttons - Enhanced for Blue Header */
 .code-btn {
-    background: #0e639c;
+    background: rgba(255, 255, 255, 0.1);
     color: white;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 11px;
@@ -54,10 +62,13 @@
     transition: all 0.2s ease;
     min-width: 60px;
     justify-content: center;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
 }
 
 .code-btn:hover {
-    background: #1177bb;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
@@ -65,20 +76,18 @@
     transform: translateY(0);
 }
 
-.code-btn.copy-btn {
-    background: #0e639c;
-}
-
 .code-btn.copy-btn:hover {
-    background: #1177bb;
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .code-btn.apply-btn {
-    background: #16825d;
+    background: rgba(22, 130, 93, 0.8);
+    border-color: rgba(22, 130, 93, 0.9);
 }
 
 .code-btn.apply-btn:hover {
-    background: #1a9d6b;
+    background: rgba(26, 157, 107, 0.9);
+    border-color: rgba(26, 157, 107, 1);
 }
 
 .code-btn.success {
@@ -218,4 +227,118 @@
         padding: 12px;
         font-size: 12px;
     }
+}
+
+/* Code Modal Styles */
+.code-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.code-modal {
+    background: #1e1e1e;
+    border-radius: 8px;
+    border: 1px solid #333;
+    max-width: 80vw;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.code-modal-header {
+    background: linear-gradient(135deg, #0e639c 0%, #1177bb 100%);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.code-modal-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.code-modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.code-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.code-modal-body {
+    padding: 16px;
+    overflow: auto;
+    flex: 1;
+}
+
+.code-modal-body pre {
+    background: #0e0e0e;
+    color: #d4d4d4;
+    padding: 16px;
+    border-radius: 4px;
+    overflow: auto;
+    font-family: 'Consolas', 'SF Mono', 'Monaco', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.code-modal-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #333;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.code-modal-footer button {
+    background: linear-gradient(135deg, #0e639c 0%, #094771 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.code-modal-footer button:hover {
+    background: linear-gradient(135deg, #1177bb 0%, #0e639c 100%);
+    transform: translateY(-1px);
+}
+
+/* Feedback Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.code-feedback {
+    animation: fadeIn 0.3s ease-out;
 }
