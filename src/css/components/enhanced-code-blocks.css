@@ -46,6 +46,19 @@ pre.code-block {
     gap: 6px;
 }
 
+.code-lang.clickable {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.code-lang.clickable:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
 .code-language svg,
 .code-lang svg {
     opacity: 0.9;
@@ -350,13 +363,31 @@ pre.code-block {
 }
 
 .code-feedback {
-    padding: 4px 12px;
+    padding: 8px 12px;
     font-size: 12px;
-    color: #4caf50;
     background: rgba(76, 175, 80, 0.1);
     border-top: 1px solid rgba(76, 175, 80, 0.2);
     animation: fadeIn 0.3s ease-out;
     min-height: 20px;
-    display: flex;
+    display: none;
     align-items: center;
+    gap: 6px;
+}
+
+.code-feedback.success {
+    color: #4caf50;
+    background: rgba(76, 175, 80, 0.1);
+    border-top-color: rgba(76, 175, 80, 0.2);
+}
+
+.code-feedback.error {
+    color: #f44336;
+    background: rgba(244, 67, 54, 0.1);
+    border-top-color: rgba(244, 67, 54, 0.2);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
