@@ -85,9 +85,7 @@ class ChatAssistant {
 
         // Apply syntax highlighting after DOM insertion
         setTimeout(() => {
-            if (window.Prism) {
-                window.Prism.highlightAll();
-            }
+            this.applySyntaxHighlighting();
         }, 100);
 
         return html;
@@ -209,17 +207,17 @@ class ChatAssistant {
                     
                     try {
                         if (!app.project) {
-                            return createResult(false, "❌ Error: Open a project first.", 0);
+                            return createResult(false, "❌ Error: Open a project first. Create a new project or open an existing one.", 0);
                         }
                         
                         var item = app.project.activeItem;
                         if (!(item && item instanceof CompItem)) {
-                            return createResult(false, "❌ Error: Activate a composition.", 0);
+                            return createResult(false, "❌ Error: Activate a composition. Double-click a comp in Project panel or create a new one.", 0);
                         }
                         
                         var sel = item.selectedProperties;
                         if (!sel || sel.length === 0) {
-                            return createResult(false, "❌ Error: Select 1+ properties to apply the expression.", 0);
+                            return createResult(false, "❌ Error: Select 1+ properties first. Click a property name (Position, Scale, etc.) in the Timeline panel, then try Apply.", 0);
                         }
                         
                         app.beginUndoGroup("Apply Expression from AI Assistant");
@@ -333,6 +331,23 @@ class ChatAssistant {
     }
 
     /**
+     * Apply syntax highlighting to code blocks
+     */
+    applySyntaxHighlighting() {
+        try {
+            if (window.Prism) {
+                // Highlight all new code blocks
+                window.Prism.highlightAll();
+                console.log('🎨 Syntax highlighting applied');
+            } else {
+                console.warn('⚠️ Prism.js not available for syntax highlighting');
+            }
+        } catch (err) {
+            console.warn('Syntax highlighting failed:', err);
+        }
+    }
+
+    /**
      * Handle language toggle between expression and jsx
      */
     handleLanguageToggle(e) {
@@ -341,22 +356,33 @@ class ChatAssistant {
         const newType = currentType === 'expression' ? 'jsx' : 'expression';
         
         // Update display
-        langEl.textContent = newType === 'jsx' ? 'JSX Script' : 'Expression';
-        langEl.innerHTML += ' <i class="fas fa-sync-alt" style="font-size: 10px; opacity: 0.7; margin-left: 4px;"></i>';
+        const displayName = newType === 'jsx' ? 'JSX Script' : 'Expression';
+        langEl.innerHTML = `${displayName} <i class="fas fa-sync-alt" style="font-size: 10px; opacity: 0.7; margin-left: 4px;"></i>`;
         langEl.dataset.currentType = newType;
         
         // Update code element class
         const container = langEl.closest('.code-block-container');
         const codeEl = container?.querySelector('code');
         if (codeEl) {
-            codeEl.className = `language-${newType}`;
+            // Remove old language classes
+            codeEl.className = codeEl.className.replace(/language-\w+/g, '');
+            // Add new language class
+            codeEl.className += ` language-${newType}`;
+            codeEl.className = codeEl.className.trim();
         }
+        
+        // Re-apply syntax highlighting
+        setTimeout(() => {
+            this.applySyntaxHighlighting();
+        }, 50);
         
         // Visual feedback
         langEl.style.animation = 'none';
         setTimeout(() => {
             langEl.style.animation = 'pulse 0.3s ease';
         }, 10);
+        
+        console.log(`🔄 Language toggled: ${currentType} → ${newType}`);
     }
 
     /**
@@ -455,6 +481,73 @@ class ChatAssistant {
             return [];
         }
     }
+
+    /**
+     * Debug method to test code block rendering
+     */
+    testCodeBlockRendering() {
+        const testMarkdown = `
+Here's a simple expression:
+
+\`\`\`expression
+wiggle(2, 50)
+\`\`\`
+
+And here's a JSX script:
+
+\`\`\`jsx
+app.project.items.addComp("Test", 1920, 1080, 1, 5, 24).openInViewer();
+\`\`\`
+
+Regular **bold** and *italic* text should also work.
+        `.trim();
+
+        console.log('🧪 Testing code block rendering...');
+        const result = this.processMarkdown(testMarkdown);
+        
+        // Create a test container
+        const testDiv = document.createElement('div');
+        testDiv.innerHTML = result;
+        testDiv.style.cssText = `
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            z-index: 10000;
+            color: #d4d4d4;
+        `;
+        
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '✕ Close Test';
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        `;
+        closeBtn.onclick = () => testDiv.remove();
+        testDiv.appendChild(closeBtn);
+        
+        document.body.appendChild(testDiv);
+        
+        // Apply highlighting
+        setTimeout(() => this.applySyntaxHighlighting(), 200);
+        
+        console.log('✅ Test container added to page');
+        return testDiv;
+    }
 }
 
 // Initialize and expose globally
@@ -466,4 +559,20 @@ if (typeof window !== 'undefined') {
         window.chatAssistant = new ChatAssistant();
         window.assistant = window.chatAssistant; // Alternative reference
     }
+
+    // Expose test methods globally for console testing
+    window.testCodeBlocks = () => window.chatAssistant.testCodeBlockRendering();
+    window.getChatAssistantStatus = () => {
+        const assistant = window.chatAssistant;
+        return {
+            initialized: !!assistant,
+            csInterface: !!assistant?.csInterface,
+            prismAvailable: !!window.Prism,
+            scriptHistory: assistant?.getScriptHistory()?.length || 0,
+            savedScripts: assistant?.getSavedScripts()?.length || 0
+        };
+    };
+
+    console.log('🤖 Chat Assistant initialized');
+    console.log('💡 Test commands: testCodeBlocks(), getChatAssistantStatus()');
 }
