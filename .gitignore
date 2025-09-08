@@ -24,6 +24,8 @@ notification-test.html
 # Build output
 build/
 dist/
+com.letterblack.genai_Build/
+*_Build/
 
 # Dependencies
 node_modules/
