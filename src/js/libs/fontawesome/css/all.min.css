@@ -1,0 +1,30 @@
+/* Placeholder Font Awesome CSS to avoid 404 during dev when local assets are missing.
+   For production, copy real Font Awesome assets here. */
+.fa, .fa-solid, .fa-brands { display: inline-block; width: 1em; text-align: center; }
+.fa-robot::before { content: "🤖"; }
+.fa-search::before { content: "🔍"; }
+.fa-eye::before { content: "👁️"; }
+.fa-magic::before { content: "✨"; }
+.fa-microphone::before { content: "🎙️"; }
+.fa-paperclip::before { content: "📎"; }
+.fa-youtube::before { content: "▶️"; }
+.fa-paper-plane::before { content: "📤"; }
+.fa-code::before { content: "</>"; }
+.fa-cog::before { content: "⚙️"; }
+.fa-history::before { content: "🕘"; }
+.fa-bookmark::before { content: "🔖"; }
+.fa-tools::before { content: "🛠️"; }
+.fa-brain::before { content: "🧠"; }
+.fa-play::before { content: "▶️"; }
+.fa-dna::before { content: "🧬"; }
+.fa-save::before { content: "💾"; }
+.fa-copy::before { content: "📋"; }
+.fa-refresh::before { content: "🔄"; }
+.fa-download::before { content: "⬇️"; }
+.fa-file-export::before { content: "📤"; }
+.fa-trash::before { content: "🗑️"; }
+.fa-file-invoice::before { content: "📄"; }
+.fa-heart-pulse::before { content: "💓"; }
+.fa-stethoscope::before { content: "🩺"; }
+.fa-volume-high::before { content: "🔊"; }
+.fa-chevron-down::before { content: "⌄"; }

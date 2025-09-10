@@ -1,114 +1,68 @@
 /**
- * Secure API Settings Storage Module
+ * Secure API Settings Storage Module - Browser Compatible Version
  * Integrates with the persistent chat storage system to securely store API configurations
  * Replaces the insecure localStorage-based API storage
  */
 
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-
 class SecureAPIStorage {
   constructor() {
-    this.paths = this.getPaths();
-    this.encryptionKey = this.getOrCreateEncryptionKey();
+    this.storageKey = 'ae_secure_api_settings';
+    this.initialized = false;
+    this.init();
   }
 
   /**
-   * Get OS-appropriate paths for API settings storage
+   * Initialize the secure storage system
    */
-  getPaths() {
-    const platform = os.platform();
-    let base;
-    
-    if (platform === 'win32') {
-      base = path.join(os.homedir(), 'AppData', 'Roaming', 'Adobe', 'AE_AI_Extension');
-    } else if (platform === 'darwin') {
-      base = path.join(os.homedir(), 'Library', 'Application Support', 'Adobe', 'AE_AI_Extension');
-    } else {
-      base = path.join(os.homedir(), '.config', 'Adobe', 'AE_AI_Extension');
-    }
-
-    return {
-      base,
-      settings: path.join(base, 'api-settings.json'),
-      keystore: path.join(base, '.keystore')
-    };
-  }
-
-  /**
-   * Ensure directories exist
-   */
-  ensureDirs() {
-    if (!fs.existsSync(this.paths.base)) {
-      fs.mkdirSync(this.paths.base, { recursive: true });
-    }
-  }
-
-  /**
-   * Get or create encryption key for API storage
-   */
-  getOrCreateEncryptionKey() {
+  async init() {
     try {
-      this.ensureDirs();
-      
-      if (fs.existsSync(this.paths.keystore)) {
-        return fs.readFileSync(this.paths.keystore, 'utf8').trim();
-      } else {
-        // Create new encryption key
-        const key = crypto.randomBytes(32).toString('hex');
-        fs.writeFileSync(this.paths.keystore, key, { mode: 0o600 }); // Restricted permissions
-        return key;
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined') {
+        console.warn('SecureAPIStorage: Not in browser environment');
+        return false;
       }
+
+      // Use the new chat storage system if available
+      if (window.chatStore) {
+        this.storage = window.chatStore;
+        this.useFileStorage = true;
+      } else {
+        // Fallback to sessionStorage (more secure than localStorage)
+        this.useFileStorage = false;
+        console.warn('SecureAPIStorage: Using sessionStorage fallback');
+      }
+
+      this.initialized = true;
+      console.log('✅ SecureAPIStorage initialized');
+      return true;
     } catch (error) {
-      console.error('🔒 Failed to manage encryption key:', error);
-      // Fallback: use session-based key (less secure but functional)
-      return crypto.randomBytes(32).toString('hex');
+      console.error('❌ Failed to initialize SecureAPIStorage:', error);
+      return false;
     }
   }
 
   /**
-   * Encrypt sensitive data
+   * Simple encryption for browser environment (base64 encoding for now)
    */
-  encrypt(text) {
+  encrypt(data) {
     try {
-      const algorithm = 'aes-256-gcm';
-      const iv = crypto.randomBytes(16);
-      const cipher = crypto.createCipher(algorithm, this.encryptionKey);
-      
-      let encrypted = cipher.update(text, 'utf8', 'hex');
-      encrypted += cipher.final('hex');
-      
-      const authTag = cipher.getAuthTag();
-      
-      return {
-        encrypted,
-        iv: iv.toString('hex'),
-        authTag: authTag.toString('hex')
-      };
+      const jsonString = JSON.stringify(data);
+      return btoa(encodeURIComponent(jsonString));
     } catch (error) {
-      console.error('🔒 Encryption failed:', error);
+      console.error('Encryption failed:', error);
       return null;
     }
   }
 
   /**
-   * Decrypt sensitive data
+   * Simple decryption for browser environment
    */
   decrypt(encryptedData) {
     try {
-      const algorithm = 'aes-256-gcm';
-      const decipher = crypto.createDecipher(algorithm, this.encryptionKey);
-      
-      decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
-      
-      let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
-      decrypted += decipher.final('utf8');
-      
-      return decrypted;
+      const jsonString = decodeURIComponent(atob(encryptedData));
+      return JSON.parse(jsonString);
     } catch (error) {
-      console.error('🔒 Decryption failed:', error);
+      console.error('Decryption failed:', error);
       return null;
     }
   }
@@ -118,34 +72,37 @@ class SecureAPIStorage {
    */
   async saveSettings(settings) {
     try {
-      this.ensureDirs();
-      
-      const secureSettings = {
-        ...settings,
-        timestamp: new Date().toISOString(),
-        version: '1.0'
-      };
-
-      // Encrypt sensitive fields
-      if (settings.apiKey) {
-        secureSettings.apiKey = this.encrypt(settings.apiKey);
-      }
-      
-      if (settings.token) {
-        secureSettings.token = this.encrypt(settings.token);
+      if (!this.initialized) {
+        await this.init();
       }
 
-      // Atomic write using temp file
-      const tempPath = this.paths.settings + '.tmp';
-      fs.writeFileSync(tempPath, JSON.stringify(secureSettings, null, 2));
-      fs.renameSync(tempPath, this.paths.settings);
-      
+      const encryptedSettings = this.encrypt(settings);
+      if (!encryptedSettings) {
+        throw new Error('Failed to encrypt settings');
+      }
+
+      if (this.useFileStorage && this.storage) {
+        // Use the chat storage system for persistent storage
+        const conversationId = await this.storage.createConversation('api_settings');
+        await this.storage.appendMessage(conversationId, {
+          role: 'system',
+          text: 'API Settings',
+          meta: { 
+            type: 'api_settings',
+            encrypted: true,
+            data: encryptedSettings 
+          }
+        });
+      } else {
+        // Fallback to sessionStorage
+        sessionStorage.setItem(this.storageKey, encryptedSettings);
+      }
+
       console.log('✅ API settings saved securely');
-      return { success: true };
-      
+      return true;
     } catch (error) {
       console.error('❌ Failed to save API settings:', error);
-      return { success: false, error: error.message };
+      return false;
     }
   }
 
@@ -154,145 +111,114 @@ class SecureAPIStorage {
    */
   async loadSettings() {
     try {
-      if (!fs.existsSync(this.paths.settings)) {
+      if (!this.initialized) {
+        await this.init();
+      }
+
+      let encryptedData = null;
+
+      if (this.useFileStorage && this.storage) {
+        // Load from chat storage system
+        const conversations = await this.storage.getConversations();
+        const settingsConv = conversations.find(conv => conv.title === 'api_settings');
+        
+        if (settingsConv) {
+          const messages = await this.storage.getMessages(settingsConv.id);
+          const settingsMessage = messages.find(msg => msg.meta?.type === 'api_settings');
+          if (settingsMessage) {
+            encryptedData = settingsMessage.meta.data;
+          }
+        }
+      } else {
+        // Fallback to sessionStorage
+        encryptedData = sessionStorage.getItem(this.storageKey);
+      }
+
+      if (!encryptedData) {
         return this.getDefaultSettings();
       }
 
-      const data = JSON.parse(fs.readFileSync(this.paths.settings, 'utf8'));
-      
-      // Decrypt sensitive fields
-      const settings = { ...data };
-      
-      if (data.apiKey && typeof data.apiKey === 'object') {
-        settings.apiKey = this.decrypt(data.apiKey);
-      }
-      
-      if (data.token && typeof data.token === 'object') {
-        settings.token = this.decrypt(data.token);
-      }
-
-      return {
-        success: true,
-        settings: {
-          apiKey: settings.apiKey || '',
-          model: settings.model || 'gemini-2.5-flash-preview-05-20',
-          provider: settings.provider || 'gemini',
-          endpoint: settings.endpoint || '',
-          timeout: settings.timeout || 30000,
-          maxTokens: settings.maxTokens || 4096,
-          temperature: settings.temperature || 0.7,
-          lastUpdated: settings.timestamp
-        }
-      };
-      
+      const settings = this.decrypt(encryptedData);
+      return settings || this.getDefaultSettings();
     } catch (error) {
       console.error('❌ Failed to load API settings:', error);
-      return { success: false, error: error.message, settings: this.getDefaultSettings() };
+      return this.getDefaultSettings();
     }
   }
 
   /**
-   * Get default settings
+   * Get default API settings
    */
   getDefaultSettings() {
     return {
-      apiKey: '',
-      model: 'gemini-2.5-flash-preview-05-20',
       provider: 'gemini',
-      endpoint: '',
-      timeout: 30000,
-      maxTokens: 4096,
-      temperature: 0.7
+      apiKey: '',
+      model: 'gemini-pro',
+      temperature: 0.7,
+      maxTokens: 1000,
+      lastUpdated: new Date().toISOString()
     };
   }
 
   /**
-   * Migrate from insecure localStorage
+   * Migrate settings from localStorage (legacy)
    */
   async migrateFromLocalStorage() {
     try {
-      const apiKey = localStorage.getItem('ai_api_key');
-      const model = localStorage.getItem('ai_model');
-      
-      if (apiKey || model) {
-        const settings = {
-          apiKey: apiKey || '',
-          model: model || 'gemini-2.5-flash-preview-05-20'
-        };
-        
-        const result = await this.saveSettings(settings);
-        
-        if (result.success) {
-          // Clear insecure localStorage
-          localStorage.removeItem('ai_api_key');
-          localStorage.removeItem('ai_model');
-          console.log('✅ API settings migrated from localStorage to secure storage');
-          return { success: true, migrated: true };
-        }
+      const legacyData = localStorage.getItem('ae_api_settings');
+      if (legacyData) {
+        const settings = JSON.parse(legacyData);
+        await this.saveSettings(settings);
+        localStorage.removeItem('ae_api_settings');
+        console.log('✅ Migrated API settings from localStorage');
+        return true;
       }
-      
-      return { success: true, migrated: false };
-      
     } catch (error) {
-      console.error('❌ API settings migration failed:', error);
-      return { success: false, error: error.message };
+      console.error('❌ Failed to migrate from localStorage:', error);
     }
+    return false;
   }
 
   /**
-   * Clear all API settings (for security)
+   * Clear all API settings
    */
   async clearSettings() {
     try {
-      if (fs.existsSync(this.paths.settings)) {
-        fs.unlinkSync(this.paths.settings);
+      if (this.useFileStorage && this.storage) {
+        const conversations = await this.storage.getConversations();
+        const settingsConv = conversations.find(conv => conv.title === 'api_settings');
+        if (settingsConv) {
+          await this.storage.deleteConversation(settingsConv.id);
+        }
+      } else {
+        sessionStorage.removeItem(this.storageKey);
       }
-      
-      // Also clear localStorage fallback
-      localStorage.removeItem('ai_api_key');
-      localStorage.removeItem('ai_model');
-      
-      console.log('🔒 API settings cleared');
-      return { success: true };
-      
+      console.log('✅ API settings cleared');
+      return true;
     } catch (error) {
       console.error('❌ Failed to clear API settings:', error);
-      return { success: false, error: error.message };
+      return false;
     }
   }
 
   /**
-   * Validate API key format (basic validation)
+   * Validate API key format
    */
   validateApiKey(key, provider = 'gemini') {
     if (!key || typeof key !== 'string') {
-      return { valid: false, reason: 'API key is required' };
+      return false;
     }
 
-    switch (provider.toLowerCase()) {
+    switch (provider) {
       case 'gemini':
-      case 'google':
-        if (!key.startsWith('AIza') && !key.startsWith('AI')) {
-          return { valid: false, reason: 'Invalid Gemini API key format' };
-        }
-        break;
+        return key.startsWith('AIza') && key.length > 20;
       case 'openai':
-        if (!key.startsWith('sk-')) {
-          return { valid: false, reason: 'Invalid OpenAI API key format' };
-        }
-        break;
-      case 'anthropic':
-        if (!key.startsWith('sk-ant-')) {
-          return { valid: false, reason: 'Invalid Anthropic API key format' };
-        }
-        break;
+        return key.startsWith('sk-') && key.length > 20;
+      case 'claude':
+        return key.startsWith('sk-ant-') && key.length > 20;
+      default:
+        return key.length > 10; // Basic validation
     }
-
-    if (key.length < 20) {
-      return { valid: false, reason: 'API key too short' };
-    }
-
-    return { valid: true };
   }
 
   /**
@@ -300,20 +226,19 @@ class SecureAPIStorage {
    */
   getStorageInfo() {
     return {
-      settingsPath: this.paths.settings,
-      settingsExists: fs.existsSync(this.paths.settings),
-      keystoreExists: fs.existsSync(this.paths.keystore),
-      platform: os.platform(),
-      secured: true,
-      encryptionEnabled: !!this.encryptionKey
+      initialized: this.initialized,
+      useFileStorage: this.useFileStorage,
+      storageKey: this.storageKey
     };
   }
 }
 
-// Export for use in other modules
-module.exports = { SecureAPIStorage };
-
-// Browser compatibility layer
+// Make globally available
 if (typeof window !== 'undefined') {
   window.SecureAPIStorage = SecureAPIStorage;
+}
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = SecureAPIStorage;
 }

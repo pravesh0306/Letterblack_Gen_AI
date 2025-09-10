@@ -1,0 +1,5 @@
+/* Voice features styles */
+.voice-btn { position: relative; }
+.recording-indicator { width: 8px; height: 8px; border-radius: 50%; background: #e53935; position: absolute; top: 6px; right: 6px; opacity: 0; transition: opacity .2s; }
+.voice-active .recording-indicator { opacity: 1; }
+.mascot-mute-btn { position: absolute; bottom: -10px; right: -10px; background: #111; color: #fff; border: none; border-radius: 16px; padding: 6px; cursor: pointer; }
