@@ -69,13 +69,14 @@ class SecureAPISettingsUI {
    * Render the secure API settings UI
    */
   renderUI(settings) {
+    // Render static markup first (no user-controlled values)
     this.container.innerHTML = `
       <div class="secure-api-settings">
         <div class="api-settings-header">
           <h3>🔒 Secure API Configuration</h3>
           <div class="security-badge">Encrypted Storage</div>
         </div>
-        
+
         <div class="api-settings-form">
           <div class="form-group">
             <label for="api-provider" class="api-label">
@@ -83,10 +84,10 @@ class SecureAPISettingsUI {
               <span class="label-required">*</span>
             </label>
             <select id="api-provider" class="api-input">
-              <option value="gemini" ${settings.provider === 'gemini' ? 'selected' : ''}>Google Gemini</option>
-              <option value="openai" ${settings.provider === 'openai' ? 'selected' : ''}>OpenAI</option>
-              <option value="anthropic" ${settings.provider === 'anthropic' ? 'selected' : ''}>Anthropic Claude</option>
-              <option value="custom" ${settings.provider === 'custom' ? 'selected' : ''}>Custom Endpoint</option>
+              <option value="gemini">Google Gemini</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic Claude</option>
+              <option value="custom">Custom Endpoint</option>
             </select>
           </div>
 
@@ -98,9 +99,8 @@ class SecureAPISettingsUI {
             </label>
             <div class="password-input-group">
               <input 
-                id="api-key" 
-                type="password" 
-                value="${settings.apiKey || ''}" 
+                id="api-key"
+                type="password"
                 class="api-input password-input"
                 placeholder="Enter your API key (will be encrypted)"
                 autocomplete="new-password"
@@ -116,14 +116,7 @@ class SecureAPISettingsUI {
             <label for="api-model" class="api-label">
               <span class="label-text">Model</span>
             </label>
-            <select id="api-model" class="api-input">
-              <option value="gemini-2.5-flash-preview-05-20" ${settings.model === 'gemini-2.5-flash-preview-05-20' ? 'selected' : ''}>Gemini 2.5 Flash</option>
-              <option value="gemini-1.5-pro" ${settings.model === 'gemini-1.5-pro' ? 'selected' : ''}>Gemini 1.5 Pro</option>
-              <option value="gpt-4o" ${settings.model === 'gpt-4o' ? 'selected' : ''}>GPT-4o</option>
-              <option value="gpt-4o-mini" ${settings.model === 'gpt-4o-mini' ? 'selected' : ''}>GPT-4o Mini</option>
-              <option value="claude-3-5-sonnet" ${settings.model === 'claude-3-5-sonnet' ? 'selected' : ''}>Claude 3.5 Sonnet</option>
-              <option value="custom" ${settings.model === 'custom' ? 'selected' : ''}>Custom Model</option>
-            </select>
+            <select id="api-model" class="api-input"></select>
           </div>
 
           <div class="form-group advanced-group" style="display: none;">
@@ -131,9 +124,8 @@ class SecureAPISettingsUI {
               <span class="label-text">Custom Endpoint</span>
             </label>
             <input 
-              id="api-endpoint" 
-              type="url" 
-              value="${settings.endpoint || ''}" 
+              id="api-endpoint"
+              type="url"
               class="api-input"
               placeholder="https://api.example.com/v1"
             >
@@ -143,9 +135,8 @@ class SecureAPISettingsUI {
             <div class="form-group half">
               <label for="api-timeout" class="api-label">Timeout (ms)</label>
               <input 
-                id="api-timeout" 
-                type="number" 
-                value="${settings.timeout || 30000}" 
+                id="api-timeout"
+                type="number"
                 class="api-input"
                 min="5000"
                 max="300000"
@@ -155,9 +146,8 @@ class SecureAPISettingsUI {
             <div class="form-group half">
               <label for="api-max-tokens" class="api-label">Max Tokens</label>
               <input 
-                id="api-max-tokens" 
-                type="number" 
-                value="${settings.maxTokens || 4096}" 
+                id="api-max-tokens"
+                type="number"
                 class="api-input"
                 min="1"
                 max="32768"
@@ -168,15 +158,14 @@ class SecureAPISettingsUI {
           <div class="form-group">
             <label for="api-temperature" class="api-label">
               <span class="label-text">Temperature</span>
-              <span class="temperature-value">${settings.temperature || 0.7}</span>
+              <span class="temperature-value"></span>
             </label>
             <input 
-              id="api-temperature" 
-              type="range" 
-              min="0" 
-              max="1" 
-              step="0.1" 
-              value="${settings.temperature || 0.7}" 
+              id="api-temperature"
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
               class="api-slider"
             >
             <div class="slider-labels">
@@ -208,13 +197,50 @@ class SecureAPISettingsUI {
           </ul>
         </div>
 
-        ${settings.lastUpdated ? `
-          <div class="last-updated">
-            Last updated: ${new Date(settings.lastUpdated).toLocaleString()}
-          </div>
-        ` : ''}
+        <div class="last-updated" style="display:none;"></div>
       </div>
     `;
+
+    // After static render, safely set dynamic values
+    const providerSelect = this.container.querySelector('#api-provider');
+    const modelSelect = this.container.querySelector('#api-model');
+    const endpointInput = this.container.querySelector('#api-endpoint');
+    const apiKeyInput = this.container.querySelector('#api-key');
+    const timeoutInput = this.container.querySelector('#api-timeout');
+    const maxTokensInput = this.container.querySelector('#api-max-tokens');
+    const tempSlider = this.container.querySelector('#api-temperature');
+    const tempValue = this.container.querySelector('.temperature-value');
+    const advancedGroup = this.container.querySelector('.advanced-group');
+    const lastUpdatedDiv = this.container.querySelector('.last-updated');
+
+    // Set provider
+    providerSelect.value = settings.provider || 'gemini';
+    // Build model options safely for provider
+    this.populateModelOptions(providerSelect.value, modelSelect);
+    // Set selected model
+    if (settings.model) {
+      modelSelect.value = settings.model;
+    }
+
+    // Assign other values
+    apiKeyInput.value = settings.apiKey || '';
+    endpointInput.value = settings.endpoint || '';
+    timeoutInput.value = (typeof settings.timeout === 'number' ? settings.timeout : 30000);
+    maxTokensInput.value = (typeof settings.maxTokens === 'number' ? settings.maxTokens : 4096);
+    const temp = (typeof settings.temperature === 'number' ? settings.temperature : 0.7);
+    tempSlider.value = String(temp);
+    if (tempValue) tempValue.textContent = String(temp);
+
+    // Advanced visibility for custom provider
+    if (advancedGroup) {
+      advancedGroup.style.display = providerSelect.value === 'custom' ? 'block' : 'none';
+    }
+
+    // Last updated timestamp
+    if (settings.lastUpdated && lastUpdatedDiv) {
+      lastUpdatedDiv.textContent = `Last updated: ${new Date(settings.lastUpdated).toLocaleString()}`;
+      lastUpdatedDiv.style.display = 'block';
+    }
   }
 
   /**
@@ -252,40 +278,47 @@ class SecureAPISettingsUI {
   handleProviderChange(provider) {
     const modelSelect = this.container.querySelector('#api-model');
     const advancedGroup = this.container.querySelector('.advanced-group');
-    
-    // Update model options based on provider
-    let options = '';
-    switch (provider) {
-      case 'gemini':
-        options = `
-          <option value="gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash</option>
-          <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-        `;
-        break;
-      case 'openai':
-        options = `
-          <option value="gpt-4o">GPT-4o</option>
-          <option value="gpt-4o-mini">GPT-4o Mini</option>
-          <option value="gpt-4-turbo">GPT-4 Turbo</option>
-        `;
-        break;
-      case 'anthropic':
-        options = `
-          <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
-          <option value="claude-3-opus">Claude 3 Opus</option>
-        `;
-        break;
-      case 'custom':
-        options = '<option value="custom">Custom Model</option>';
-        break;
-    }
-    
-    modelSelect.innerHTML = options;
-    
+    // Repopulate options safely
+    this.populateModelOptions(provider, modelSelect);
     // Show/hide advanced settings for custom provider
     if (advancedGroup) {
       advancedGroup.style.display = provider === 'custom' ? 'block' : 'none';
     }
+  }
+
+  /**
+   * Populate model options safely for a provider
+   */
+  populateModelOptions(provider, modelSelect) {
+    if (!modelSelect) return;
+    const optionsMap = {
+      gemini: [
+        { value: 'gemini-2.5-flash-preview-05-20', label: 'Gemini 2.5 Flash' },
+        { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' }
+      ],
+      openai: [
+        { value: 'gpt-4o', label: 'GPT-4o' },
+        { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+        { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' }
+      ],
+      anthropic: [
+        { value: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet' },
+        { value: 'claude-3-opus', label: 'Claude 3 Opus' }
+      ],
+      custom: [
+        { value: 'custom', label: 'Custom Model' }
+      ]
+    };
+
+    // Clear existing
+    modelSelect.innerHTML = '';
+    const list = optionsMap[provider] || [];
+    list.forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt.value;
+      option.textContent = opt.label;
+      modelSelect.appendChild(option);
+    });
   }
 
   /**
@@ -310,20 +343,28 @@ class SecureAPISettingsUI {
     const errorsDiv = this.container.querySelector('#api-validation-errors');
     
     if (!keyInput.value.trim()) {
-      errorsDiv.innerHTML = '';
+  errorsDiv.innerHTML = '';
       return true;
     }
     
     const validation = this.storage.validateApiKey(keyInput.value, providerSelect.value);
     
     if (validation.valid) {
-      errorsDiv.innerHTML = '<div class="validation-success">✅ API key format looks valid</div>';
+  errorsDiv.innerHTML = '';
+  const ok = document.createElement('div');
+  ok.className = 'validation-success';
+  ok.textContent = '✅ API key format looks valid';
+  errorsDiv.appendChild(ok);
       keyInput.classList.remove('error');
       keyInput.classList.add('success');
     } else {
-      // XSS Protection: Escape validation reason
-      const escapedReason = this.escapeHtml(validation.reason);
-      errorsDiv.innerHTML = `<div class="validation-error">❌ ${escapedReason}</div>`;
+  // XSS Protection: Escape validation reason and set via textContent
+  const escapedReason = this.escapeHtml(validation.reason);
+  errorsDiv.innerHTML = '';
+  const bad = document.createElement('div');
+  bad.className = 'validation-error';
+  bad.textContent = `❌ ${escapedReason}`;
+  errorsDiv.appendChild(bad);
       keyInput.classList.remove('success');
       keyInput.classList.add('error');
     }
@@ -489,13 +530,23 @@ class SecureAPISettingsUI {
    * Render error state
    */
   renderError(message) {
-    this.container.innerHTML = `
-      <div class="api-settings-error">
-        <h3>❌ Error</h3>
-        <p>${message}</p>
-        <button onclick="location.reload()">🔄 Retry</button>
-      </div>
-    `;
+  // Build error UI safely without innerHTML or inline onclick
+  this.container.innerHTML = '';
+  const wrapper = document.createElement('div');
+  wrapper.className = 'api-settings-error';
+
+  const h3 = document.createElement('h3');
+  h3.textContent = '❌ Error';
+  const p = document.createElement('p');
+  p.textContent = message;
+  const btn = document.createElement('button');
+  btn.textContent = '🔄 Retry';
+  btn.addEventListener('click', () => location.reload());
+
+  wrapper.appendChild(h3);
+  wrapper.appendChild(p);
+  wrapper.appendChild(btn);
+  this.container.appendChild(wrapper);
   }
 
   /**

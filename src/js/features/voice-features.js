@@ -432,21 +432,63 @@ class VoiceFeatureManager {
             }
         }
         
-        previewContainer.innerHTML = this.attachedFiles.map(fileData => `
-            <div class="file-preview-item">
-                ${fileData.type.startsWith('image/') ? 
-                    `<img src="${URL.createObjectURL(fileData.file)}" class="file-preview-image" alt="">` :
-                    `<div class="file-preview-image"><i class="fa-solid fa-file"></i></div>`
-                }
-                <div class="file-preview-info">
-                    <div class="file-preview-name">${fileData.name}</div>
-                    <div class="file-preview-size">${this.formatFileSize(fileData.size)}</div>
-                </div>
-                <button class="file-remove-btn" onclick="window.voiceManager?.removeAttachedFile(${fileData.id})">
-                    <i class="fa-solid fa-times"></i>
-                </button>
-            </div>
-        `).join('');
+        // Rebuild preview content safely
+        previewContainer.innerHTML = '';
+        this.attachedFiles.forEach(fileData => {
+            const item = document.createElement('div');
+            item.className = 'file-preview-item';
+
+            // Preview image or icon
+            if (fileData.type && fileData.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.className = 'file-preview-image';
+                img.alt = '';
+                const objectUrl = URL.createObjectURL(fileData.file);
+                img.src = objectUrl;
+                // Revoke object URL after load to avoid memory leak
+                img.addEventListener('load', () => URL.revokeObjectURL(objectUrl));
+                item.appendChild(img);
+            } else {
+                const iconWrap = document.createElement('div');
+                iconWrap.className = 'file-preview-image';
+                const icon = document.createElement('i');
+                icon.className = 'fa-solid fa-file';
+                iconWrap.appendChild(icon);
+                item.appendChild(iconWrap);
+            }
+
+            // Info
+            const info = document.createElement('div');
+            info.className = 'file-preview-info';
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'file-preview-name';
+            nameDiv.textContent = this.escapeText(fileData.name);
+            const sizeDiv = document.createElement('div');
+            sizeDiv.className = 'file-preview-size';
+            sizeDiv.textContent = this.formatFileSize(fileData.size);
+            info.appendChild(nameDiv);
+            info.appendChild(sizeDiv);
+            item.appendChild(info);
+
+            // Remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'file-remove-btn';
+            const xIcon = document.createElement('i');
+            xIcon.className = 'fa-solid fa-times';
+            removeBtn.appendChild(xIcon);
+            removeBtn.addEventListener('click', () => this.removeAttachedFile(fileData.id));
+            item.appendChild(removeBtn);
+
+            previewContainer.appendChild(item);
+        });
+    }
+
+    // Simple text escape helper to avoid DOM injection via filenames
+    escapeText(text) {
+        if (typeof text !== 'string') return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.textContent;
     }
 
     formatFileSize(bytes) {

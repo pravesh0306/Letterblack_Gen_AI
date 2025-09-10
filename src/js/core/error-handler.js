@@ -277,28 +277,63 @@ class ErrorHandler {
     };
 
     errorDiv.style.backgroundColor = colors[errorInfo.severity] || colors.medium;
-    errorDiv.innerHTML = `
-      <div style="display: flex; align-items: flex-start; gap: 12px;">
-        <div style="font-size: 18px; margin-top: 2px;">
-          ${errorInfo.severity === 'critical' ? '🚨' : 
-            errorInfo.severity === 'high' ? '❌' : 
-            errorInfo.severity === 'medium' ? '⚠️' : 'ℹ️'}
-        </div>
-        <div style="flex: 1;">
-          <div style="font-weight: 600; margin-bottom: 4px;">
-            ${errorInfo.severity.toUpperCase()} ERROR
-          </div>
-          <div style="opacity: 0.95;">
-            ${errorInfo.message}
-          </div>
-          ${errorInfo.code ? `<div style="opacity: 0.7; font-size: 11px; margin-top: 8px;">Code: ${errorInfo.code}</div>` : ''}
-        </div>
-        <button onclick="this.parentElement.parentElement.style.display='none'" 
-                style="background: none; border: none; color: white; font-size: 16px; cursor: pointer; opacity: 0.7; padding: 0;">
-          ×
-        </button>
-      </div>
-    `;
+    // Clear previous content
+    errorDiv.innerHTML = '';
+
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'flex-start';
+    row.style.gap = '12px';
+
+    const icon = document.createElement('div');
+    icon.style.fontSize = '18px';
+    icon.style.marginTop = '2px';
+    icon.textContent = (errorInfo.severity === 'critical') ? '🚨' :
+      (errorInfo.severity === 'high') ? '❌' :
+      (errorInfo.severity === 'medium') ? '⚠️' : 'ℹ️';
+
+    const body = document.createElement('div');
+    body.style.flex = '1';
+
+    const title = document.createElement('div');
+    title.style.fontWeight = '600';
+    title.style.marginBottom = '4px';
+    title.textContent = `${(errorInfo.severity || 'Unknown').toUpperCase()} ERROR`;
+
+    const msg = document.createElement('div');
+    msg.style.opacity = '0.95';
+    // message already sanitized in processError -> sanitizeMessage
+    msg.textContent = errorInfo.message;
+
+    body.appendChild(title);
+    body.appendChild(msg);
+
+    if (errorInfo.code) {
+      const codeDiv = document.createElement('div');
+      codeDiv.style.opacity = '0.7';
+      codeDiv.style.fontSize = '11px';
+      codeDiv.style.marginTop = '8px';
+      codeDiv.textContent = `Code: ${errorInfo.code}`;
+      body.appendChild(codeDiv);
+    }
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.color = 'white';
+    closeBtn.style.fontSize = '16px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.opacity = '0.7';
+    closeBtn.style.padding = '0';
+    closeBtn.addEventListener('click', () => {
+      errorDiv.style.display = 'none';
+    });
+
+    row.appendChild(icon);
+    row.appendChild(body);
+    row.appendChild(closeBtn);
+    errorDiv.appendChild(row);
 
     errorDiv.style.display = 'block';
 
