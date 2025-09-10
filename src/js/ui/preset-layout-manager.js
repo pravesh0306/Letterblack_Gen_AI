@@ -512,12 +512,15 @@ class PresetLayoutManager {
         const container = document.createElement('div');
         container.className = 'preset-selector';
         
-        const header = document.createElement('div');
-        header.className = 'preset-selector-header';
-        header.innerHTML = `
-            <h3>Layout Presets</h3>
-            <button class="preset-create-btn">Create Preset</button>
-        `;
+    const header = document.createElement('div');
+    header.className = 'preset-selector-header';
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Layout Presets';
+    const createBtn = document.createElement('button');
+    createBtn.className = 'preset-create-btn';
+    createBtn.textContent = 'Create Preset';
+    header.appendChild(h3);
+    header.appendChild(createBtn);
         
         const list = document.createElement('div');
         list.className = 'preset-list';
@@ -528,9 +531,7 @@ class PresetLayoutManager {
         container.appendChild(list);
         
         // Bind events
-        header.querySelector('.preset-create-btn').addEventListener('click', () => {
-            this.showCreatePresetDialog();
-        });
+    createBtn.addEventListener('click', () => this.showCreatePresetDialog());
         
         return container;
     }
@@ -540,28 +541,50 @@ class PresetLayoutManager {
      */
     renderPresetList(container) {
         container.innerHTML = '';
-        
         const presets = this.getAllPresets();
-        
         presets.forEach(preset => {
             const item = document.createElement('div');
-            item.className = `preset-item ${preset.id === this.activePreset ? 'active' : ''}`;
-            
-            item.innerHTML = `
-                <div class="preset-info">
-                    <div class="preset-name">${preset.name}</div>
-                    <div class="preset-description">${preset.description}</div>
-                    ${preset.builtin ? '<span class="preset-builtin">Built-in</span>' : ''}
-                </div>
-                <div class="preset-actions">
-                    <button class="preset-apply-btn" data-preset-id="${preset.id}">Apply</button>
-                    ${!preset.builtin ? `
-                        <button class="preset-edit-btn" data-preset-id="${preset.id}">Edit</button>
-                        <button class="preset-delete-btn" data-preset-id="${preset.id}">Delete</button>
-                    ` : ''}
-                </div>
-            `;
-            
+            item.className = 'preset-item' + (preset.id === this.activePreset ? ' active' : '');
+
+            const info = document.createElement('div');
+            info.className = 'preset-info';
+            const name = document.createElement('div');
+            name.className = 'preset-name';
+            name.textContent = String(preset.name || 'Untitled');
+            const desc = document.createElement('div');
+            desc.className = 'preset-description';
+            desc.textContent = String(preset.description || '');
+            info.appendChild(name);
+            info.appendChild(desc);
+            if (preset.builtin) {
+                const built = document.createElement('span');
+                built.className = 'preset-builtin';
+                built.textContent = 'Built-in';
+                info.appendChild(built);
+            }
+
+            const actions = document.createElement('div');
+            actions.className = 'preset-actions';
+            const apply = document.createElement('button');
+            apply.className = 'preset-apply-btn';
+            apply.dataset.presetId = preset.id;
+            apply.textContent = 'Apply';
+            actions.appendChild(apply);
+            if (!preset.builtin) {
+                const edit = document.createElement('button');
+                edit.className = 'preset-edit-btn';
+                edit.dataset.presetId = preset.id;
+                edit.textContent = 'Edit';
+                const del = document.createElement('button');
+                del.className = 'preset-delete-btn';
+                del.dataset.presetId = preset.id;
+                del.textContent = 'Delete';
+                actions.appendChild(edit);
+                actions.appendChild(del);
+            }
+
+            item.appendChild(info);
+            item.appendChild(actions);
             container.appendChild(item);
         });
         
@@ -584,48 +607,70 @@ class PresetLayoutManager {
      * Show create preset dialog
      */
     showCreatePresetDialog() {
-        const dialog = document.createElement('div');
-        dialog.className = 'preset-dialog-overlay';
-        dialog.innerHTML = `
-            <div class="preset-dialog">
-                <div class="preset-dialog-header">
-                    <h3>Create Layout Preset</h3>
-                    <button class="preset-dialog-close">×</button>
-                </div>
-                <div class="preset-dialog-content">
-                    <div class="form-group">
-                        <label>Preset Name</label>
-                        <input type="text" class="preset-name-input" placeholder="Enter preset name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea class="preset-description-input" placeholder="Optional description"></textarea>
-                    </div>
-                </div>
-                <div class="preset-dialog-footer">
-                    <button class="preset-dialog-cancel">Cancel</button>
-                    <button class="preset-dialog-save">Create Preset</button>
-                </div>
-            </div>
-        `;
+    const dialog = document.createElement('div');
+    dialog.className = 'preset-dialog-overlay';
+    const panel = document.createElement('div');
+    panel.className = 'preset-dialog';
+    const header = document.createElement('div');
+    header.className = 'preset-dialog-header';
+    const title = document.createElement('h3');
+    title.textContent = 'Create Layout Preset';
+    const close = document.createElement('button');
+    close.className = 'preset-dialog-close';
+    close.textContent = '×';
+    header.appendChild(title);
+    header.appendChild(close);
+    const content = document.createElement('div');
+    content.className = 'preset-dialog-content';
+    const fg1 = document.createElement('div');
+    fg1.className = 'form-group';
+    const l1 = document.createElement('label');
+    l1.textContent = 'Preset Name';
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'preset-name-input';
+    nameInput.placeholder = 'Enter preset name';
+    nameInput.required = true;
+    fg1.appendChild(l1);
+    fg1.appendChild(nameInput);
+    const fg2 = document.createElement('div');
+    fg2.className = 'form-group';
+    const l2 = document.createElement('label');
+    l2.textContent = 'Description';
+    const descInput = document.createElement('textarea');
+    descInput.className = 'preset-description-input';
+    descInput.placeholder = 'Optional description';
+    fg2.appendChild(l2);
+    fg2.appendChild(descInput);
+    content.appendChild(fg1);
+    content.appendChild(fg2);
+    const footer = document.createElement('div');
+    footer.className = 'preset-dialog-footer';
+    const cancel = document.createElement('button');
+    cancel.className = 'preset-dialog-cancel';
+    cancel.textContent = 'Cancel';
+    const save = document.createElement('button');
+    save.className = 'preset-dialog-save';
+    save.textContent = 'Create Preset';
+    footer.appendChild(cancel);
+    footer.appendChild(save);
+    panel.appendChild(header);
+    panel.appendChild(content);
+    panel.appendChild(footer);
+    dialog.appendChild(panel);
         
         document.body.appendChild(dialog);
         
         // Focus name input
-        dialog.querySelector('.preset-name-input').focus();
+    nameInput.focus();
         
         // Bind events
-        dialog.querySelector('.preset-dialog-close').addEventListener('click', () => {
-            dialog.remove();
-        });
-        
-        dialog.querySelector('.preset-dialog-cancel').addEventListener('click', () => {
-            dialog.remove();
-        });
-        
-        dialog.querySelector('.preset-dialog-save').addEventListener('click', () => {
-            const name = dialog.querySelector('.preset-name-input').value.trim();
-            const description = dialog.querySelector('.preset-description-input').value.trim();
+        close.addEventListener('click', () => dialog.remove());
+        cancel.addEventListener('click', () => dialog.remove());
+
+        save.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const description = descInput.value.trim();
             
             if (!name) {
                 alert('Please enter a preset name');
@@ -642,11 +687,7 @@ class PresetLayoutManager {
         });
         
         // Close on overlay click
-        dialog.addEventListener('click', (e) => {
-            if (e.target === dialog) {
-                dialog.remove();
-            }
-        });
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.remove(); });
     }
     
     /**
@@ -656,45 +697,66 @@ class PresetLayoutManager {
         const preset = this.getPreset(presetId);
         if (!preset || preset.builtin) return;
         
-        const dialog = document.createElement('div');
-        dialog.className = 'preset-dialog-overlay';
-        dialog.innerHTML = `
-            <div class="preset-dialog">
-                <div class="preset-dialog-header">
-                    <h3>Edit Layout Preset</h3>
-                    <button class="preset-dialog-close">×</button>
-                </div>
-                <div class="preset-dialog-content">
-                    <div class="form-group">
-                        <label>Preset Name</label>
-                        <input type="text" class="preset-name-input" value="${preset.name}" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea class="preset-description-input">${preset.description}</textarea>
-                    </div>
-                </div>
-                <div class="preset-dialog-footer">
-                    <button class="preset-dialog-cancel">Cancel</button>
-                    <button class="preset-dialog-save">Save Changes</button>
-                </div>
-            </div>
-        `;
+    const dialog = document.createElement('div');
+    dialog.className = 'preset-dialog-overlay';
+    const panel = document.createElement('div');
+    panel.className = 'preset-dialog';
+    const header = document.createElement('div');
+    header.className = 'preset-dialog-header';
+    const title = document.createElement('h3');
+    title.textContent = 'Edit Layout Preset';
+    const close = document.createElement('button');
+    close.className = 'preset-dialog-close';
+    close.textContent = '×';
+    header.appendChild(title);
+    header.appendChild(close);
+    const content = document.createElement('div');
+    content.className = 'preset-dialog-content';
+    const fg1 = document.createElement('div');
+    fg1.className = 'form-group';
+    const l1 = document.createElement('label');
+    l1.textContent = 'Preset Name';
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'preset-name-input';
+    nameInput.required = true;
+    nameInput.value = String(preset.name || '');
+    fg1.appendChild(l1);
+    fg1.appendChild(nameInput);
+    const fg2 = document.createElement('div');
+    fg2.className = 'form-group';
+    const l2 = document.createElement('label');
+    l2.textContent = 'Description';
+    const descInput = document.createElement('textarea');
+    descInput.className = 'preset-description-input';
+    descInput.value = String(preset.description || '');
+    fg2.appendChild(l2);
+    fg2.appendChild(descInput);
+    content.appendChild(fg1);
+    content.appendChild(fg2);
+    const footer = document.createElement('div');
+    footer.className = 'preset-dialog-footer';
+    const cancel = document.createElement('button');
+    cancel.className = 'preset-dialog-cancel';
+    cancel.textContent = 'Cancel';
+    const save = document.createElement('button');
+    save.className = 'preset-dialog-save';
+    save.textContent = 'Save Changes';
+    footer.appendChild(cancel);
+    footer.appendChild(save);
+    panel.appendChild(header);
+    panel.appendChild(content);
+    panel.appendChild(footer);
+    dialog.appendChild(panel);
         
         document.body.appendChild(dialog);
         
         // Bind events
-        dialog.querySelector('.preset-dialog-close').addEventListener('click', () => {
-            dialog.remove();
-        });
-        
-        dialog.querySelector('.preset-dialog-cancel').addEventListener('click', () => {
-            dialog.remove();
-        });
-        
-        dialog.querySelector('.preset-dialog-save').addEventListener('click', () => {
-            const name = dialog.querySelector('.preset-name-input').value.trim();
-            const description = dialog.querySelector('.preset-description-input').value.trim();
+        close.addEventListener('click', () => dialog.remove());
+        cancel.addEventListener('click', () => dialog.remove());
+        save.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const description = descInput.value.trim();
             
             if (!name) {
                 alert('Please enter a preset name');
@@ -706,11 +768,7 @@ class PresetLayoutManager {
         });
         
         // Close on overlay click
-        dialog.addEventListener('click', (e) => {
-            if (e.target === dialog) {
-                dialog.remove();
-            }
-        });
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.remove(); });
     }
     
     /**
@@ -720,7 +778,7 @@ class PresetLayoutManager {
         const preset = this.getPreset(presetId);
         if (!preset) return;
         
-        if (confirm(`Delete preset "${preset.name}"?`)) {
+    if (confirm(`Delete preset "${String(preset.name)}"?`)) {
             this.deletePreset(presetId);
         }
     }

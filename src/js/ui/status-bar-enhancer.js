@@ -32,44 +32,67 @@ class StatusBarEnhancer {
             document.body.appendChild(statusBar);
         }
 
-        // Enhanced status bar HTML
-        statusBar.innerHTML = `
-            <div class="status-section status-main">
-                <div class="status-indicator">
-                    <span class="status-dot"></span>
-                    <span class="status-text">Ready</span>
-                </div>
-            </div>
-            
-            <div class="status-section status-performance">
-                <div class="performance-indicator">
-                    <span class="performance-label">Performance:</span>
-                    <div class="performance-bar">
-                        <div class="performance-fill"></div>
-                    </div>
-                    <span class="performance-text">Good</span>
-                </div>
-            </div>
-            
-            <div class="status-section status-connection">
-                <div class="connection-indicator">
-                    <span class="connection-dot"></span>
-                    <span class="connection-text">Connected</span>
-                </div>
-            </div>
-            
-            <div class="status-section status-actions">
-                <button class="status-action-btn" id="clear-cache-btn" title="Clear Cache">
-                    🗑️
-                </button>
-                <button class="status-action-btn" id="refresh-status-btn" title="Refresh Status">
-                    🔄
-                </button>
-                <button class="status-action-btn" id="toggle-debug-btn" title="Toggle Debug Mode">
-                    🐛
-                </button>
-            </div>
-        `;
+        // Build enhanced status bar DOM
+        statusBar.textContent = '';
+
+        const makeEl = (tag, className, text) => {
+            const el = document.createElement(tag);
+            if (className) el.className = className;
+            if (text != null) el.textContent = text;
+            return el;
+        };
+
+        // Main status
+        const mainSection = makeEl('div', 'status-section status-main');
+        const statusIndicator = makeEl('div', 'status-indicator');
+        const statusDot = makeEl('span', 'status-dot');
+        const statusText = makeEl('span', 'status-text', 'Ready');
+        statusIndicator.appendChild(statusDot);
+        statusIndicator.appendChild(statusText);
+        mainSection.appendChild(statusIndicator);
+
+        // Performance
+        const perfSection = makeEl('div', 'status-section status-performance');
+        const perfIndicator = makeEl('div', 'performance-indicator');
+        const perfLabel = makeEl('span', 'performance-label', 'Performance:');
+        const perfBar = makeEl('div', 'performance-bar');
+        const perfFill = makeEl('div', 'performance-fill');
+        perfBar.appendChild(perfFill);
+        const perfText = makeEl('span', 'performance-text', 'Good');
+        perfIndicator.appendChild(perfLabel);
+        perfIndicator.appendChild(perfBar);
+        perfIndicator.appendChild(perfText);
+        perfSection.appendChild(perfIndicator);
+
+        // Connection
+        const connSection = makeEl('div', 'status-section status-connection');
+        const connIndicator = makeEl('div', 'connection-indicator');
+        const connDot = makeEl('span', 'connection-dot');
+        const connText = makeEl('span', 'connection-text', 'Connected');
+        connIndicator.appendChild(connDot);
+        connIndicator.appendChild(connText);
+        connSection.appendChild(connIndicator);
+
+        // Actions
+        const actionsSection = makeEl('div', 'status-section status-actions');
+        const clearBtn = makeEl('button', 'status-action-btn', '🗑️');
+        clearBtn.id = 'clear-cache-btn';
+        clearBtn.title = 'Clear Cache';
+        const refreshBtn = makeEl('button', 'status-action-btn', '🔄');
+        refreshBtn.id = 'refresh-status-btn';
+        refreshBtn.title = 'Refresh Status';
+        const debugBtn = makeEl('button', 'status-action-btn', '🐛');
+        debugBtn.id = 'toggle-debug-btn';
+        debugBtn.title = 'Toggle Debug Mode';
+        actionsSection.appendChild(clearBtn);
+        actionsSection.appendChild(refreshBtn);
+        actionsSection.appendChild(debugBtn);
+
+        // Assemble
+        statusBar.appendChild(mainSection);
+        statusBar.appendChild(perfSection);
+        statusBar.appendChild(connSection);
+        statusBar.appendChild(actionsSection);
 
         this.setupStatusActions();
     }
@@ -262,27 +285,48 @@ class StatusBarEnhancer {
         
         const debugPanel = document.createElement('div');
         debugPanel.className = 'debug-panel';
-        debugPanel.innerHTML = `
-            <div class="debug-header">Debug Information</div>
-            <div class="debug-content">
-                <div class="debug-item">
-                    <span class="debug-label">User Agent:</span>
-                    <span class="debug-value">${navigator.userAgent.slice(0, 50)}...</span>
-                </div>
-                <div class="debug-item">
-                    <span class="debug-label">Memory Usage:</span>
-                    <span class="debug-value" id="memory-usage">Calculating...</span>
-                </div>
-                <div class="debug-item">
-                    <span class="debug-label">AI Module:</span>
-                    <span class="debug-value">${window.aiModule ? 'Available' : 'Not Available'}</span>
-                </div>
-                <div class="debug-item">
-                    <span class="debug-label">CEP Version:</span>
-                    <span class="debug-value">${window.__adobe_cep__ ? 'Available' : 'Browser Mode'}</span>
-                </div>
-            </div>
-        `;
+
+        const header = document.createElement('div');
+        header.className = 'debug-header';
+        header.textContent = 'Debug Information';
+
+        const content = document.createElement('div');
+        content.className = 'debug-content';
+
+        const makeItem = (labelText, valueText) => {
+            const item = document.createElement('div');
+            item.className = 'debug-item';
+            const label = document.createElement('span');
+            label.className = 'debug-label';
+            label.textContent = labelText;
+            const value = document.createElement('span');
+            value.className = 'debug-value';
+            value.textContent = valueText;
+            item.appendChild(label);
+            item.appendChild(value);
+            return item;
+        };
+
+        content.appendChild(makeItem('User Agent:', `${navigator.userAgent.slice(0, 50)}...`));
+
+        const memoryItem = document.createElement('div');
+        memoryItem.className = 'debug-item';
+        const memLabel = document.createElement('span');
+        memLabel.className = 'debug-label';
+        memLabel.textContent = 'Memory Usage:';
+        const memValue = document.createElement('span');
+        memValue.className = 'debug-value';
+        memValue.id = 'memory-usage';
+        memValue.textContent = 'Calculating...';
+        memoryItem.appendChild(memLabel);
+        memoryItem.appendChild(memValue);
+        content.appendChild(memoryItem);
+
+        content.appendChild(makeItem('AI Module:', (window.aiModule ? 'Available' : 'Not Available')));
+        content.appendChild(makeItem('CEP Version:', (window.__adobe_cep__ ? 'Available' : 'Browser Mode')));
+
+        debugPanel.appendChild(header);
+        debugPanel.appendChild(content);
         
         debugPanel.style.cssText = `
             position: fixed;

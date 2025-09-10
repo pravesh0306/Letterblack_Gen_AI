@@ -150,26 +150,239 @@ class SimpleSettingsManager {
     createSettingsPanel() {
         const panel = document.createElement('div');
         panel.className = 'settings-panel';
-        panel.innerHTML = `
-            <div class="settings-overlay">
-                <div class="settings-modal">
-                    <div class="settings-header">
-                        <h2>Settings</h2>
-                        <button class="settings-close">×</button>
-                    </div>
-                    <div class="settings-content">
-                        ${this.generateSettingsHTML()}
-                    </div>
-                    <div class="settings-footer">
-                        <button class="settings-reset">Reset to Defaults</button>
-                        <button class="settings-save">Save Changes</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
+
+        // Overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'settings-overlay';
+
+        // Modal container
+        const modal = document.createElement('div');
+        modal.className = 'settings-modal';
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'settings-header';
+        const title = document.createElement('h2');
+        title.textContent = 'Settings';
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'settings-close';
+        closeBtn.setAttribute('aria-label', 'Close settings');
+        closeBtn.textContent = '×';
+        header.appendChild(title);
+        header.appendChild(closeBtn);
+
+        // Content
+        const content = document.createElement('div');
+        content.className = 'settings-content';
+        content.appendChild(this.buildSettingsContent());
+
+        // Footer
+        const footer = document.createElement('div');
+        footer.className = 'settings-footer';
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'settings-reset';
+        resetBtn.textContent = 'Reset to Defaults';
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'settings-save';
+        saveBtn.textContent = 'Save Changes';
+        footer.appendChild(resetBtn);
+        footer.appendChild(saveBtn);
+
+        // Assemble
+        modal.appendChild(header);
+        modal.appendChild(content);
+        modal.appendChild(footer);
+        overlay.appendChild(modal);
+        panel.appendChild(overlay);
+
         this.bindSettingsEvents(panel);
         return panel;
+    }
+
+    /**
+     * Build settings form content safely using DOM APIs
+     */
+    buildSettingsContent() {
+        const container = document.createElement('div');
+
+        // Helper to create a section
+        const createSection = (titleText) => {
+            const section = document.createElement('div');
+            section.className = 'settings-section';
+            const h3 = document.createElement('h3');
+            h3.textContent = titleText;
+            section.appendChild(h3);
+            return section;
+        };
+
+        // Appearance Section
+        const appearance = createSection('Appearance');
+        // Theme select
+        const themeItem = document.createElement('div');
+        themeItem.className = 'setting-item';
+        const themeLabel = document.createElement('label');
+        themeLabel.textContent = 'Theme';
+        const themeSelect = document.createElement('select');
+        themeSelect.className = 'setting-input';
+        themeSelect.dataset.setting = 'theme';
+        const themes = [
+            { value: 'dark', label: 'Dark' },
+            { value: 'light', label: 'Light' },
+            { value: 'auto', label: 'Auto' }
+        ];
+        themes.forEach(({ value, label }) => {
+            const opt = document.createElement('option');
+            opt.value = value;
+            opt.textContent = label;
+            if (this.get('theme') === value) opt.selected = true;
+            themeSelect.appendChild(opt);
+        });
+        themeItem.appendChild(themeLabel);
+        themeItem.appendChild(themeSelect);
+        appearance.appendChild(themeItem);
+
+        // Layout Scale
+        const scaleItem = document.createElement('div');
+        scaleItem.className = 'setting-item';
+        const scaleLabel = document.createElement('label');
+        scaleLabel.textContent = 'Layout Scale';
+        const scaleInput = document.createElement('input');
+        scaleInput.type = 'range';
+        scaleInput.className = 'setting-input';
+        scaleInput.dataset.setting = 'layoutScale';
+        scaleInput.min = '0.5';
+        scaleInput.max = '2.0';
+        scaleInput.step = '0.1';
+        scaleInput.value = String(this.get('layoutScale'));
+        const scaleValue = document.createElement('span');
+        scaleValue.className = 'setting-value';
+        scaleValue.textContent = `${Math.round(this.get('layoutScale') * 100)}%`;
+        scaleItem.appendChild(scaleLabel);
+        scaleItem.appendChild(scaleInput);
+        scaleItem.appendChild(scaleValue);
+        appearance.appendChild(scaleItem);
+
+        // Show Grid
+        const gridItem = document.createElement('div');
+        gridItem.className = 'setting-item';
+        const gridLabel = document.createElement('label');
+        const gridCheckbox = document.createElement('input');
+        gridCheckbox.type = 'checkbox';
+        gridCheckbox.className = 'setting-input';
+        gridCheckbox.dataset.setting = 'showGrid';
+        gridCheckbox.checked = !!this.get('showGrid');
+        gridLabel.appendChild(gridCheckbox);
+        gridLabel.appendChild(document.createTextNode('Show Grid'));
+        gridItem.appendChild(gridLabel);
+        appearance.appendChild(gridItem);
+
+        container.appendChild(appearance);
+
+        // AI Configuration Section
+        const aiSection = createSection('AI Configuration');
+        // API Endpoint
+        const apiItem = document.createElement('div');
+        apiItem.className = 'setting-item';
+        const apiLabel = document.createElement('label');
+        apiLabel.textContent = 'API Endpoint';
+        const apiInput = document.createElement('input');
+        apiInput.type = 'text';
+        apiInput.className = 'setting-input';
+        apiInput.dataset.setting = 'apiEndpoint';
+        apiInput.placeholder = 'http://localhost:1234/v1';
+        apiInput.value = String(this.get('apiEndpoint') || '');
+        apiItem.appendChild(apiLabel);
+        apiItem.appendChild(apiInput);
+        aiSection.appendChild(apiItem);
+
+        // Temperature
+        const tempItem = document.createElement('div');
+        tempItem.className = 'setting-item';
+        const tempLabel = document.createElement('label');
+        tempLabel.textContent = 'Temperature';
+        const tempInput = document.createElement('input');
+        tempInput.type = 'range';
+        tempInput.className = 'setting-input';
+        tempInput.dataset.setting = 'temperature';
+        tempInput.min = '0';
+        tempInput.max = '2';
+        tempInput.step = '0.1';
+        tempInput.value = String(this.get('temperature'));
+        const tempValue = document.createElement('span');
+        tempValue.className = 'setting-value';
+        tempValue.textContent = String(this.get('temperature'));
+        tempItem.appendChild(tempLabel);
+        tempItem.appendChild(tempInput);
+        tempItem.appendChild(tempValue);
+        aiSection.appendChild(tempItem);
+
+        // Max Tokens
+        const tokensItem = document.createElement('div');
+        tokensItem.className = 'setting-item';
+        const tokensLabel = document.createElement('label');
+        tokensLabel.textContent = 'Max Tokens';
+        const tokensInput = document.createElement('input');
+        tokensInput.type = 'number';
+        tokensInput.className = 'setting-input';
+        tokensInput.dataset.setting = 'maxTokens';
+        tokensInput.min = '128';
+        tokensInput.max = '8192';
+        tokensInput.value = String(this.get('maxTokens'));
+        tokensItem.appendChild(tokensLabel);
+        tokensItem.appendChild(tokensInput);
+        aiSection.appendChild(tokensItem);
+
+        container.appendChild(aiSection);
+
+        // File Handling Section
+        const fileSection = createSection('File Handling');
+        // Max File Size (MB)
+        const sizeItem = document.createElement('div');
+        sizeItem.className = 'setting-item';
+        const sizeLabel = document.createElement('label');
+        sizeLabel.textContent = 'Max File Size (MB)';
+        const sizeInput = document.createElement('input');
+        sizeInput.type = 'number';
+        sizeInput.className = 'setting-input';
+        sizeInput.dataset.setting = 'maxFileSize';
+        sizeInput.min = '1';
+        sizeInput.max = '500';
+        sizeInput.value = String((this.get('maxFileSize') || 0) / 1024 / 1024);
+        sizeItem.appendChild(sizeLabel);
+        sizeItem.appendChild(sizeInput);
+        fileSection.appendChild(sizeItem);
+
+        // Enable Clipboard
+        const clipboardItem = document.createElement('div');
+        clipboardItem.className = 'setting-item';
+        const clipboardLabel = document.createElement('label');
+        const clipboardCheckbox = document.createElement('input');
+        clipboardCheckbox.type = 'checkbox';
+        clipboardCheckbox.className = 'setting-input';
+        clipboardCheckbox.dataset.setting = 'enableClipboard';
+        clipboardCheckbox.checked = !!this.get('enableClipboard');
+        clipboardLabel.appendChild(clipboardCheckbox);
+        clipboardLabel.appendChild(document.createTextNode('Enable Clipboard Detection'));
+        clipboardItem.appendChild(clipboardLabel);
+        fileSection.appendChild(clipboardItem);
+
+        // Auto-save
+        const autosaveItem = document.createElement('div');
+        autosaveItem.className = 'setting-item';
+        const autosaveLabel = document.createElement('label');
+        const autosaveCheckbox = document.createElement('input');
+        autosaveCheckbox.type = 'checkbox';
+        autosaveCheckbox.className = 'setting-input';
+        autosaveCheckbox.dataset.setting = 'autoSave';
+        autosaveCheckbox.checked = !!this.get('autoSave');
+        autosaveLabel.appendChild(autosaveCheckbox);
+        autosaveLabel.appendChild(document.createTextNode('Auto-save Workflows'));
+        autosaveItem.appendChild(autosaveLabel);
+        fileSection.appendChild(autosaveItem);
+
+        container.appendChild(fileSection);
+
+        return container;
     }
     
     /**
