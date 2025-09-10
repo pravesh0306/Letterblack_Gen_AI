@@ -208,10 +208,15 @@
             if (!savedScriptsContainer) return;
             
             const scripts = await getSavedScripts();
-            savedScriptsContainer.innerHTML = '';
+            // Clear container safely instead of innerHTML
+            while (savedScriptsContainer.firstChild) {
+                savedScriptsContainer.removeChild(savedScriptsContainer.firstChild);
+            }
             
             if (!scripts.length) {
-                savedScriptsContainer.innerHTML = '<p>No saved scripts yet.</p>';
+                const p = document.createElement('p');
+                p.textContent = 'No saved scripts yet.';
+                savedScriptsContainer.appendChild(p);
                 return;
             }
             
@@ -222,7 +227,7 @@
                 
                 const meta = document.createElement('div');
                 meta.style.cssText = 'font-size:10px;color:#aaa;margin-bottom:6px;';
-                meta.textContent = escapeHtml(script.date);
+                meta.textContent = script.date;
                 
                 const pre = document.createElement('pre');
                 pre.style.whiteSpace = 'pre-wrap';
@@ -323,7 +328,8 @@
                     scriptEditor.parentNode.appendChild(s);
                 }
             }
-            s.textContent = escapeHtml(msg);
+            // Use textContent directly to avoid double-escaping
+            s.textContent = msg;
             setTimeout(() => {
                 if (s) s.textContent = '';
             }, 2000);
@@ -505,7 +511,10 @@
         const load = withErrorBoundary(async function() {
             if (!chatMessages) return;
             
-            chatMessages.innerHTML = '';
+            // Clear messages safely
+            while (chatMessages.firstChild) {
+                chatMessages.removeChild(chatMessages.firstChild);
+            }
             const messages = await get();
             
             messages.forEach(msg => {
@@ -514,12 +523,14 @@
                 
                 const c = document.createElement('div');
                 c.className = 'message-content';
-                c.innerHTML = `<p>${escapeHtml(msg.text)}</p>`;
+                const p = document.createElement('p');
+                p.textContent = msg.text;
+                c.appendChild(p);
                 md.appendChild(c);
                 
                 const ts = document.createElement('div');
                 ts.className = 'message-timestamp';
-                ts.textContent = escapeHtml(msg.timestamp);
+                ts.textContent = msg.timestamp;
                 md.appendChild(ts);
                 
                 chatMessages.appendChild(md);
@@ -529,7 +540,11 @@
         const clear = withErrorBoundary(async function() {
             try {
                 await secureSet('ae_chat_history', []);
-                if (chatMessages) chatMessages.innerHTML = '';
+                if (chatMessages) {
+                    while (chatMessages.firstChild) {
+                        chatMessages.removeChild(chatMessages.firstChild);
+                    }
+                }
             } catch (error) {
                 showError(ErrorMessages.STORAGE_ERROR);
             }
@@ -626,7 +641,9 @@
             d.className=`message ${type}`; 
             const c=document.createElement('div'); 
             c.className='message-content'; 
-            c.innerHTML=`<p>${escapeHtml(text)}</p>`; 
+            const p = document.createElement('p');
+            p.textContent = text;
+            c.appendChild(p);
             d.appendChild(c); 
             const ts=document.createElement('div'); 
             ts.className='message-timestamp'; 
@@ -826,7 +843,8 @@
                 console.error('AI Error:', error);
                 const errorMessage = error.message && validateText(error.message, 0, 1000) ? 
                     error.message : 'Unknown error occurred';
-                append('system', `❌ **Unexpected Error**: ${escapeHtml(errorMessage)}\n\n📍 Try refreshing the page or check your internet connection.`);
+                // append() sanitizes the text, so no need to escape here
+                append('system', `❌ **Unexpected Error**: ${errorMessage}\n\n📍 Try refreshing the page or check your internet connection.`);
             }
         }, ErrorMessages.NETWORK_ERROR);
         

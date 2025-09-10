@@ -324,12 +324,17 @@ class InlineComponentLoader {
             const target = document.querySelector(targetSelector);
             if (target) {
                 target.classList.remove('component-loading');
-                target.innerHTML = `
-                    <div class="component-error">
-                        <p>⚠️ Failed to load ${componentName}</p>
-                        <small>${error.message}</small>
-                    </div>
-                `;
+                // Build error UI safely without innerHTML
+                target.innerHTML = '';
+                const wrap = document.createElement('div');
+                wrap.className = 'component-error';
+                const p = document.createElement('p');
+                p.textContent = '⚠️ Failed to load ' + String(componentName);
+                const small = document.createElement('small');
+                small.textContent = String(error && error.message ? error.message : 'Unknown error');
+                wrap.appendChild(p);
+                wrap.appendChild(small);
+                target.appendChild(wrap);
             }
         }
     }
