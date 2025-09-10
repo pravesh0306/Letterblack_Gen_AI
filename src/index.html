@@ -8,8 +8,22 @@
     <!-- LetterBlack GenAI Design System -->
     <link rel="stylesheet" href="css/design-system.css">
     
+    <!-- Floating Mascot Component -->
+    <link rel="stylesheet" href="css/components/floating-mascot.css">
+    
+    <!-- Voice Features Component -->
+    <link rel="stylesheet" href="css/components/voice-features.css">
+    
     <!-- External Dependencies -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="js/libs/fontawesome/css/all.min.css">
+    
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Enhanced Code Blocks -->
+    <link rel="stylesheet" href="css/components/enhanced-code-blocks.css">
+    
+    <link rel="stylesheet" href="css/main-styles.css">
 </head>
 <body>
     <div class="vscode-app">
@@ -23,6 +37,11 @@
                 </div>
             </div>
             <div class="header-right">
+                <button id="mascot-debug-btn" class="header-btn mascot-debug-btn" title="Test Mascot Visibility" onclick="forceMascotVisibility(); testFloatingMascot();">
+                    🎭 TEST
+                </button>
+                <!-- CRITICAL CACHE DELETION BUTTON -->
+                <button onclick="deleteCacheAndReload()" style="background: #ff4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; margin-right: 8px; font-size: 11px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(255,68,68,0.3);" title="Delete Cache & Force Reload">🗑️ DELETE CACHE</button>
                 <button id="command-menu-trigger" class="header-btn" title="Command Palette (Ctrl+K)">
                     <i class="fa-solid fa-search"></i>
                 </button>
@@ -56,6 +75,14 @@
             </div>
         </header>
 
+        <!-- Model Status Overlay -->
+        <div id="model-status-overlay" class="model-status-overlay">
+            <span class="model-indicator">
+                <i class="fa-solid fa-robot"></i>
+                <span id="current-model-display">Loading...</span>
+            </span>
+        </div>
+
         <main class="main-content">
             <section class="chat-area">
                 <div class="context-bar">
@@ -88,10 +115,29 @@
                     </div>
                 </div>
                 
+                <!-- Context Indicator -->
+                <div id="context-indicator" class="context-indicator">
+                    <i class="fa-solid fa-eye"></i>
+                    <span class="context-text">Watching your project...</span>
+                </div>
+
+                <!-- Effects Indicator -->
+                <div id="effects-indicator" class="effects-indicator">
+                    <i class="fa-solid fa-magic"></i>
+                    <span class="effects-text">Analyzing effects...</span>
+                </div>
+                
                 <div class="composer">
                     <div class="composer-main">
                         <textarea id="chat-input" class="composer-input" placeholder="Send a message..." rows="1" maxlength="1000"></textarea>
                         <div class="composer-actions">
+                            <button id="voice-input-btn" class="composer-btn voice-btn" title="Voice to Text">
+                                <i class="fa-solid fa-microphone"></i>
+                                <div class="recording-indicator"></div>
+                            </button>
+                            <button id="attach-file-btn" class="composer-btn" title="Attach Image/File">
+                                <i class="fa-solid fa-paperclip"></i>
+                            </button>
                             <button id="analyze-youtube" class="composer-btn" title="Analyze YouTube Tutorial">
                                 <i class="fa-brands fa-youtube"></i>
                             </button>
@@ -135,8 +181,8 @@
                             AI Status
                         </button>
                     </div>
-                    <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Toggle Script Library">
-                        <i class="fa-solid fa-cog"></i>
+                    <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Collapse Panel">
+                        <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
                 
@@ -193,18 +239,64 @@
                                     <label for="api-key-setting">API Key</label>
                                     <input type="password" id="api-key-setting" class="setting-input" placeholder="Paste your API key">
                                 </div>
+                                
+                                <!-- Quick Actions next to API Settings -->
+                                <div class="api-quick-actions">
+                                    <button id="auto-detect-btn" class="toolbar-btn compact" type="button" onclick="window.smartAPIManager?.manualDetect()">
+                                        <i class="fa-solid fa-magic-wand-sparkles"></i> Auto-Detect
+                                    </button>
+                                    <button id="save-and-test-btn" class="toolbar-btn primary compact" type="button">Save</button>
+                                    <button id="export-settings-btn" class="toolbar-btn compact" type="button">Export Settings</button>
+                                </div>
                             </fieldset>
-                            <fieldset class="setting-group">
+                            
+                            <!-- Draggable Divider -->
+                            <div class="draggable-divider" data-target="additional-context" title="Drag to resize section"></div>
+                            
+                            <fieldset class="setting-group resizable-section" id="additional-context">
                                 <legend>Additional Context</legend>
                                 <div class="config-field">
                                     <label for="memory-textarea">Project Context</label>
                                     <textarea id="memory-textarea" class="setting-textarea" placeholder="Tell the AI about your project context..."></textarea>
                                 </div>
                             </fieldset>
-                            <div class="settings-actions">
-                                <button id="save-and-test-btn" class="toolbar-btn primary" type="button">Save & Test</button>
-                                <button id="export-settings-btn" class="toolbar-btn" type="button">Export Settings</button>
-                            </div>
+                            
+                            <!-- Draggable Divider -->
+                            <div class="draggable-divider" data-target="speech-settings" title="Drag to resize speech section"></div>
+                            
+                            <!-- Speech & Voice Settings -->
+                            <fieldset class="setting-group resizable-section" id="speech-settings">
+                                <legend>Speech & Voice Settings</legend>
+                                <div class="config-field">
+                                    <label for="enable-speech">
+                                        <input type="checkbox" id="enable-speech" checked>
+                                        Enable Text-to-Speech
+                                    </label>
+                                </div>
+                                <div class="config-field">
+                                    <label for="speech-voice">Voice Selection</label>
+                                    <select id="speech-voice" class="setting-select">
+                                        <option value="default">Default Voice</option>
+                                    </select>
+                                </div>
+                                <div class="config-field">
+                                    <label for="speech-rate">Speech Rate</label>
+                                    <input type="range" id="speech-rate" min="0.5" max="2" step="0.1" value="1" class="setting-range">
+                                    <span class="range-value">1.0x</span>
+                                </div>
+                                <div class="config-field">
+                                    <label for="enable-voice-input">
+                                        <input type="checkbox" id="enable-voice-input" checked>
+                                        Enable Voice Input (Speech-to-Text)
+                                    </label>
+                                </div>
+                                <div class="config-field">
+                                    <label for="enable-audio-visualizer">
+                                        <input type="checkbox" id="enable-audio-visualizer" checked>
+                                        Show Audio Visualizer
+                                    </label>
+                                </div>
+                            </fieldset>
                         </form>
                     </div>
                     
@@ -391,15 +483,17 @@
         </footer>
     </div>
     
-    <!-- Core JavaScript Files -->
+    <!-- Core JavaScript Files - Load in correct order -->
     <script src="js/core/error-handler.js"></script>
     <script src="js/core/input-validator.js"></script>
     <script src="js/core/memory-manager.js"></script>
     <script src="js/core/accessibility-manager.js"></script>
     <script src="js/core/di-container.js"></script>
     
-    <!-- Security and Storage -->
+    <!-- Security and Storage - MUST load before other modules -->
     <script src="storage/secureAPIStorage.js"></script>
+    <script src="storage/chatStore-browser.js"></script>
+    <script src="js/cep-storage-manager.js"></script>
     <script src="js/core/secure-api-settings-ui.js"></script>
     <script src="js/api-settings-migration.js"></script>
     
@@ -408,8 +502,20 @@
     <script src="js/core/module-monitor.js"></script>
     <script src="js/core/enhanced-performance-system.js"></script>
     <script src="js/core/enhanced-main.js"></script>
+    <script src="js/debug-functions.js"></script>
     <script src="js/core/ui-initializer.js"></script>
     <script src="js/core/local-file-storage-manager.js"></script>
+    
+    <!-- Mascot System -->
+    <script src="assets/mascot-animator.js"></script>
+    <script src="js/core/floating-mascot.js"></script>
+    <script src="js/core/floating-mascot-config.js"></script>
+    
+    <!-- Advanced Features -->
+    <script src="js/utils/dependency-checker.js"></script>
+    <script src="js/utils/draggable-dividers.js"></script>
+    <script src="js/features/voice-features.js"></script>
+    <script src="js/features/youtube-analysis-cascade.js"></script>
     
     <!-- Storage Integration -->
     <script src="js/legacy-chat-disabler.js"></script>
@@ -419,10 +525,14 @@
     <!-- AI System -->
     <script src="js/ai/ai-providers.js"></script>
     <script src="js/ai/ai-module.js"></script>
+    <script src="js/ai/chat-assistant.js"></script>
     <script src="js/ai/chat-memory.js"></script>
     <script src="js/ai/enhanced-ai-learning-system.js"></script>
     <script src="js/ai/smart-ai-suggestion-engine.js"></script>
+    
+    <!-- Test Functions -->
     <script src="js/ai/ai-training-data-collector.js"></script>
+    <script src="js/ai/smart-api-detector.js"></script>
     
     <!-- Utilities -->
     <script src="js/utils/advanced-sdk-integration.js"></script>
@@ -436,10 +546,7 @@
     <script src="js/ui/ui-animator.js"></script>
     <script src="js/ui/ui-bootstrap.js"></script>
     <script src="js/ui/panel-shortcuts.js"></script>
-    <script src="js/ui/settings-panel.js"></script>
     <script src="js/ui/tab-switching.js"></script>
-    <script src="js/ui/simple-settings-manager.js"></script>
-    <script src="js/ui/panel-layout-manager.js"></script>
     <script src="js/ui/preset-layout-manager.js"></script>
     <script src="js/ui/chat-scroll-enhancement.js"></script>
     
@@ -447,337 +554,113 @@
     <script src="js/utils/project-tools.js"></script>
     <script src="js/utils/saved-scripts.js"></script>
     
-    <!-- Advanced Initializers -->
-    <script src="js/core/advanced-module-initializer.js"></script>
-    <script src="assets/mascot-animator.js"></script>
+    <!-- Modular Application Initialization -->
+    <script src="js/init/cache-manager.js"></script>
+    <script src="js/init/settings-manager.js"></script>
+    <script src="js/init/mascot-controller.js"></script>
+    <script src="js/init/app-initializer.js"></script>
     
-    <!-- Application Initialization -->
-    <script>
-        // Settings management with design system compliance
-        (function initializeSettings(){
-            const apiKeyInput = document.getElementById('api-key-setting');
-            const providerSelect = document.getElementById('api-provider');
-            const modelSelect = document.getElementById('model-select-setting');
-            const memoryTextarea = document.getElementById('memory-textarea');
-            const saveBtn = document.getElementById('save-and-test-btn');
-
-            // Load saved settings
-            if (apiKeyInput) apiKeyInput.value = localStorage.getItem('ai_api_key') || '';
-            if (providerSelect) providerSelect.value = localStorage.getItem('ai_provider') || 'google';
-            if (modelSelect) modelSelect.value = localStorage.getItem('ai_model') || 'gemini-2.5-flash-preview-05-20';
-            if (memoryTextarea) memoryTextarea.value = localStorage.getItem('ai_context_memory') || '';
-
-            // Save settings with visual feedback
-            if (saveBtn) {
-                saveBtn.addEventListener('click', function(){
-                    try {
-                        localStorage.setItem('ai_api_key', apiKeyInput.value || '');
-                        localStorage.setItem('ai_provider', providerSelect.value || 'google');
-                        localStorage.setItem('ai_model', modelSelect.value || 'gemini-2.5-flash-preview-05-20');
-                        localStorage.setItem('ai_context_memory', memoryTextarea.value || '');
-                        
-                        // Design system compliant feedback
-                        const originalText = saveBtn.textContent;
-                        saveBtn.textContent = 'Saved ✓';
-                        saveBtn.classList.remove('primary');
-                        saveBtn.style.backgroundColor = 'var(--color-success)';
-                        saveBtn.style.borderColor = 'var(--color-success)';
-                        saveBtn.style.color = 'var(--color-text-inverse)';
-                        
-                        setTimeout(() => {
-                            saveBtn.textContent = originalText;
-                            saveBtn.classList.add('primary');
-                            saveBtn.style.backgroundColor = '';
-                            saveBtn.style.borderColor = '';
-                            saveBtn.style.color = '';
-                        }, 1500);
-                    } catch(e) {
-                        console.warn('Could not save settings', e);
-                        
-                        // Error feedback
-                        const originalText = saveBtn.textContent;
-                        saveBtn.textContent = 'Error!';
-                        saveBtn.style.backgroundColor = 'var(--color-error)';
-                        saveBtn.style.borderColor = 'var(--color-error)';
-                        
-                        setTimeout(() => {
-                            saveBtn.textContent = originalText;
-                            saveBtn.style.backgroundColor = '';
-                            saveBtn.style.borderColor = '';
-                        }, 1500);
-                    }
-                });
-            }
-        })();
-
-        // Enhanced systems initialization with design system compliance
-        (function initializeEnhancedSystems() {
-            console.log('🚀 Initializing LetterBlack GenAI (Design System Compliant)...');
-            
-            // Module container
-            const modules = {
-                advancedSDKIntegration: null,
-                aiModule: null,
-                aiProviders: null,
-                chatMemory: null,
-                effectsPresetsModule: null,
-                enhancedAILearningSystem: null,
-                enhancedPerformanceSystem: null,
-                layerAnalysisModule: null,
-                moduleMonitor: null,
-                smartSuggestionEngine: null,
-                simpleFileUpload: null,
-                simpleToast: null,
-                simpleYouTubeHelper: null,
-                uiAnimator: null
-            };
-
-            // Initialize modules after DOM is ready
-            setTimeout(() => {
-                try {
-                    // Initialize available modules
-                    if (window.AdvancedSDKIntegration) {
-                        modules.advancedSDKIntegration = new window.AdvancedSDKIntegration();
-                        console.log('✅ Advanced SDK Integration initialized');
-                    }
-                    
-                    if (window.AIModule) {
-                        modules.aiModule = new window.AIModule();
-                        console.log('✅ AI Module initialized');
-                    }
-                    
-                    if (window.AIProviders) {
-                        modules.aiProviders = new window.AIProviders();
-                        console.log('✅ AI Providers initialized');
-                    }
-                    
-                    if (window.ChatMemory) {
-                        modules.chatMemory = new window.ChatMemory();
-                        console.log('✅ Chat Memory initialized');
-                    }
-                    
-                    if (window.EffectsPresetsModule && modules.chatMemory) {
-                        modules.effectsPresetsModule = new window.EffectsPresetsModule(modules.chatMemory);
-                        console.log('✅ Effects Presets Module initialized');
-                    }
-                    
-                    if (window.LayerAnalysisModule) {
-                        modules.layerAnalysisModule = new window.LayerAnalysisModule();
-                        console.log('✅ Layer Analysis Module initialized');
-                    }
-                    
-                    if (window.SimpleFileUpload) {
-                        modules.simpleFileUpload = new window.SimpleFileUpload();
-                        console.log('✅ Simple File Upload initialized');
-                    }
-                    
-                    // Make modules globally available
-                    window.appModules = modules;
-                    window.AppModules = modules; // Legacy compatibility
-                    
-                    console.log('🎉 All available modules initialized successfully');
-                    
-                } catch (error) {
-                    console.warn('⚠️ Some modules failed to initialize:', error);
-                }
-            }, 500);
-            
-            // Initialize performance system
-            if (window.EnhancedPerformanceSystem) {
-                window.performanceSystem = new window.EnhancedPerformanceSystem();
-                console.log('✅ Performance System initialized');
-                
-                // Add performance indicator to status bar
-                setTimeout(() => {
-                    const statusLeft = document.querySelector('.status-left');
-                    if (statusLeft && window.performanceSystem) {
-                        try {
-                            const summary = window.performanceSystem.getPerformanceSummary();
-                            const perfIndicator = document.createElement('span');
-                            
-                            // Design system compliant styling
-                            perfIndicator.className = 'perf-indicator';
-                            
-                            perfIndicator.innerHTML = `<i class="fa-solid fa-tachometer-alt"></i> ${summary.status}`;
-                            perfIndicator.title = `Performance: ${summary.status}\nScore: ${summary.score}\nMemory: ${summary.memoryUsage}\nErrors: ${summary.errorCount}`;
-                            
-                            // Hover effect
-                            perfIndicator.addEventListener('mouseenter', function() {
-                                this.classList.add('hover');
-                            });
-                            
-                            perfIndicator.addEventListener('mouseleave', function() {
-                                this.classList.remove('hover');
-                            });
-                            
-                            statusLeft.appendChild(perfIndicator);
-                        } catch (e) {
-                            console.warn('Could not add performance indicator:', e);
-                        }
-                    }
-                }, 2000);
-            }
-
-            // Module monitor initialization
-            if (window.moduleMonitor) {
-                console.log('✅ Module Monitor active');
-                setTimeout(() => {
-                    if (window.moduleMonitor && typeof window.moduleMonitor.showReport === 'function') {
-                        window.moduleMonitor.showReport();
-                    }
-                }, 3000);
-            }
-
-            // Constants availability check
-            if (window.APP_CONSTANTS) {
-                console.log('✅ Application Constants loaded');
-                console.log('📋 Available constants:', Object.keys(window.APP_CONSTANTS));
-            }
-
-            console.log('🎉 Enhanced Systems initialization complete - Design System Compliant');
-        })();
-
-        // Command palette functionality
-        (function initializeCommandPalette() {
-            const commandTrigger = document.getElementById('command-menu-trigger');
-            const commandPanel = document.getElementById('command-menu-panel');
-            const commandSearch = document.getElementById('command-search');
-            
-            if (!commandTrigger || !commandPanel) return;
-            
-            // Toggle command palette
-            commandTrigger.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const isHidden = commandPanel.classList.contains('hidden');
-                
-                if (isHidden) {
-                    commandPanel.classList.remove('hidden');
-                    // Focus search input
-                    setTimeout(() => {
-                        if (commandSearch) commandSearch.focus();
-                    }, 100);
-                } else {
-                    commandPanel.classList.add('hidden');
-                }
-            });
-            
-            // Hide on outside click
-            document.addEventListener('click', function(e) {
-                if (!commandPanel.contains(e.target) && !commandTrigger.contains(e.target)) {
-                    commandPanel.classList.add('hidden');
-                }
-            });
-            
-            // Hide on Escape
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && !commandPanel.classList.contains('hidden')) {
-                    commandPanel.classList.add('hidden');
-                }
-            });
-            
-            // Ctrl+K shortcut
-            document.addEventListener('keydown', function(e) {
-                if (e.ctrlKey && e.key === 'k') {
-                    e.preventDefault();
-                    commandTrigger.click();
-                }
-            });
-            
-            console.log('✅ Command Palette initialized');
-        })();
-
-        // Chat History Tab functionality
-        (function initializeChatHistory() {
-            const refreshBtn = document.getElementById('refresh-storage-info');
-            const exportCurrentBtn = document.getElementById('export-conversation-btn');
-            const conversationList = document.getElementById('conversation-list');
-
-            function updateStorageInfo() {
-                if (!window.chatStorageManager) return;
-
-                try {
-                    const info = window.chatStorageManager.getStorageInfo();
-                    if (!info) return;
-
-                    // Update storage display
-                    const elements = {
-                        activeFileSize: document.getElementById('active-file-size'),
-                        archiveCount: document.getElementById('archive-count'),
-                        conversationCount: document.getElementById('conversation-count'),
-                        storagePath: document.getElementById('storage-path')
-                    };
-
-                    if (elements.activeFileSize) {
-                        const size = info.activeFileSize ? `${(info.activeFileSize / 1024).toFixed(1)} KB` : '0 KB';
-                        elements.activeFileSize.textContent = size;
-                    }
-
-                    if (elements.archiveCount) {
-                        elements.archiveCount.textContent = info.archiveCount || '0';
-                    }
-
-                    if (elements.conversationCount) {
-                        elements.conversationCount.textContent = info.conversationCount || '0';
-                    }
-
-                    if (elements.storagePath && info.paths) {
-                        const shortPath = info.paths.logsDir.replace(/\\/g, '/').replace(/.*\/([^\/]+\/[^\/]+)$/, '.../$1');
-                        elements.storagePath.textContent = shortPath;
-                        elements.storagePath.title = info.paths.logsDir;
-                    }
-
-                    updateConversationList();
-
-                } catch (error) {
-                    console.error('❌ Failed to update storage info:', error);
-                }
-            }
-
-            function updateConversationList() {
-                if (!conversationList || !window.chatStorageManager) return;
-
-                try {
-                    // This would need to be implemented based on your chat storage system
-                    conversationList.innerHTML = '<p class="status-message-pending">Chat history integration pending...</p>';
-                } catch (error) {
-                    console.error('❌ Failed to update conversation list:', error);
-                    conversationList.innerHTML = '<p class="status-message-error">Error loading conversations</p>';
-                }
-            }
-
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', updateStorageInfo);
-            }
-
-            if (exportCurrentBtn) {
-                exportCurrentBtn.addEventListener('click', () => {
-                    if (window.chatStorageManager) {
-                        window.chatStorageManager.exportConversation();
-                    }
-                });
-            }
-
-            // Auto-update when tab becomes active
-            const chatHistoryTab = document.getElementById('tab-btn-chat-history');
-            if (chatHistoryTab) {
-                chatHistoryTab.addEventListener('click', () => {
-                    setTimeout(updateStorageInfo, 100);
-                });
-            }
-
-            // Initial update
-            setTimeout(updateStorageInfo, 1000);
-
-            console.log('✅ Chat History Tab initialized');
-        })();
-
-        console.log('🎉 LetterBlack GenAI fully initialized - All systems ready!');
-    </script>
+    <!-- Utility Module Loader -->
+    <script src="js/init/utility-loader.js"></script>
     
-    <!-- Module Initializer - Load Last -->
-    <script src="js/core/module-initializer.js"></script>
-    </div> <!-- Close vscode-app -->
+    <!-- Prism.js for Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+    
+    <!-- Floating Mascot with WebM Animation -->
+    <div class="floating-mascot" id="floating-mascot" data-tooltip="Let's create something amazing!">
+        <div class="mascot-avatar">
+            <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video" style="display: none;">
+                <source src="assets/Idle.webm" type="video/webm">
+                <!-- Fallback for browsers that don't support WebM -->
+            </video>
+            <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback" style="display: none; width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
+            <!-- Ultimate fallback: simple colored circle with emoji - SHOW BY DEFAULT -->
+            <div id="floating-mascot-simple" style="display: flex; width: 70px; height: 70px; background: linear-gradient(135deg, #007acc, #005a9f); border-radius: 50%; align-items: center; justify-content: center; font-size: 24px; color: white; font-weight: bold;">🎭</div>
+            
+            <!-- Audio Visualizer -->
+            <div class="audio-visualizer" id="audio-visualizer">
+                <div class="wave-ring ring-1"></div>
+                <div class="wave-ring ring-2"></div>
+                <div class="wave-ring ring-3"></div>
+            </div>
+        </div>
+        
+        <!-- Mute Button -->
+        <button class="mascot-mute-btn" id="mascot-mute-btn" title="Mute/Unmute Assistant">
+            <i class="fa-solid fa-volume-high"></i>
+        </button>
+    </div>
+
+    <!-- Mascot Production Styling -->
+    <style>
+        /* CLEAN MASCOT STYLING - PRODUCTION VERSION */
+        .floating-mascot,
+        #floating-mascot {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 999999 !important;
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            pointer-events: all !important;
+            /* Clean production styling */
+            width: 70px !important;
+            height: 70px !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background: transparent !important;
+            border-radius: 50% !important;
+            cursor: move !important;
+            transition: transform 0.2s ease !important;
+        }
+        
+        /* Hover effect for mascot */
+        .floating-mascot:hover,
+        #floating-mascot:hover {
+            transform: scale(1.1) !important;
+        }
+        
+        /* Video element inside mascot - FIXED SIZE */
+        #floating-mascot-video,
+        .floating-mascot video {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 70px !important;
+            height: 70px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+        }
+        
+        /* GIF fallback - FIXED SIZE */
+        #floating-mascot-fallback {
+            width: 70px !important;
+            height: 70px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            display: none !important;
+        }
+        
+        /* Simple emoji fallback - FIXED SIZE */
+        #floating-mascot-simple {
+            width: 70px !important;
+            height: 70px !important;
+            background: linear-gradient(135deg, #007acc, #005a9f) !important;
+            border-radius: 50% !important;
+            display: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 28px !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+        
+        /* Remove debug info */
+        .floating-mascot::before {
+            display: none !important;
+        }
+    </style>
 </body>
 </html>
