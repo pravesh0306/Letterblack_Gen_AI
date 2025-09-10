@@ -310,8 +310,8 @@ class SecureAPISettingsUI {
       ]
     };
 
-    // Clear existing
-    modelSelect.innerHTML = '';
+  // Clear existing without innerHTML
+  while (modelSelect.firstChild) modelSelect.removeChild(modelSelect.firstChild);
     const list = optionsMap[provider] || [];
     list.forEach(opt => {
       const option = document.createElement('option');
@@ -343,14 +343,16 @@ class SecureAPISettingsUI {
     const errorsDiv = this.container.querySelector('#api-validation-errors');
     
     if (!keyInput.value.trim()) {
-  errorsDiv.innerHTML = '';
+  // Clear without innerHTML
+  errorsDiv.textContent = '';
       return true;
     }
     
     const validation = this.storage.validateApiKey(keyInput.value, providerSelect.value);
     
     if (validation.valid) {
-  errorsDiv.innerHTML = '';
+  // Clear without innerHTML
+  errorsDiv.textContent = '';
   const ok = document.createElement('div');
   ok.className = 'validation-success';
   ok.textContent = '✅ API key format looks valid';
@@ -360,7 +362,7 @@ class SecureAPISettingsUI {
     } else {
   // XSS Protection: Escape validation reason and set via textContent
   const escapedReason = this.escapeHtml(validation.reason);
-  errorsDiv.innerHTML = '';
+  errorsDiv.textContent = '';
   const bad = document.createElement('div');
   bad.className = 'validation-error';
   bad.textContent = `❌ ${escapedReason}`;
@@ -382,7 +384,7 @@ class SecureAPISettingsUI {
     try {
       testBtn.disabled = true;
       testBtn.textContent = '🔄 Testing...';
-      statusDiv.innerHTML = '<div class="status-info">Testing API connection...</div>';
+  this.setStatus(statusDiv, 'info', 'Testing API connection...');
       
       const settings = this.collectFormData();
       
@@ -398,14 +400,14 @@ class SecureAPISettingsUI {
       // Note: Actual API testing would happen here
       // For now, we simulate a successful test
       setTimeout(() => {
-        statusDiv.innerHTML = '<div class="status-success">✅ API connection test successful!</div>';
+        this.setStatus(statusDiv, 'success', '✅ API connection test successful!');
         testBtn.disabled = false;
         testBtn.textContent = '🔍 Test Connection';
       }, 1500);
       
     } catch (error) {
       const escapedMessage = this.escapeHtml(error.message);
-      statusDiv.innerHTML = `<div class="status-error">❌ Connection test failed: ${escapedMessage}</div>`;
+  this.setStatus(statusDiv, 'error', `❌ Connection test failed: ${escapedMessage}`);
       testBtn.disabled = false;
       testBtn.textContent = '🔍 Test Connection';
     }
@@ -421,7 +423,7 @@ class SecureAPISettingsUI {
     try {
       saveBtn.disabled = true;
       saveBtn.textContent = '💾 Saving...';
-      statusDiv.innerHTML = '<div class="status-info">Encrypting and saving settings...</div>';
+  this.setStatus(statusDiv, 'info', 'Encrypting and saving settings...');
       
       const settings = this.collectFormData();
       
@@ -438,7 +440,7 @@ class SecureAPISettingsUI {
       const result = await this.storage.saveSettings(settings);
       
       if (result.success) {
-        statusDiv.innerHTML = '<div class="status-success">✅ Settings saved securely!</div>';
+        this.setStatus(statusDiv, 'success', '✅ Settings saved securely!');
         this.showNotification('🔒 API settings encrypted and saved!', 'success');
         
         // Update last updated time
@@ -452,7 +454,7 @@ class SecureAPISettingsUI {
       
     } catch (error) {
       const escapedMessage = this.escapeHtml(error.message);
-      statusDiv.innerHTML = `<div class="status-error">❌ Save failed: ${escapedMessage}</div>`;
+      this.setStatus(statusDiv, 'error', `❌ Save failed: ${escapedMessage}`);
       this.showNotification(`Failed to save: ${escapedMessage}`, 'error');
     } finally {
       saveBtn.disabled = false;
@@ -471,12 +473,12 @@ class SecureAPISettingsUI {
     const statusDiv = this.container.querySelector('#api-status-message');
     
     try {
-      statusDiv.innerHTML = '<div class="status-info">Clearing all settings...</div>';
+  this.setStatus(statusDiv, 'info', 'Clearing all settings...');
       
       const result = await this.storage.clearSettings();
       
       if (result.success) {
-        statusDiv.innerHTML = '<div class="status-success">✅ All settings cleared</div>';
+        this.setStatus(statusDiv, 'success', '✅ All settings cleared');
         
         // Reset form
         const defaultSettings = this.storage.getDefaultSettings();
@@ -490,9 +492,23 @@ class SecureAPISettingsUI {
       
     } catch (error) {
       const escapedMessage = this.escapeHtml(error.message);
-      statusDiv.innerHTML = `<div class="status-error">❌ Clear failed: ${escapedMessage}</div>`;
+      this.setStatus(statusDiv, 'error', `❌ Clear failed: ${escapedMessage}`);
       this.showNotification(`Failed to clear: ${escapedMessage}`, 'error');
     }
+  }
+
+  /**
+   * Safely set a status message div to a given type and text
+   */
+  setStatus(container, type, message) {
+    if (!container) return;
+    // Clear existing children
+    container.textContent = '';
+    const msg = document.createElement('div');
+    const cls = type === 'success' ? 'status-success' : type === 'error' ? 'status-error' : 'status-info';
+    msg.className = cls;
+    msg.textContent = message;
+    container.appendChild(msg);
   }
 
   /**
