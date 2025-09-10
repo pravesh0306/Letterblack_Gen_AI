@@ -1,0 +1,7 @@
+Include Wire Check (snapshot/index-reduced-2025-08-31-1657)
+Date: 2025-09-10T06:15:28.3530818+04:00
+Checked base: G:\Developments\15_AI_AE\Adobe_AI_Generations\src
+
+References found: 44 | Present: 44 | Missing: 0
+
+No missing JS/CSS references detected.
