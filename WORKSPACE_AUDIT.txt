@@ -1,0 +1,74 @@
+Workspace audit (branch: restore/pre-zxp-2025-09-08-0445)
+Date: 2025-09-10T06:04:02.8890983+04:00
+
+JS files summary:
+- src/js total: 83
+- build/js total: 0
+- Empty .js files now: 0
+
+Deleted empty .js files earlier (12):
+  - build/js/main.js
+  - build/js/utils/ai-response-interceptor.js
+  - src/js/ai-diagnostic.js
+  - src/js/compact-settings-handler.js
+  - src/js/consolidated-settings.js
+  - src/js/script-editor.js
+  - src/js/core/diagnostic-dashboard.js
+  - src/js/core/environment-detector.js
+  - src/js/core/error-tracker.js
+  - src/js/core/module-manager.js
+  - src/js/core/simplified-main.js
+  - src/js/utils/simple-image-upload.js
+
+Unreferenced candidates in src/js (by index.html basename match) (77):
+  - src\js\api-settings-migration.js
+  - src\js\browser-diagnostics.js
+  - src\js\cep-storage-manager.js
+  - src\js\enhanced-ai-providers.js
+  - src\js\INTEGRATION_SUMMARY.js
+  - src\js\legacy-chat-disabler.js
+  - src\js\main.js
+  - src\js\migration-helper.js
+  - src\js\storage-integration.js
+  - src\js\ai\ai-providers.js
+  - src\js\ai\ai-training-data-collector.js
+  - src\js\ai\chat-assistant.js
+  - src\js\ai\chat-history.js
+  - src\js\ai\chat-memory.js
+  - src\js\ai\enhanced-ai-learning-system.js
+  - src\js\ai\smart-ai-suggestion-engine.js
+  - src\js\ai\smart-api-detector.js
+  - src\js\core\accessibility-manager.js
+  - src\js\core\advanced-module-initializer.js
+  - src\js\core\api-settings-storage.js
+  - src\js\core\constants.js
+  - src\js\core\di-container.js
+  - src\js\core\enhanced-main.js
+  - src\js\core\enhanced-performance-system.js
+  - src\js\core\error-handler.js
+  - src\js\core\floating-mascot-config.js
+  - src\js\core\floating-mascot.js
+  - src\js\core\input-validator.js
+  - src\js\core\local-file-storage-manager.js
+  - src\js\core\main-deprecated.js
+  - src\js\core\main.js
+  - src\js\core\memory-manager.js
+  - src\js\core\module-initializer.js
+  - src\js\core\module-monitor.js
+  - src\js\core\secure-api-settings-ui.js
+  - src\js\core\ui-initializer.js
+  - src\js\features\voice-features.js
+  - src\js\features\youtube-analysis-cascade.js
+  - src\js\ui\chat-scroll-enhancement.js
+  - src\js\ui\component-loader.js
+  - src\js\ui\inline-component-loader.js
+  - src\js\ui\log-panel.js
+  - src\js\ui\mascot-float.js
+  - src\js\ui\mascot.js
+  - src\js\ui\panel-layout-manager.js
+  - src\js\ui\panel-shortcuts.js
+  - src\js\ui\preset-layout-manager.js
+  - src\js\ui\status-bar-enhancer.js
+  - src\js\ui\tab-switching.js
+  - src\js\ui\ui-animator.js
+  ... and 27 more
