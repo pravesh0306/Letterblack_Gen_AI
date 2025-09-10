@@ -1,10 +1,11 @@
 /* LetterBlack GenAI - Master Design System Stylesheet */
 /* Professional Enterprise-Grade CSS Architecture */
-/* Version 1.0.0 - Integrated Design System */
+/* Version 1.1.0 - Enhanced Integrated Design System */
 
 /* ===== DESIGN SYSTEM FOUNDATION ===== */
 /* Load theme variables first - everything else depends on these */
 @import url('./components/themes/theme-variables.css');
+@import url('./components/themes/vscode-theme.css');
 
 /* ===== CORE FOUNDATION STYLES ===== */
 /* Foundation styles - icons, typography, colors, layout primitives */
@@ -12,25 +13,65 @@
 @import url('./components/foundation/typography.css');
 @import url('./components/foundation/colors.css');
 @import url('./components/foundation/core.css');
+@import url('./components/foundation/layout-modern.css');
+@import url('./components/foundation/interactive.css');
 
 /* ===== MAIN APPLICATION STYLES ===== */
 /* Core application layout and structure */
 @import url('./components/main-styles.css');
+@import url('./components/consolidated-components.css');
 
 /* ===== LAYOUT SYSTEMS ===== */
 /* Panel systems and layout components */
 @import url('./components/panels.css');
+@import url('./components/layout-enhancements.css');
 
 /* ===== COMPONENT LIBRARIES ===== */
 /* UI components and forms */
 @import url('./components/forms-components.css');
 @import url('./components/chat.css');
+@import url('./components/chat-components.css');
 @import url('./components/header.css');
 @import url('./components/settings.css');
+@import url('./components/ai-status.css');
+@import url('./components/api-feedback.css');
+@import url('./components/image-upload.css');
+@import url('./components/code-display.css');
+@import url('./components/dynamic-ui.css');
 
 /* ===== SECURITY & SPECIALIZED COMPONENTS ===== */
 /* Enterprise security and specialized UI */
 @import url('./components/secure-api-settings.css');
+
+/* ===== AFTER EFFECTS PANEL OPTIMIZATIONS ===== */
+/* Panel-specific typography and spacing overrides */
+@import url('./components/ae-panel-overrides.css');
+
+/* ===== FULL-SCREEN FREEDOM OVERRIDES ===== */
+/* Remove all UI boundaries and constraints */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+.vscode-app, .vscode-app * {
+    max-width: none !important;
+    max-height: none !important;
+}
+
+/* Ensure full viewport usage */
+.vscode-app {
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
 
 /* ===== LEGACY COMPATIBILITY ===== */
 /* Keep for backward compatibility during transition */

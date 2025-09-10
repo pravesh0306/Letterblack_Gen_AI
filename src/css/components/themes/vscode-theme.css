@@ -50,11 +50,15 @@
 
 .vscode-app {
   height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
-  max-width: 1200px;
-  margin: 0 auto;
-  overflow: hidden; /* Prevent body scrolling */
+  /* Remove all constraints for full-screen freedom */
+  max-width: none;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
 }
 
 /* Header Bar (70px) - VS Code Authentic - DOUBLE SIZE */

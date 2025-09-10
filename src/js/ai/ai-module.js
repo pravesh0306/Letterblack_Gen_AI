@@ -18,6 +18,42 @@ class AIModule {
         
         // Initialize effects module (will be set when chat memory is available)
         this.effectsModule = null;
+        
+        // Initialize utility modules
+        this.youtubeTutorialHelper = null;
+        this.browserVideoTranscriber = null;
+        this.enhancedChatMemory = null;
+        this.performanceCache = null;
+        this.loggerSystem = null;
+        
+        // Initialize logger system
+        if (window.LoggerSystem) {
+            this.loggerSystem = new window.LoggerSystem('AIModule');
+            this.loggerSystem.info('AI Module constructor initialized');
+        }
+        
+        // Initialize performance cache
+        if (window.PerformanceCache) {
+            this.performanceCache = new window.PerformanceCache();
+            console.log('🚀 Performance cache initialized');
+        }
+        
+        // Initialize enhanced chat memory
+        if (window.EnhancedChatMemory) {
+            this.enhancedChatMemory = new window.EnhancedChatMemory();
+            console.log('🧠 Enhanced chat memory initialized');
+        }
+        
+        // Initialize utility modules
+        if (window.YouTubeTutorialHelper) {
+            this.youtubeTutorialHelper = new window.YouTubeTutorialHelper();
+            console.log('🎬 YouTube Tutorial Helper initialized');
+        }
+        
+        if (window.BrowserVideoTranscriber) {
+            this.browserVideoTranscriber = new window.BrowserVideoTranscriber();
+            console.log('📹 Browser Video Transcriber initialized');
+        }
     }
 
     /**
@@ -98,67 +134,70 @@ class AIModule {
         
         // Check for YouTube URLs
         const youtubeMatches = message.match(youtubeRegex);
+        
         if (youtubeMatches) {
-            try {
-                if (window.realisticYouTubeHelper) {
-                    return await window.realisticYouTubeHelper.processYouTubeUrl(youtubeMatches[0], message);
-                } else if (window.youtubeHelper) {
-                    return await window.youtubeHelper.processYouTubeUrl(youtubeMatches[0], message);
+            if (this.loggerSystem) {
+                this.loggerSystem.info('YouTube link detected, processing with enhanced modules');
+            } else {
+                console.log('🎬 YouTube link detected, processing with enhanced modules...');
+            }
+
+            // Use YouTube Tutorial Helper if available
+            if (this.youtubeTutorialHelper) {
+                try {
+                    const tutorialResponse = await this.youtubeTutorialHelper.processYouTubeLink(message);
+                    if (tutorialResponse) {
+                        // Add to enhanced chat memory
+                        if (this.enhancedChatMemory) {
+                            this.enhancedChatMemory.addMessage(message, 'user', { type: 'youtube_tutorial' });
+                            this.enhancedChatMemory.addMessage(tutorialResponse.content, 'assistant', { type: 'tutorial_response' });
+                        }
+                        return tutorialResponse;
+                    }
+                } catch (error) {
+                    console.warn('YouTube Tutorial Helper error:', error);
+                    if (this.loggerSystem) {
+                        this.loggerSystem.warn('YouTube Tutorial Helper error', error);
+                    }
                 }
-            } catch (error) {
-                console.warn('YouTube processing failed:', error);
+            }
+
+            // Fallback to browser video transcriber
+            if (this.browserVideoTranscriber) {
+                try {
+                    const videoUrl = youtubeMatches[0];
+                    const transcription = await this.browserVideoTranscriber.processVideoUrl(videoUrl);
+
+                    if (transcription) {
+                        const response = {
+                            type: 'video_analysis',
+                            content: `🎥 **Video Analysis Complete**\n\n${transcription.summary}\n\n**Key Points:**\n${transcription.keyPoints.map(p => `• ${p}`).join('\n')}\n\n**Suggested Actions:**\n${transcription.suggestedActions.map(a => `• ${a}`).join('\n')}`,
+                            transcription
+                        };
+
+                        // Cache the response
+                        if (this.performanceCache) {
+                            this.performanceCache.set(`video_${videoUrl}`, response, 3600000); // 1 hour cache
+                        }
+
+                        // Add to enhanced chat memory
+                        if (this.enhancedChatMemory) {
+                            this.enhancedChatMemory.addMessage(message, 'user', { type: 'video_url' });
+                            this.enhancedChatMemory.addMessage(response.content, 'assistant', { type: 'video_analysis' });
+                        }
+
+                        return response;
+                    }
+                } catch (error) {
+                    console.warn('Browser Video Transcriber error:', error);
+                    if (this.loggerSystem) {
+                        this.loggerSystem.warn('Browser Video Transcriber error', error);
+                    }
+                }
             }
         }
         
-        // Check for video file references
-        if (videoFileRegex.test(message) || message.includes('tutorial video') || message.includes('video file')) {
-            return {
-                type: 'video_file_guidance',
-                response: `🎬 **Video Tutorial Assistant Ready!**
-
-I can help you work with tutorial videos in several ways:
-
-**📁 LOCAL VIDEO FILES:**
-• Click the video upload button (📄) next to the chat input
-• I'll import it to your After Effects project
-• Get automated suggestions based on video analysis
-• Follow along with step-by-step guidance
-
-**🎯 WHAT I CAN AUTOMATE:**
-• **Text Animations:** Typewriter, kinetic typography, title sequences
-• **Logo Animations:** Brand reveals, logo intros, corporate animations  
-• **Motion Graphics:** Particle systems, abstract backgrounds, transitions
-• **Effects:** Glitch, cinematic looks, color grading, vintage film
-• **Project Setup:** Compositions, layers, basic workflow automation
-
-**💡 EXAMPLE REQUESTS:**
-• "Help me create a typewriter text animation"
-• "Apply a glow effect to my selected layer"  
-• "Write an expression for wiggling position"
-
-What specific technique would you like me to help automate?`,
-                
-                suggestedActions: [
-                    {
-                        label: "Upload Tutorial Video",
-                        action: "upload_video",
-                        description: "Import MP4/MOV file for analysis"
-                    },
-                    {
-                        label: "Show Text Animations",
-                        action: "showTextAnimations", 
-                        description: "Available text automation"
-                    },
-                    {
-                        label: "Show Effects Library",
-                        action: "showEffectsLibrary",
-                        description: "Browse automation-ready effects"
-                    }
-                ]
-            };
-        }
-        
-        return null;
+        return null; // No YouTube processing needed
     }
 
     getCurrentSettings() {
@@ -238,6 +277,13 @@ What specific technique would you like me to help automate?`,
                 } catch (error) {
                     console.warn('⚠️ Layer analysis failed:', error.message);
                 }
+            }
+
+            // Enhanced intent classification from 01_Codeblock
+            const intent = this.classifyIntent(message);
+            console.log('🧠 Intent Analysis:', intent);
+            if (this.loggerSystem) {
+                this.loggerSystem.info('Intent classified', intent);
             }
 
             // Build context-aware prompt
@@ -670,50 +716,384 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
     }
 
     /**
-     * Create compact interactive code block HTML (matches reference design)
+     * Create enhanced interactive code block HTML with improved detection
      */
     createInteractiveCodeBlock(code, blockId) {
-        return `<div class="compact-code-block" id="${blockId}">
+        // Use enhanced detection methods from 01_Codeblock
+        const isExpression = this.looksLikeExpression(code);
+        const isScript = this.looksLikeScript(code);
+        const isPanelCode = this.looksLikePanelCode(code);
+        
+        // Determine code type with enhanced logic
+        let codeType, typeIcon;
+        if (isExpression) {
+            codeType = 'Expression';
+            typeIcon = '📊';
+        } else if (isScript) {
+            codeType = 'ExtendScript';
+            typeIcon = '🔧';
+        } else if (isPanelCode) {
+            codeType = 'CEP Panel';
+            typeIcon = '📦';
+        } else {
+            codeType = 'JavaScript';
+            typeIcon = '💻';
+        }
+        
+        // Enhanced code block with type-specific actions from 01_Codeblock
+        return `<div class="enhanced-code-block ${codeType.toLowerCase().replace(' ', '-')}-block" id="${blockId}" data-code-type="${codeType}">
+            <div class="code-header">
+                <span class="code-type-badge">
+                    ${typeIcon} ${codeType}
+                </span>
+                <span class="code-meta">
+                    ${isExpression ? '📊 After Effects Expression' : 
+                      isScript ? '🔧 ExtendScript' : 
+                      isPanelCode ? '📦 CEP Panel Code' : '💻 JavaScript'}
+                </span>
+            </div>
             <div class="code-content">
-                <pre><code>${this.escapeHtml(code)}</code></pre>
+                <pre><code class="language-${isExpression ? 'javascript' : codeType.toLowerCase()}">${this.escapeHtml(code)}</code></pre>
             </div>
             <div class="code-actions">
-                <button class="compact-btn copy-btn" onclick="copyCode('${blockId}')" title="Copy">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <button class="action-btn copy-btn" data-block-id="${blockId}" data-action="copy" title="Copy to Clipboard">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
                     </svg>
+                    Copy
                 </button>
-                <button class="compact-btn apply-btn" onclick="applyCode('${blockId}')" title="Apply">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                ${isExpression ? `
+                <button class="action-btn apply-expression-btn" data-block-id="${blockId}" data-action="apply" title="Apply to Selected Layer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,14L6,9L7.41,7.59L11,11.17L16.59,5.58L18,7L11,14Z"/>
+                    </svg>
+                    Apply Expression
+                </button>
+                <button class="action-btn test-expression-btn" data-block-id="${blockId}" data-action="test" title="Test Expression">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
                     </svg>
+                    Test
                 </button>
-                <button class="compact-btn save-btn" onclick="saveCode('${blockId}')" title="Save">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                ` : isScript ? `
+                <button class="action-btn run-script-btn" data-block-id="${blockId}" data-action="run" title="Run Script in After Effects">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+                    </svg>
+                    Run Script
+                </button>
+                <button class="action-btn validate-script-btn" data-block-id="${blockId}" data-action="validate" title="Validate Script">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,14L6,9L7.41,7.59L11,11.17L16.59,5.58L18,7L11,14Z"/>
+                    </svg>
+                    Validate
+                </button>
+                ` : isPanelCode ? `
+                <button class="action-btn package-btn" data-block-id="${blockId}" data-action="package" title="Package as CEP Panel">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2L13.09,8.26L22,9L13.09,9.74L12,16L10.91,9.74L2,9L10.91,8.26L12,2Z"/>
+                    </svg>
+                    Package Panel
+                </button>
+                <button class="action-btn install-btn" data-block-id="${blockId}" data-action="install" title="Install Panel">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    Install
+                </button>
+                ` : `
+                <button class="action-btn run-code-btn" data-block-id="${blockId}" data-action="run" title="Execute Code">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+                    </svg>
+                    Run
+                </button>
+                `}
+                <button class="action-btn save-btn" data-block-id="${blockId}" data-action="save" title="Save to Library">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
                     </svg>
+                    Save
+                </button>
+                <button class="action-btn explain-btn" data-block-id="${blockId}" data-action="explain" title="Get AI Explanation">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z"/>
+                    </svg>
+                    Explain
                 </button>
             </div>
+            ${isExpression ? this.getExpressionMetadata(code) : ''}
         </div>`;
     }
 
     /**
-     * Detect the type of code for better labeling
+     * Enhanced code type detection with more patterns
      */
     detectCodeType(code) {
         const codeLines = code.toLowerCase().trim();
         
-        if (codeLines.includes('wiggle') || codeLines.includes('time') || codeLines.includes('value')) {
+        // Expression patterns (After Effects)
+        const expressionPatterns = [
+            /\bwiggle\s*\(/,
+            /\btime\b/,
+            /\bvalue\b/,
+            /\bindex\b/,
+            /\btransform\./,
+            /\blinear\s*\(/,
+            /\bease\s*\(/,
+            /\bloopout\s*\(/,
+            /\bloopin\s*\(/,
+            /\bposterizeTime\s*\(/,
+            /\brandom\s*\(/,
+            /\bnoise\s*\(/,
+            /\bvelocity\b/,
+            /\bamplitude\b/,
+            /\bfrequency\b/,
+            /\bmylayer\./,
+            /\bcomp\(/,
+            /\bthiscomp\./,
+            /\bthislayer\./,
+            /\btargetlayer\./
+        ];
+        
+        // ExtendScript patterns
+        const scriptPatterns = [
+            /\bapp\./,
+            /\bproject\./,
+            /\bactiveitem\./,
+            /\blayers\./,
+            /\baddsolid\s*\(/,
+            /\baddtext\s*\(/,
+            /\bduplicatelayer\s*\(/,
+            /\bcompitem\b/,
+            /\bavlayer\b/,
+            /\bshapelayer\b/,
+            /\btextlayer\b/,
+            /\bcameralayer\b/,
+            /\blightlayer\b/
+        ];
+        
+        // Check for expressions first (more specific)
+        if (expressionPatterns.some(pattern => pattern.test(codeLines))) {
             return 'Expression';
-        } else if (codeLines.includes('app.') || codeLines.includes('comp') || codeLines.includes('layer')) {
-            return 'ExtendScript';
-        } else if (codeLines.includes('function') || codeLines.includes('var ') || codeLines.includes('let ')) {
-            return 'JavaScript';
-        } else if (codeLines.includes('transform.') || codeLines.includes('index')) {
-            return 'Expression';
-        } else {
-            return 'Code';
         }
+        
+        // Check for ExtendScript
+        if (scriptPatterns.some(pattern => pattern.test(codeLines))) {
+            return 'ExtendScript';
+        }
+        
+        // Check for JavaScript
+        if (codeLines.includes('function') || codeLines.includes('var ') || 
+            codeLines.includes('let ') || codeLines.includes('const ') ||
+            codeLines.includes('console.log') || codeLines.includes('document.')) {
+            return 'JavaScript';
+        }
+        
+        // Default fallback
+        return 'Code';
+    }
+
+    /**
+     * Get appropriate icon for code type
+     */
+    getTypeIcon(codeType) {
+        const icons = {
+            'Expression': '📊',
+            'ExtendScript': '🔧',
+            'JavaScript': '💻',
+            'Code': '📝'
+        };
+        return icons[codeType] || '📝';
+    }
+
+    /**
+     * Generate expression metadata and tips
+     */
+    getExpressionMetadata(code) {
+        const metadata = [];
+        const codeLines = code.toLowerCase();
+        
+        // Detect expression features and provide tips
+        if (codeLines.includes('wiggle')) {
+            metadata.push('🎯 <strong>Wiggle Expression</strong> - Adds random movement to properties');
+        }
+        if (codeLines.includes('time')) {
+            metadata.push('⏰ <strong>Time-based</strong> - Animation changes over time');
+        }
+        if (codeLines.includes('index')) {
+            metadata.push('🔢 <strong>Index-based</strong> - Different behavior per layer');
+        }
+        if (codeLines.includes('linear') || codeLines.includes('ease')) {
+            metadata.push('📈 <strong>Interpolation</strong> - Controls animation timing');
+        }
+        if (codeLines.includes('transform.')) {
+            metadata.push('🔄 <strong>Transform Property</strong> - Affects position, rotation, or scale');
+        }
+        
+        if (metadata.length > 0) {
+            return `<div class="expression-metadata">
+                <div class="metadata-header">💡 Expression Info:</div>
+                <ul class="metadata-list">
+                    ${metadata.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            </div>`;
+        }
+        
+        return '';
+    }
+
+    /**
+     * Enhanced intent classification system from 01_Codeblock
+     */
+    classifyIntent(userMessage) {
+        const msg = userMessage.toLowerCase();
+        
+        // Detect specific effects/presets mentioned
+        const effectMatch = msg.match(/effect[:\s]*([a-z\s]+)/i);
+        const presetMatch = msg.match(/preset[:\s]*([^\s,\.]+\.ffx)/i);
+        
+        const intents = {
+            EXPRESSION: {
+                keywords: ['expression', 'wiggle', 'time', 'value', 'linear', 'ease', 'loop', 'random', 'noise'],
+                patterns: [/write.*expression/i, /create.*expression/i, /expression.*for/i, /add.*wiggle/i, /animate.*with/i],
+                confidence: 0
+            },
+            SCRIPT: {
+                keywords: ['script', 'function', 'automate', 'batch', 'jsx', 'extendscript'],
+                patterns: [/write.*script/i, /create.*script/i, /automate.*this/i, /batch.*process/i, /function.*that/i],
+                confidence: 0
+            },
+            LAYER: {
+                keywords: ['layer', 'add layer', 'create layer', 'duplicate', 'solid', 'text', 'shape'],
+                patterns: [/add.*layer/i, /create.*layer/i, /duplicate.*layer/i, /new.*layer/i],
+                confidence: 0
+            },
+            ANIMATION: {
+                keywords: ['animate', 'keyframe', 'motion', 'movement', 'transition', 'tween'],
+                patterns: [/animate.*this/i, /add.*keyframes/i, /motion.*for/i, /transition.*between/i],
+                confidence: 0
+            },
+            PANEL: {
+                keywords: ['panel', 'ui', 'interface', 'button', 'window', 'dialog', 'cep', 'extension', 'create panel', 'build panel', 'generate panel'],
+                patterns: [/create.*panel/i, /build.*panel/i, /generate.*panel/i, /panel.*for/i, /make.*ui/i, /\b(cep|uxp)\b.*\b(panel|dockable|extension)\b/i],
+                confidence: 0
+            },
+            EFFECT: {
+                keywords: ['effect', 'apply effect', 'add effect'],
+                patterns: [/apply.*effect/i, /add.*effect/i],
+                confidence: effectMatch ? 10 : 0
+            },
+            PRESET: {
+                keywords: ['preset', 'apply preset', 'ffx'],
+                patterns: [/apply.*preset/i, /\.ffx/i],
+                confidence: presetMatch ? 10 : 0
+            },
+            CONTEXT: {
+                keywords: ['what', 'current', 'selected', 'active', 'composition', 'layer', 'property', 'tell me about', 'show me', 'analyze'],
+                patterns: [/what.*selected/i, /current.*comp/i, /active.*layer/i, /tell.*about/i, /show.*me/i],
+                confidence: 0
+            },
+            HELP: {
+                keywords: ['help', 'how', 'tutorial', 'learn', 'explain', 'guide', 'documentation', 'example'],
+                patterns: [/how.*to/i, /how.*do/i, /explain.*how/i, /tutorial.*on/i, /guide.*for/i],
+                confidence: 0
+            },
+            TROUBLESHOOT: {
+                keywords: ['error', 'problem', 'issue', 'not working', 'broken', 'fix', 'debug', 'trouble'],
+                patterns: [/not.*work/i, /error.*in/i, /problem.*with/i, /fix.*this/i, /debug.*my/i],
+                confidence: 0
+            },
+            GENERAL: {
+                keywords: ['hello', 'hi', 'thanks', 'good', 'awesome', 'cool'],
+                patterns: [],
+                confidence: 0
+            }
+        };
+        
+        // Calculate confidence scores
+        for (const [intentName, intent] of Object.entries(intents)) {
+            if (intentName === 'EFFECT' || intentName === 'PRESET') continue; // Already calculated above
+            
+            // Keyword matching
+            const keywordMatches = intent.keywords.filter(keyword => msg.includes(keyword)).length;
+            intent.confidence += keywordMatches * 2;
+            
+            // Pattern matching  
+            const patternMatches = intent.patterns.filter(pattern => pattern.test(userMessage)).length;
+            intent.confidence += patternMatches * 3;
+        }
+        
+        // Find primary intent
+        const primary = Object.entries(intents).reduce((max, [name, intent]) => 
+            intent.confidence > max.confidence ? {name, confidence: intent.confidence} : max
+        , {name: 'GENERAL', confidence: 0});
+        
+        return {
+            primary: primary.name,
+            confidence: primary.confidence,
+            scores: Object.fromEntries(Object.entries(intents).map(([name, intent]) => [name, intent.confidence])),
+            effectName: effectMatch ? effectMatch[1] : null,
+            presetPath: presetMatch ? presetMatch[1] : null
+        };
+    }
+
+    /**
+     * Enhanced code type detection from 01_Codeblock
+     */
+    looksLikeExpression(code) {
+        const expressionIndicators = [
+            /value(\s*[\+\-\*\/]|\s*\.\w+)/i,
+            /wiggle\s*\(/i,
+            /ease\s*\(/i,
+            /linear\s*\(/i,
+            /sine\s*\(/i,
+            /time(\s*[\+\-\*\/]|\s*\.\w+)/i,
+            /index(\s*[\+\-\*\/]|\s*\.\w+)/i,
+            /transform\./i,
+            /thisComp\./i,
+            /thisLayer\./i
+        ];
+        
+        return expressionIndicators.some(pattern => pattern.test(code)) && 
+               !code.includes('app.') && 
+               !code.includes('var ') && 
+               !code.includes('function ') &&
+               code.split('\n').length < 20; // Expressions typically shorter
+    }
+
+    /**
+     * Enhanced script detection from 01_Codeblock
+     */
+    looksLikeScript(code) {
+        const scriptIndicators = [
+            /app\./i,
+            /project\./i,
+            /function\s+\w+\s*\(/i,
+            /var\s+\w+/i,
+            /for\s*\(/i,
+            /beginUndoGroup/i,
+            /endUndoGroup/i
+        ];
+        
+        return scriptIndicators.some(pattern => pattern.test(code));
+    }
+
+    /**
+     * Enhanced CEP panel code detection from 01_Codeblock
+     */
+    looksLikePanelCode(code) {
+        const panelIndicators = [
+            /manifest\.xml/i,
+            /ExtensionManifest/i,
+            /CEFCommandLine/i,
+            /DispatchInfo/i,
+            /window\.__adobe_cep__/i,
+            /CSInterface/i,
+            /evalScript/i
+        ];
+        
+        return panelIndicators.some(pattern => pattern.test(code));
     }
 
     /**
@@ -728,7 +1108,7 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
                 <path d="M8,3A2,2 0 0,0 6,5V9A2,2 0 0,1 4,11H3V13H4A2,2 0 0,1 6,15V19A2,2 0 0,0 8,21H10V19H8V14A2,2 0 0,0 6,12A2,2 0 0,0 8,10V5H10V3M16,3A2,2 0 0,1 18,5V9A2,2 0 0,0 20,11H21V13H20A2,2 0 0,0 18,15V19A2,2 0 0,1 16,21H14V19H16V14A2,2 0 0,1 18,12A2,2 0 0,1 16,10V5H14V3"/>
             </svg>`,
             'JavaScript': `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                <path d="M3,3H21V21H3V3M7.73,18.04C8.13,18.89 8.92,19.59 10.27,19.59C11.77,19.59 12.8,18.79 12.8,17.04V11.26H11.1V17C11.1,17.86 10.75,18.08 10.2,18.08C9.62,18.08 9.38,17.68 9.11,17.21L7.73,18.04M13.71,17.86C14.21,18.84 15.22,19.59 16.8,19.59C18.4,19.59 19.6,18.76 19.6,17.23C19.6,15.82 18.79,15.19 17.35,14.57L16.93,14.39C16.2,14.08 15.89,13.87 15.89,13.42C15.89,13.07 16.2,12.78 16.7,12.78C17.18,12.78 17.52,13.07 17.81,13.42L18.72,12.63C18.11,11.73 17.28,11.33 16.7,11.33C15.28,11.33 14.59,12.29 14.59,13.42C14.59,14.76 15.4,15.43 16.58,15.95L16.99,16.13C17.79,16.47 18.22,16.68 18.22,17.18C18.22,17.64 17.78,17.97 17.14,17.97C16.35,17.97 15.8,17.64 15.4,16.97L13.71,17.86Z"/>
             </svg>`,
             'Code': `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6Z"/>

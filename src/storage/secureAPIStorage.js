@@ -1,71 +1,199 @@
 /**
- * Secure API Settings Storage Module - Browser Compatible Version
+ * Secure API Settings Storage Module
+ * Browser and Node.js compatible version
  * Integrates with the persistent chat storage system to securely store API configurations
- * Replaces the insecure localStorage-based API storage
  */
 
+// Check if we're in Node.js or browser environment
+const isNode = typeof window === 'undefined' && typeof require !== 'undefined';
+const isBrowser = typeof window !== 'undefined';
+
+// Environment-specific imports
+let crypto, fs, path, os;
+if (isNode) {
+    crypto = require('crypto');
+    fs = require('fs');
+    path = require('path');
+    os = require('os');
+}
+
 class SecureAPIStorage {
-  constructor() {
-    this.storageKey = 'ae_secure_api_settings';
-    this.initialized = false;
-    this.init();
-  }
+    constructor() {
+        this.isNode = isNode;
+        this.isBrowser = isBrowser;
+        this.storageKey = 'ae_secure_api_settings';
+        this.initialized = false;
 
-  /**
-   * Initialize the secure storage system
-   */
-  async init() {
-    try {
-      // Check if we're in a browser environment
-      if (typeof window === 'undefined') {
-        console.warn('SecureAPIStorage: Not in browser environment');
-        return false;
-      }
-
-      // Use the new chat storage system if available
-      if (window.chatStore) {
-        this.storage = window.chatStore;
-        this.useFileStorage = true;
-      } else {
-        // Fallback to sessionStorage (more secure than localStorage)
-        this.useFileStorage = false;
-        console.warn('SecureAPIStorage: Using sessionStorage fallback');
-      }
-
-      this.initialized = true;
-      console.log('✅ SecureAPIStorage initialized');
-      return true;
-    } catch (error) {
-      console.error('❌ Failed to initialize SecureAPIStorage:', error);
-      return false;
+        if (this.isNode) {
+            this.paths = this.getPaths();
+            this.encryptionKey = this.getOrCreateEncryptionKey();
+        } else {
+            // Browser fallback - use localStorage with basic encoding
+            console.log('🌐 SecureAPIStorage running in browser mode with localStorage fallback');
+        }
+        this.init();
     }
-  }
 
-  /**
-   * Simple encryption for browser environment (base64 encoding for now)
-   */
-  encrypt(data) {
-    try {
-      const jsonString = JSON.stringify(data);
-      return btoa(encodeURIComponent(jsonString));
-    } catch (error) {
-      console.error('Encryption failed:', error);
-      return null;
-    }
-  }
+    /**
+     * Get OS-appropriate paths for API settings storage
+     */
+    getPaths() {
+        const platform = os.platform();
+        let base;
 
-  /**
-   * Simple decryption for browser environment
-   */
-  decrypt(encryptedData) {
-    try {
-      const jsonString = decodeURIComponent(atob(encryptedData));
-      return JSON.parse(jsonString);
-    } catch (error) {
-      console.error('Decryption failed:', error);
-      return null;
+        if (platform === 'win32') {
+            base = path.join(os.homedir(), 'AppData', 'Roaming', 'Adobe', 'AE_AI_Extension');
+        } else if (platform === 'darwin') {
+            base = path.join(os.homedir(), 'Library', 'Application Support', 'Adobe', 'AE_AI_Extension');
+        } else {
+            base = path.join(os.homedir(), '.config', 'Adobe', 'AE_AI_Extension');
+        }
+
+        return {
+            base,
+            settingsFile: path.join(base, 'api_settings.dat'),
+            keyFile: path.join(base, 'encryption.key')
+        };
     }
-  }
+
+    /**
+     * Get or create encryption key for Node.js environment
+     */
+    getOrCreateEncryptionKey() {
+        if (!this.isNode) return null;
+        
+        try {
+            // Ensure directory exists
+            if (!fs.existsSync(this.paths.base)) {
+                fs.mkdirSync(this.paths.base, { recursive: true });
+            }
+
+            if (fs.existsSync(this.paths.keyFile)) {
+                return fs.readFileSync(this.paths.keyFile);
+            } else {
+                const key = crypto.randomBytes(32);
+                fs.writeFileSync(this.paths.keyFile, key, { mode: 0o600 });
+                return key;
+            }
+        } catch (error) {
+            console.error('Failed to get/create encryption key:', error);
+            return crypto.randomBytes(32); // Fallback to memory-only key
+        }
+    }
+
+    /**
+     * Initialize storage with environment-specific setup
+     */
+    async init() {
+        try {
+            if (this.isNode) {
+                this.ensureDirs();
+                console.log('🔐 SecureAPIStorage initialized with file-based encryption');
+            } else {
+                // Browser initialization - check for chat storage system
+                if (typeof window !== 'undefined' && window.chatStore) {
+                    this.storage = window.chatStore;
+                    this.useFileStorage = true;
+                } else {
+                    this.useFileStorage = false;
+                    console.log('🌐 SecureAPIStorage initialized with browser localStorage');
+                }
+            }
+            this.initialized = true;
+        } catch (error) {
+            console.error('❌ Failed to initialize SecureAPIStorage:', error);
+            this.initialized = false;
+        }
+    }
+
+    /**
+     * Ensure necessary directories exist (Node.js only)
+     */
+    ensureDirs() {
+        if (!this.isNode) return;
+        
+        try {
+            if (!fs.existsSync(this.paths.base)) {
+                fs.mkdirSync(this.paths.base, { recursive: true });
+            }
+        } catch (error) {
+            console.error('Failed to create directories:', error);
+        }
+    }
+
+    /**
+     * Encrypt sensitive data
+     */
+    encrypt(text) {
+        if (this.isNode && this.encryptionKey) {
+            // Node.js real encryption
+            try {
+                const algorithm = 'aes-256-gcm';
+                const iv = crypto.randomBytes(16);
+                const cipher = crypto.createCipher(algorithm, this.encryptionKey);
+
+                let encrypted = cipher.update(text, 'utf8', 'hex');
+                encrypted += cipher.final('hex');
+
+                const authTag = cipher.getAuthTag();
+
+                return {
+                    encrypted,
+                    iv: iv.toString('hex'),
+                    authTag: authTag.toString('hex')
+                };
+            } catch (error) {
+                console.error('🔒 Encryption failed:', error);
+                return text; // Return unencrypted as fallback
+            }
+        } else {
+            // Browser basic encoding
+            try {
+                return btoa(encodeURIComponent(text));
+            } catch (error) {
+                console.error('Encoding failed:', error);
+                return text;
+            }
+        }
+    }
+
+    /**
+     * Decrypt sensitive data
+     */
+    decrypt(encryptedData) {
+        if (this.isNode && this.encryptionKey) {
+            // Node.js real decryption
+            if (typeof encryptedData !== 'object') {
+                return encryptedData; // Not encrypted
+            }
+            
+            try {
+                const algorithm = 'aes-256-gcm';
+                const decipher = crypto.createDecipher(algorithm, this.encryptionKey);
+
+                decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
+
+                let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
+                decrypted += decipher.final('utf8');
+
+                return decrypted;
+            } catch (error) {
+                console.error('🔒 Decryption failed:', error);
+                return null;
+            }
+        } else {
+            // Browser basic decoding
+            try {
+                if (typeof encryptedData === 'object') {
+                    return encryptedData; // Not encoded
+                }
+                return decodeURIComponent(atob(encryptedData));
+            } catch (error) {
+                console.error('Decoding failed:', error);
+                return encryptedData;
+            }
+        }
+    }
 
   /**
    * Save API settings securely

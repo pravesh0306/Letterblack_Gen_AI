@@ -1,0 +1,8 @@
+/* Dev log panel styles */
+#dev-log-wrapper { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+#dev-log-header { background: #111; padding: 8px 10px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.04); }
+#dev-log-panel { padding: 8px; overflow: auto; max-height: 200px; }
+.dev-log-entry { padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.02); }
+.dev-log-entry.info { color: #9bd1ff; }
+.dev-log-entry.warn { color: #ffd27a; }
+.dev-log-entry.error { color: #ff9b9b; }

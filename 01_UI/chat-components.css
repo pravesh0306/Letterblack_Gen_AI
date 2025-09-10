@@ -1,0 +1,379 @@
+/* Enhanced Chat Message Components */
+
+/* Code Block Styling */
+.code-block {
+    background: linear-gradient(135deg, 
+        rgba(30, 30, 30, 0.95) 0%, 
+        rgba(25, 25, 25, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin: 12px 0;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.code-header {
+    background: linear-gradient(90deg, 
+        rgba(86, 156, 214, 0.1) 0%, 
+        rgba(86, 156, 214, 0.05) 100%);
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--vscode-text-accent);
+    font-weight: 500;
+}
+
+.code-title {
+    font-family: 'Cascadia Code', 'Fira Code', 'Monaco', monospace;
+}
+
+.copy-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--vscode-text-secondary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(86, 156, 214, 0.2);
+    border-color: rgba(86, 156, 214, 0.5);
+    color: var(--vscode-text-primary);
+}
+
+.code-content {
+    padding: 16px;
+    margin: 0;
+    font-family: 'Cascadia Code', 'Fira Code', 'Monaco', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #d4d4d4;
+    background: transparent;
+    overflow-x: auto;
+}
+
+.code-content code {
+    color: inherit;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* Suggestion Panel Styling */
+.suggestion-panel {
+    background: linear-gradient(135deg, 
+        rgba(86, 156, 214, 0.08) 0%, 
+        rgba(86, 156, 214, 0.03) 100%);
+    border: 1px solid rgba(86, 156, 214, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+}
+
+.suggestion-panel h5 {
+    margin: 0 0 12px 0;
+    color: var(--vscode-text-accent);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.suggestion-panel ul {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
+    color: var(--vscode-text-primary);
+}
+
+.suggestion-panel li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.suggestion-panel code {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--vscode-text-accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Monaco', monospace;
+    font-size: 12px;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, 
+        var(--vscode-text-accent) 0%, 
+        rgba(86, 156, 214, 0.8) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(86, 156, 214, 0.3);
+}
+
+.action-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(86, 156, 214, 0.4);
+}
+
+.action-btn.secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--vscode-text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.action-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Related Suggestions */
+.related-suggestions {
+    margin: 16px 0 0 0;
+    padding: 16px;
+    background: linear-gradient(135deg, 
+        rgba(137, 209, 133, 0.06) 0%, 
+        rgba(137, 209, 133, 0.02) 100%);
+    border: 1px solid rgba(137, 209, 133, 0.15);
+    border-radius: 8px;
+}
+
+.related-suggestions h5 {
+    margin: 0 0 12px 0;
+    color: var(--vscode-success);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.suggestion-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.suggestion-chip {
+    background: rgba(137, 209, 133, 0.1);
+    color: var(--vscode-success);
+    border: 1px solid rgba(137, 209, 133, 0.3);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.suggestion-chip:hover {
+    background: rgba(137, 209, 133, 0.2);
+    border-color: rgba(137, 209, 133, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(137, 209, 133, 0.2);
+}
+
+/* Tip Callout */
+.tip-callout {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, 
+        rgba(255, 204, 2, 0.08) 0%, 
+        rgba(255, 204, 2, 0.03) 100%);
+    border: 1px solid rgba(255, 204, 2, 0.2);
+    border-radius: 8px;
+    margin: 12px 0;
+}
+
+.tip-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.tip-content {
+    color: var(--vscode-text-primary);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.tip-content strong {
+    color: var(--vscode-warning);
+    font-weight: 600;
+}
+
+/* Message Content Enhancements */
+.message.assistant .message-content h4 {
+    margin: 0 0 12px 0;
+    color: var(--vscode-success);
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.message.assistant .message-content h5 {
+    margin: 16px 0 8px 0;
+    color: var(--vscode-text-accent);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.message.assistant .message-content p {
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+    color: var(--vscode-text-primary);
+}
+
+/* Enhanced Message Timestamps */
+.message-timestamp {
+    font-size: 11px;
+    color: var(--vscode-text-secondary);
+    margin-top: 8px;
+    text-align: right;
+    opacity: 0.7;
+}
+
+/* Responsive Design for Chat Components */
+@media (max-width: 768px) {
+    .quick-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        text-align: center;
+    }
+    
+    .suggestion-chips {
+        justify-content: center;
+    }
+    
+    .code-content {
+        font-size: 12px;
+        padding: 12px;
+    }
+    
+    .suggestion-panel,
+    .related-suggestions,
+    .tip-callout {
+        padding: 12px;
+        margin: 8px 0;
+    }
+}
+
+/* Syntax Highlighting for Code */
+.code-content .comment {
+    color: #6A9955;
+    font-style: italic;
+}
+
+.code-content .keyword {
+    color: #569CD6;
+    font-weight: 500;
+}
+
+.code-content .string {
+    color: #CE9178;
+}
+
+.code-content .number {
+    color: #B5CEA8;
+}
+
+.code-content .function {
+    color: #DCDCAA;
+}
+
+/* Loading States for Code Blocks */
+.code-block.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.code-block.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(86, 156, 214, 0.1) 50%, 
+        transparent 100%);
+    animation: code-shimmer 1.5s infinite;
+}
+
+@keyframes code-shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Demo Welcome Section */
+.demo-actions {
+    margin: 16px 0;
+    padding: 16px;
+    background: linear-gradient(135deg, 
+        rgba(86, 156, 214, 0.05) 0%, 
+        rgba(86, 156, 214, 0.02) 100%);
+    border: 1px solid rgba(86, 156, 214, 0.15);
+    border-radius: 8px;
+}
+
+.demo-actions h4 {
+    margin: 0 0 12px 0;
+    color: var(--vscode-text-accent);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.demo-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.demo-buttons .action-btn {
+    text-align: center;
+    justify-self: stretch;
+    font-size: 13px;
+    padding: 10px 12px;
+}
+
+.demo-actions p {
+    margin: 12px 0 0 0;
+    font-size: 13px;
+    color: var(--vscode-text-secondary);
+    text-align: center;
+}
+
+.demo-actions strong {
+    color: var(--vscode-text-accent);
+}

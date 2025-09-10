@@ -1,0 +1,7 @@
+File,Errors
+"advanced-module-initializer.js","Processing -File 'G:\Developments\15_AI_AE\Adobe_AI_Generations\.merge_staging\advanced-module-initializer.js' failed because the file does not have a '.ps1' extension. Specify a valid PowerShell script file name, and then try again. -join(' ')"
+"ai-module.js","Processing -File 'G:\Developments\15_AI_AE\Adobe_AI_Generations\.merge_staging\ai-module.js' failed because the file does not have a '.ps1' extension. Specify a valid PowerShell script file name, and then try again. -join(' ')"
+"main.js","Processing -File 'G:\Developments\15_AI_AE\Adobe_AI_Generations\.merge_staging\main.js' failed because the file does not have a '.ps1' extension. Specify a valid PowerShell script file name, and then try again. -join(' ')"
+"memory-manager.js","Processing -File 'G:\Developments\15_AI_AE\Adobe_AI_Generations\.merge_staging\memory-manager.js' failed because the file does not have a '.ps1' extension. Specify a valid PowerShell script file name, and then try again. -join(' ')"
+"secureAPIStorage.js","Processing -File 'G:\Developments\15_AI_AE\Adobe_AI_Generations\.merge_staging\secureAPIStorage.js' failed because the file does not have a '.ps1' extension. Specify a valid PowerShell script file name, and then try again. -join(' ')"
+"storage-integration.js","Processing -File 'G:\Developments\15_AI_AE\Adobe_AI_Generations\.merge_staging\storage-integration.js' failed because the file does not have a '.ps1' extension. Specify a valid PowerShell script file name, and then try again. -join(' ')"

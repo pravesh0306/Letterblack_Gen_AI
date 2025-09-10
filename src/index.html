@@ -8,11 +8,18 @@
     <!-- LetterBlack GenAI Design System -->
     <link rel="stylesheet" href="css/design-system.css">
     
-    <!-- Floating Mascot Component -->
-    <link rel="stylesheet" href="css/components/floating-mascot.css">
+    <!-- Foundation Styles -->
+    <link rel="stylesheet" href="css/components/themes/vscode-theme.css">
+    <link rel="stylesheet" href="css/components/foundation/layout-modern.css">
+    <link rel="stylesheet" href="css/components/foundation/interactive.css">
     
-    <!-- Voice Features Component -->
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="css/components/floating-mascot.css">
     <link rel="stylesheet" href="css/components/voice-features.css">
+    <link rel="stylesheet" href="css/components/enhanced-code-blocks.css">
+    <link rel="stylesheet" href="css/components/consolidated-components.css">
+    <link rel="stylesheet" href="css/components/ai-status.css">
+    <link rel="stylesheet" href="css/components/ae-panel-overrides.css">
     
     <!-- External Dependencies -->
     <link rel="stylesheet" href="js/libs/fontawesome/css/all.min.css">
@@ -20,12 +27,20 @@
     <!-- Prism.js for Syntax Highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     
-    <!-- Enhanced Code Blocks -->
-    <link rel="stylesheet" href="css/components/enhanced-code-blocks.css">
-    
-    <link rel="stylesheet" href="css/main-styles.css">
+    <!-- Early safeStorage shim for headless and CEP environments -->
+    <script>
+        (function(){
+            function makeStore(){ const data = Object.create(null); return { getItem(k){ return Object.prototype.hasOwnProperty.call(data,k)?data[k]:null }, setItem(k,v){ data[k]=String(v) }, removeItem(k){ delete data[k] }, clear(){ for(const k in data) delete data[k] } }; }
+            try{
+                if(typeof window !== 'undefined'){
+                    if(typeof window.localStorage === 'undefined') window.localStorage = makeStore();
+                    if(typeof window.sessionStorage === 'undefined') window.sessionStorage = makeStore();
+                }
+            }catch(e){ console.warn('Storage polyfill loaded:', e); }
+        })();
+    </script>
 </head>
-<body>
+<body class="vscode-dark">
     <div class="vscode-app">
         <header class="vscode-header">
             <div class="header-left">
@@ -37,6 +52,9 @@
                 </div>
             </div>
             <div class="header-right">
+                <button id="ai-status-btn" class="header-btn" title="AI Status Dashboard">
+                    <i class="fa-solid fa-robot status-indicator"></i>
+                </button>
                 <button id="mascot-debug-btn" class="header-btn mascot-debug-btn" title="Test Mascot Visibility" onclick="forceMascotVisibility(); testFloatingMascot();">
                     🎭 TEST
                 </button>

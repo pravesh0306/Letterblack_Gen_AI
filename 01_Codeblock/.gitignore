@@ -1,0 +1,33 @@
+# Build artifacts
+com.letterblack.ae.ai.chat/
+com.letterblack.ae.ai/
+com.letterblack.genai_Build/
+*.build/
+
+# API keys and sensitive config
+src/js/config.local.js
+config.local.js
+*.env
+.env*
+
+# Logs and debug files
+*.log
+npm-debug.log*
+debug-*
+test-api.html
+check-extension.bat
+extension-debug.html
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

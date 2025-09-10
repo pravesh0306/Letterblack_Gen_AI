@@ -1,0 +1,32 @@
+Feature Analysis for Advanced Modules
+==================================================
+
+advanced-module-initializer.js ANALYSIS:
+Backup: 292 lines, Current: 334 lines
+Location: src\js\core\advanced-module-initializer.js
+------------------------------
+
+main.js ANALYSIS:
+Backup: 206 lines, Current: 2778 lines
+Location: src\js\core\main.js
+------------------------------
+
+memory-manager.js ANALYSIS:
+Backup: 378 lines, Current: 389 lines
+Location: src\js\core\memory-manager.js
+------------------------------
+
+secureAPIStorage.js ANALYSIS:
+Backup: 345 lines, Current: 221 lines
+Location: src\storage\secureAPIStorage.js
+------------------------------
+
+storage-integration.js ANALYSIS:
+Backup: 487 lines, Current: 511 lines
+Location: src\js\storage-integration.js
+------------------------------
+
+ai-module.js ANALYSIS:
+Backup: 1438 lines, Current: 932 lines
+Location: src\js\ai\ai-module.js
+------------------------------

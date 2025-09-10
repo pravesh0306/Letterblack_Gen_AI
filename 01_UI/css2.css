@@ -1,0 +1,67 @@
+/* css2.css - Consolidated stylesheet with correct paths */
+@charset "UTF-8";
+/* Import theme first */
+@import url('components/themes/vscode-theme.css');
+
+/* Import foundational layer (colors, typography, layout primitives) */
+@import url('components/foundation/colors.css');
+@import url('components/foundation/typography.css');
+@import url('components/foundation/layout-modern.css');
+@import url('components/foundation/icons.css');
+@import url('components/foundation/core.css');
+@import url('components/foundation/interactive.css');
+
+/* Core feature/layout styles */
+@import url('components/layout.css');
+@import url('components/chat.css');
+@import url('components/layout-enhancements.css');
+@import url('components/settings.css');
+@import url('components/script.css');
+@import url('components/chat-components.css');
+@import url('components/dynamic-ui.css');
+@import url('components/ai-status.css');
+@import url('components/api-feedback.css');
+@import url('components/image-upload.css');
+@import url('components/header.css');
+@import url('components/code-display.css');
+
+/* Provide minimal reset and utilities (former base.css responsibility) */
+:root { box-sizing: border-box; }
+*,*::before,*::after { box-sizing: inherit; }
+body { margin:0; font-family: var(--font-family, 'Inter', sans-serif); }
+
+/* Basic animation utilities (placeholder for former animations.css) */
+.fade-in { animation: fadeIn 0.3s ease both; }
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+
+/* Forms/panels/components minimal tokens (stand-ins for removed files) */
+.panel { background: var(--vscode-panel-bg, #252526); border:1px solid var(--vscode-border,#3e3e42); border-radius: var(--radius-md,6px); }
+.form-control { background: var(--vscode-input-bg,#3c3c3c); color: var(--vscode-text,#ccc); border:1px solid var(--vscode-input-border,#6c6c6c); padding:6px 8px; border-radius:4px; font-size:12px; }
+.form-control:focus { outline:1px solid var(--vscode-accent,#007acc); }
+.button-primary { background: var(--vscode-button-bg,#0e639c); color:#fff; border:1px solid var(--vscode-button-bg,#0e639c); padding:6px 10px; border-radius:4px; cursor:pointer; }
+.button-primary:hover { background: var(--vscode-button-hover,#1177bb); }
+
+/* Chat specific quick styles (stand-ins where chat.css already covers most) */
+
+/* Clean chat message styles: no colored bubbles, borders, gradients */
+.chat-message {
+	padding: 8px 10px;
+	border-radius: 6px;
+	background: var(--vscode-panel-bg, #252526);
+	color: var(--vscode-text, #cccccc);
+	margin-bottom: 6px;
+}
+.chat-message.user {
+	background: var(--vscode-panel-bg, #252526);
+	color: var(--vscode-text, #cccccc);
+}
+.chat-message.assistant, .chat-message.system {
+	background: var(--vscode-panel-bg, #252526);
+	color: var(--vscode-text, #cccccc);
+}
+
+/* Panels toggle helpers (placeholder for panels.css) */
+.collapsible { transition: max-height .3s ease, opacity .25s ease; overflow:hidden; }
+.collapsible.collapsed { max-height:0 !important; opacity:0; }
+
+/* End consolidated css2.css */

@@ -26,10 +26,13 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    border: 1px solid var(--color-border-primary);
-    box-shadow: var(--shadow-panel);
-    max-width: 800px;
-    margin: var(--spacing-xl) auto;
+    width: 100vw;
+    /* Remove all boundaries for full freedom */
+    border: none;
+    box-shadow: none;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
 }
 
 /* Header Components */
@@ -831,8 +834,12 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
     .vscode-app {
-        max-width: 100%;
+        /* Full freedom on mobile - no constraints */
+        max-width: none;
+        width: 100vw;
         margin: 0;
+        border: none;
+        border-radius: 0;
     }
     
     .floating-mascot {
@@ -840,5 +847,17 @@ body {
         right: var(--spacing-md);
         width: 56px;
         height: 56px;
+    }
+}
+
+/* Additional full-screen overrides */
+@media (min-width: 769px) {
+    .vscode-app {
+        /* Full freedom on desktop too */
+        max-width: none;
+        width: 100vw;
+        margin: 0;
+        border: none;
+        border-radius: 0;
     }
 }

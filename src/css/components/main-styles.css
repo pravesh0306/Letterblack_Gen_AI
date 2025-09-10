@@ -23,6 +23,7 @@ body {
     overflow: hidden;
     display: flex;
     height: 100vh;
+    width: 100vw;
     flex-direction: column;
 }
 
@@ -31,10 +32,13 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    border: 1px solid var(--color-border-primary);
-    box-shadow: var(--shadow-panel);
-    max-width: 800px;
-    margin: var(--spacing-xl) auto;
+    width: 100vw;
+    /* Remove all boundaries and constraints */
+    border: none;
+    box-shadow: none;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
 }
 
 /* ===== HEADER STYLES ===== */
