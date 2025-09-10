@@ -7,14 +7,13 @@
     
     <!-- LetterBlack GenAI Design System -->
     <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/components/floating-mascot.css">
-    <link rel="stylesheet" href="css/components/voice-features.css">
-    <link rel="stylesheet" href="css/components/enhanced-code-blocks.css">
-    <link rel="stylesheet" href="css/main-styles.css">
+    <link rel="stylesheet" href="assets/mascot.css">
+    <link rel="stylesheet" href="css/components/code-display.css">
+    <link rel="stylesheet" href="css/components/main-styles.css">
     
-    <!-- External Dependencies - Local CEP-optimized -->
-    <link rel="stylesheet" href="js/libs/fontawesome/css/all.min.css">
-    <link href="js/libs/prism/prism-tomorrow.min.css" rel="stylesheet" />
+    <!-- External Dependencies (CDN for clean, reliable includes) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-2vC9rJ9V7oB3gYoNQ4scJtM2fVg0qvS4Hn8+3rM1q2V9sgk0z9KzQ2x9Vb7u3lP3JjQyW8bYd7z8Z0U2Rkq42A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 <body>
     <div class="vscode-app">
@@ -193,11 +192,14 @@
     
     <!-- 5. UI Bundle (includes UI manager, accessibility, interactions) -->
     <script src="js/ui.js"></script>
+
+    <!-- Compatibility shims (maps to existing SimpleSettingsManager, etc.) -->
+    <script src="js/compat/shims.js"></script>
     
-    <!-- Prism.js for Syntax Highlighting - Local CEP-optimized -->
-    <script src="js/libs/prism/prism.min.js"></script>
-    <script src="js/libs/prism/prism-javascript.min.js"></script>
-    <script src="js/libs/prism/prism-jsx.min.js"></script>
+    <!-- Prism.js for Syntax Highlighting (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
 
     <!-- Single Floating Mascot with WebM Animation -->
     <div class="floating-mascot" id="floating-mascot" data-tooltip="Let's create something amazing!">

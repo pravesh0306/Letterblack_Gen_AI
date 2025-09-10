@@ -41,7 +41,7 @@
                     🎭 TEST
                 </button>
                 <!-- CRITICAL CACHE DELETION BUTTON -->
-                <button onclick="deleteCacheAndReload()" style="background: #ff4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; margin-right: 8px; font-size: 11px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(255,68,68,0.3);" title="Delete Cache & Force Reload">🗑️ DELETE CACHE</button>
+                <button type="button" onclick="deleteCacheAndReload()" class="delete-cache-btn" title="Delete Cache & Force Reload">🗑️ DELETE CACHE</button>
                 <button id="command-menu-trigger" class="header-btn" title="Command Palette (Ctrl+K)">
                     <i class="fa-solid fa-search"></i>
                 </button>
@@ -502,7 +502,7 @@
     <script src="js/core/module-monitor.js"></script>
     <script src="js/core/enhanced-performance-system.js"></script>
     <script src="js/core/enhanced-main.js"></script>
-    <script src="js/debug-functions.js"></script>
+    <script src="js/utils/debug-functions-stub.js"></script>
     <script src="js/core/ui-initializer.js"></script>
     <script src="js/core/local-file-storage-manager.js"></script>
     
@@ -571,13 +571,13 @@
     <!-- Floating Mascot with WebM Animation -->
     <div class="floating-mascot" id="floating-mascot" data-tooltip="Let's create something amazing!">
         <div class="mascot-avatar">
-            <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video" style="display: none;">
+            <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video" class="hidden">
                 <source src="assets/Idle.webm" type="video/webm">
                 <!-- Fallback for browsers that don't support WebM -->
             </video>
-            <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback" style="display: none; width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
+            <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback">
             <!-- Ultimate fallback: simple colored circle with emoji - SHOW BY DEFAULT -->
-            <div id="floating-mascot-simple" style="display: flex; width: 70px; height: 70px; background: linear-gradient(135deg, #007acc, #005a9f); border-radius: 50%; align-items: center; justify-content: center; font-size: 24px; color: white; font-weight: bold;">🎭</div>
+            <div id="floating-mascot-simple">🎭</div>
             
             <!-- Audio Visualizer -->
             <div class="audio-visualizer" id="audio-visualizer">

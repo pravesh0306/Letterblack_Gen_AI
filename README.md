@@ -133,7 +133,7 @@ npm test
 
 ## Getting Started
 
-1. **Development Server**:
+Open `build/index.html` in a browser or CEP panel to preview. This is the canonical, ship-ready page.
    ```bash
    cd src
    python -m http.server 8080
@@ -153,9 +153,13 @@ npm test
    ```
 
 ## Development
+### Build
 
-### Adding New Modules
-1. Create module in `src/scripts/modules/`
+- `npm run build` overlays `src/*` into `build/` (non-destructive). Keeps existing `build/index.html` and assets.
+- `npm run build:full` cleans `build/` first, then copies `src/*` (destructive). Use only if you intend to regenerate from `src`.
+
+Notes:
+- `build/index.html` references only assets present under `build/` and stable CDNs. Avoid overwriting it unless you’re migrating the layout back to `src`.
 2. Add script tag to `src/index.html`
 3. Follow existing module patterns for consistency
 

@@ -1,0 +1,5 @@
+/* Enhanced code block styling */
+pre[class*="language-"] { position: relative; padding-top: 32px; }
+.code-block-toolbar { position: absolute; top: 0; right: 0; display: flex; gap: 6px; padding: 6px; }
+.code-tool-btn { background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 12px; }
+.code-tool-btn:hover { background: rgba(0,0,0,0.8); }
