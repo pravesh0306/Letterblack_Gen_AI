@@ -90,10 +90,14 @@ class MascotAnimator {
         await Promise.all(Object.entries(this.scenarios).map(async ([key, data]) => {
             if (key === 'idle') return;
             try {
-                // Skip network HEAD if likely running from file:// where fetch may fail; detect by location.protocol
+                // Skip network HEAD if running from file:// where fetch will fail (CEP environment)
                 if (location.protocol.startsWith('http')) {
                     const res = await fetch(data.file, { method: 'HEAD', cache: 'no-store' });
                     if (!res.ok) throw new Error('HTTP '+res.status);
+                } else {
+                    // In file:// environment (CEP), assume assets exist
+                    console.log(`🎭 Assuming asset exists in CEP: ${data.file}`);
+                    return;
                 }
                 // If manifest present, mark integrity status
                 if (this.manifest && this.manifest.assets) {
@@ -114,13 +118,20 @@ class MascotAnimator {
 
     async loadManifest() {
         try {
+            // Skip fetch if running from file:// protocol (CEP environment)
+            if (location.protocol === 'file:') {
+                console.log('🎭 Skipping manifest fetch in file:// environment');
+                return;
+            }
+            
             const res = await fetch('src/assets/mascot-assets.json', { cache: 'no-store' });
             if (res.ok) {
                 this.manifest = await res.json();
                 console.log('Mascot manifest loaded', this.manifest.generated);
             }
         } catch (e) {
-            // Silent if manifest absent
+            // Silent if manifest absent or CORS blocked
+            console.log('🎭 Manifest loading skipped (expected in CEP environment)');
         }
     }
     
@@ -411,6 +422,43 @@ class MascotAnimator {
         console.log(`  - Duration: ${video.duration || 'unknown'}`);
         
         return video.readyState >= 2;
+    }
+    
+    /**
+     * Show welcome message with mascot animation
+     */
+    showWelcome(options = {}) {
+        const { text = 'Welcome', message = 'Ready to assist!', duration = 3000 } = options;
+        
+        // Play idle animation
+        this.playScenario('idle');
+        
+        // Show welcome notification if there's a notification system
+        if (typeof this.showNotification === 'function') {
+            this.showNotification({ text, message, duration });
+        } else {
+            // Fallback: just log the welcome message
+            console.log(`🎭 ${text}: ${message}`);
+        }
+        
+        return this;
+    }
+    
+    /**
+     * Show notification message (can be overridden by other systems)
+     */
+    showNotification(options = {}) {
+        const { text = 'Notification', message = '', duration = 3000 } = options;
+        
+        // Simple console notification as fallback
+        console.log(`🎭 ${text}: ${message}`);
+        
+        // If there's a toast system available, use it
+        if (window.showToast && typeof window.showToast === 'function') {
+            window.showToast(message, 'info', duration);
+        }
+        
+        return this;
     }
 }
 

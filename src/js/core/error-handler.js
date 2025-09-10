@@ -122,11 +122,24 @@ class ErrorHandler {
       message = error;
       errorCode = this.errorCodes.UNKNOWN_ERROR;
       severity = 'medium';
+    } else if (error && typeof error === 'object') {
+      // Object with potential error information
+      if (error.toString && error.toString() !== '[object Object]') {
+        message = error.toString();
+      } else if (error.message) {
+        message = error.message;
+      } else if (error.name) {
+        message = `${error.name}: ${JSON.stringify(error)}`;
+      } else {
+        message = `Unknown object error: ${JSON.stringify(error)}`;
+      }
+      errorCode = this.errorCodes.UNKNOWN_ERROR;
+      severity = 'low'; // Reduce severity for object errors
     } else {
       // Unknown error type
       message = 'Unknown error occurred';
       errorCode = this.errorCodes.UNKNOWN_ERROR;
-      severity = 'medium';
+      severity = 'low'; // Reduce severity for unknown errors
     }
 
     return {
