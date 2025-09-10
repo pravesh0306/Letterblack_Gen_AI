@@ -25,7 +25,7 @@ class SimpleYouTubeHelper {
      */
     async analyzeYouTubeURL(url, userPrompt = '') {
         console.log('🎬 Analyzing YouTube URL:', url);
-        
+
         try {
             // Extract video ID
             const videoId = this.extractVideoId(url);
@@ -50,13 +50,13 @@ class SimpleYouTubeHelper {
 
             // Basic analysis from URL and user prompt
             const analysis = {
-                videoId: videoId,
-                url: url,
+                videoId,
+                url,
                 title: metadata?.title || null,
                 author: metadata?.author_name || null,
-                category: this.detectCategory(url + ' ' + (metadata?.title || ''), userPrompt),
+                category: this.detectCategory(`${url } ${ metadata?.title || ''}`, userPrompt),
                 keywords: this.extractKeywords(metadata?.title || '', userPrompt),
-                suggestions: this.generateSuggestions(url + ' ' + (metadata?.title || ''), userPrompt),
+                suggestions: this.generateSuggestions(`${url } ${ metadata?.title || ''}`, userPrompt),
                 aeScript: null,
                 expression: null
             };
@@ -85,7 +85,7 @@ Return:
 3. If expression relevant, refine this expression (if provided): ${analysis.expression || 'N/A'}
 4. Provide an improved script (concise) if script provided.
 5. Suggest 2 advanced variations.`;
-                
+
                 try {
                     const aiResponse = await this.aiModule.generateResponse(aiPrompt);
                     analysis.aiAnalysis = aiResponse;
@@ -132,10 +132,10 @@ Return:
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
             /youtube\.com\/v\/([^&\n?#]+)/
         ];
-        
+
         for (const pattern of patterns) {
             const match = url.match(pattern);
-            if (match) return match[1];
+            if (match) {return match[1];}
         }
         return null;
     }
@@ -144,8 +144,8 @@ Return:
      * Detect tutorial category from URL title and user prompt
      */
     detectCategory(url, userPrompt) {
-    const combined = (url + ' ' + userPrompt).toLowerCase();
-        
+        const combined = (`${url } ${ userPrompt}`).toLowerCase();
+
         for (const [category, keywords] of Object.entries(this.patterns)) {
             if (keywords.some(keyword => combined.includes(keyword))) {
                 return category;
@@ -158,8 +158,8 @@ Return:
      * Generate practical suggestions based on category
      */
     generateSuggestions(url, userPrompt) {
-    const category = this.detectCategory(url, userPrompt);
-        
+        const category = this.detectCategory(url, userPrompt);
+
         const suggestions = {
             text: [
                 'Create a text layer with animated properties',
@@ -196,7 +196,7 @@ Return:
      */
     generateBasicScript(url, userPrompt, forcedCategory) {
         const category = forcedCategory || this.detectCategory(url, userPrompt);
-        
+
         const scripts = {
             text: `
 // Create animated text layer
@@ -241,10 +241,10 @@ if (!app.project.activeItem) {
      * Fetch oEmbed metadata to get title/author (no API key). Falls back silently.
      */
     async fetchVideoMetadata(url) {
-        if (typeof fetch === 'undefined') throw new Error('fetch unavailable');
+        if (typeof fetch === 'undefined') {throw new Error('fetch unavailable');}
         const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
         const res = await fetch(oembedUrl, { method: 'GET' });
-        if (!res.ok) throw new Error('oEmbed request failed');
+        if (!res.ok) {throw new Error('oEmbed request failed');}
         return await res.json();
     }
 
@@ -252,7 +252,7 @@ if (!app.project.activeItem) {
      * Extract useful AE-related keywords from title/user input
      */
     extractKeywords(title, userPrompt) {
-        const source = (title + ' ' + userPrompt).toLowerCase();
+        const source = (`${title } ${ userPrompt}`).toLowerCase();
         const keys = [
             'pulse','pulsing','breath','breathe','loop','bounce','circle','logo','reveal','glow','neon','fade','typewriter','countdown','counter','wiggle','shake','particles','trail','morph'
         ];
@@ -319,3 +319,4 @@ if (!app.project.activeItem) {
 
 // Export for use
 window.SimpleYouTubeHelper = SimpleYouTubeHelper;
+

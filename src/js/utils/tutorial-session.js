@@ -24,7 +24,7 @@
         }
 
         startSession(id, meta){
-            if(!id) return;
+            if(!id) {return;}
             const existing = this.sessions[id] || {};
             const steps = Array.isArray(meta?.steps) ? meta.steps.map((s,i)=>({
                 id: s.id || `step-${i+1}`,
@@ -50,23 +50,23 @@
         }
 
         getActive(){
-            if(!this.activeSessionId) return null;
+            if(!this.activeSessionId) {return null;}
             return this.sessions[this.activeSessionId] || null;
         }
 
         setActive(id){
-            if(this.sessions[id]) this.activeSessionId = id;
+            if(this.sessions[id]) {this.activeSessionId = id;}
         }
 
         getCurrentStep(){
             const sess = this.getActive();
-            if(!sess) return null;
+            if(!sess) {return null;}
             return sess.steps[sess.currentIndex] || null;
         }
 
         next(){
             const sess = this.getActive();
-            if(!sess) return null;
+            if(!sess) {return null;}
             if(sess.currentIndex < sess.steps.length - 1){
                 sess.currentIndex++;
                 sess.updated = new Date().toISOString();
@@ -77,7 +77,7 @@
 
         prev(){
             const sess = this.getActive();
-            if(!sess) return null;
+            if(!sess) {return null;}
             if(sess.currentIndex > 0){
                 sess.currentIndex--;
                 sess.updated = new Date().toISOString();
@@ -88,7 +88,7 @@
 
         goTo(index){
             const sess = this.getActive();
-            if(!sess) return null;
+            if(!sess) {return null;}
             if(index >=0 && index < sess.steps.length){
                 sess.currentIndex = index;
                 sess.updated = new Date().toISOString();
@@ -99,7 +99,7 @@
 
         markCompleted(index){
             const sess = this.getActive();
-            if(!sess) return;
+            if(!sess) {return;}
             const step = sess.steps[index];
             if(step){
                 step.status = 'completed';
@@ -110,7 +110,7 @@
 
         restart(){
             const sess = this.getActive();
-            if(!sess) return null;
+            if(!sess) {return null;}
             sess.steps.forEach(s=>{ s.status='pending'; });
             sess.currentIndex = 0;
             sess.updated = new Date().toISOString();
@@ -121,3 +121,4 @@
 
     window.TutorialSessionManager = TutorialSessionManager;
 })();
+

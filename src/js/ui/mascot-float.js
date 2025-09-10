@@ -1,7 +1,7 @@
 // mascot-float.js
 // Handles floating mascot functionality
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const floatingMascot = document.getElementById('floating-mascot');
     let clickCount = 0;
     function handleFloatingMascotClick() {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function scheduleTooltipUpdate() {
             const delay = 6000 + Math.random() * 4000;
             setTimeout(() => {
-                if (typeof updateTooltip === 'function') updateTooltip();
+                if (typeof updateTooltip === 'function') {updateTooltip();}
                 scheduleTooltipUpdate();
             }, delay);
         }
@@ -53,12 +53,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Drag-and-drop functionality for floating mascot
 (function() {
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
         const mascot = document.getElementById('floating-mascot');
-        if (!mascot) return;
+        if (!mascot) {return;}
         let isDragging = false;
         let offsetX = 0, offsetY = 0;
-        mascot.addEventListener('mousedown', function(e) {
+        mascot.addEventListener('mousedown', (e) => {
             isDragging = true;
             mascot.classList.add('dragging');
             const rect = mascot.getBoundingClientRect();
@@ -66,15 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
             offsetY = e.clientY - rect.top;
             document.body.style.userSelect = 'none';
         });
-        document.addEventListener('mousemove', function(e) {
-            if (!isDragging) return;
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) {return;}
             mascot.style.position = 'fixed';
-            mascot.style.left = (e.clientX - offsetX) + 'px';
-            mascot.style.top = (e.clientY - offsetY) + 'px';
+            mascot.style.left = `${e.clientX - offsetX }px`;
+            mascot.style.top = `${e.clientY - offsetY }px`;
             mascot.style.right = '';
             mascot.style.bottom = '';
         });
-        document.addEventListener('mouseup', function() {
+        document.addEventListener('mouseup', () => {
             if (isDragging) {
                 isDragging = false;
                 mascot.classList.remove('dragging');

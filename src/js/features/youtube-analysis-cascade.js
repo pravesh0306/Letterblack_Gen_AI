@@ -8,46 +8,46 @@ class YouTubeAnalysisCascade {
     constructor(aiModule = null) {
         this.aiModule = aiModule;
         this.methods = [
-            { 
-                name: 'AI-Powered Analysis', 
+            {
+                name: 'AI-Powered Analysis',
                 func: this.tryAIPoweredAnalysis.bind(this),
                 priority: 1,
                 capabilities: ['transcript', 'summary', 'insights']
             },
-            { 
-                name: 'Browser-Based Processing', 
+            {
+                name: 'Browser-Based Processing',
                 func: this.tryBrowserBasedProcessing.bind(this),
                 priority: 2,
                 capabilities: ['metadata', 'basic-info']
             },
-            { 
-                name: 'Pattern Matching Fallback', 
+            {
+                name: 'Pattern Matching Fallback',
                 func: this.tryPatternMatchingFallback.bind(this),
                 priority: 3,
                 capabilities: ['basic-info', 'url-parsing']
             }
         ];
-        
+
         console.log('🎯 YouTube Analysis Cascade System initialized');
         console.log(`📊 Available methods: ${this.methods.length}`);
     }
-    
+
     /**
      * Main entry point - tries all methods in cascade order
      */
     async analyzeYouTubeVideo(url, userMessage = '') {
         console.log(`🚀 Starting cascade analysis for: ${this.sanitizeUrl(url)}`);
         console.log(`📝 User context: "${userMessage}"`);
-        
+
         const results = {
-            url: url,
-            userMessage: userMessage,
+            url,
+            userMessage,
             methodResults: [],
             usedMethod: null,
             finalResult: null,
             timestamp: new Date().toISOString()
         };
-        
+
         // Validate URL first
         if (!this.isValidYouTubeUrl(url)) {
             results.finalResult = {
@@ -57,25 +57,25 @@ class YouTubeAnalysisCascade {
             };
             return results;
         }
-        
+
         // Try each method in order
         for (const method of this.methods) {
             console.log(`🔍 Trying method: ${method.name}`);
-            
+
             try {
                 const startTime = Date.now();
                 const result = await method.func(url, userMessage);
                 const duration = Date.now() - startTime;
-                
+
                 // Record this attempt
                 results.methodResults.push({
                     method: method.name,
                     success: result.success,
                     error: result.error || null,
-                    duration: duration,
+                    duration,
                     data: result.success ? result.data : null
                 });
-                
+
                 if (result.success) {
                     console.log(`✅ Success with ${method.name} in ${duration}ms`);
                     results.usedMethod = method.name;
@@ -84,7 +84,7 @@ class YouTubeAnalysisCascade {
                 } else {
                     console.log(`❌ ${method.name} failed: ${result.error}`);
                 }
-                
+
             } catch (error) {
                 console.error(`💥 ${method.name} threw error:`, error);
                 results.methodResults.push({
@@ -96,7 +96,7 @@ class YouTubeAnalysisCascade {
                 });
             }
         }
-        
+
         if (!results.finalResult) {
             console.log('❌ All cascade methods failed');
             results.finalResult = {
@@ -105,45 +105,45 @@ class YouTubeAnalysisCascade {
                 data: null
             };
         }
-        
+
         return results;
     }
-    
+
     /**
      * Method 1: AI-Powered Analysis using available AI APIs
      */
     async tryAIPoweredAnalysis(url, userMessage) {
         console.log('🤖 Attempting AI-Powered Analysis...');
-        
+
         try {
             // Check if AI module is available
             if (!this.aiModule || !window.openaiManager) {
                 throw new Error('AI module not available');
             }
-            
+
             const videoId = this.extractVideoId(url);
             if (!videoId) {
                 throw new Error('Could not extract video ID');
             }
-            
+
             // Try to get video info through available APIs
             const videoInfo = await this.getVideoInfo(videoId);
-            
+
             // Use AI to analyze the video context
             const aiPrompt = this.buildAnalysisPrompt(videoInfo, userMessage);
             const aiResponse = await window.openaiManager.sendMessage(aiPrompt);
-            
+
             return {
                 success: true,
                 data: {
                     method: 'AI-Powered Analysis',
-                    videoInfo: videoInfo,
+                    videoInfo,
                     analysis: aiResponse,
                     insights: this.extractInsights(aiResponse),
                     relevantTimestamps: this.extractTimestamps(aiResponse)
                 }
             };
-            
+
         } catch (error) {
             return {
                 success: false,
@@ -151,35 +151,35 @@ class YouTubeAnalysisCascade {
             };
         }
     }
-    
+
     /**
      * Method 2: Browser-Based Processing
      */
     async tryBrowserBasedProcessing(url, userMessage) {
         console.log('🌐 Attempting Browser-Based Processing...');
-        
+
         try {
             const videoId = this.extractVideoId(url);
             if (!videoId) {
                 throw new Error('Could not extract video ID');
             }
-            
+
             // Get basic video metadata
             const metadata = await this.getBasicMetadata(videoId);
-            
+
             // Simple text analysis of title and description
             const textAnalysis = this.analyzeTextContent(metadata, userMessage);
-            
+
             return {
                 success: true,
                 data: {
                     method: 'Browser-Based Processing',
-                    metadata: metadata,
+                    metadata,
                     analysis: textAnalysis,
                     confidence: 'medium'
                 }
             };
-            
+
         } catch (error) {
             return {
                 success: false,
@@ -187,35 +187,35 @@ class YouTubeAnalysisCascade {
             };
         }
     }
-    
+
     /**
      * Method 3: Pattern Matching Fallback
      */
     async tryPatternMatchingFallback(url, userMessage) {
         console.log('🔍 Attempting Pattern Matching Fallback...');
-        
+
         try {
             const videoId = this.extractVideoId(url);
             if (!videoId) {
                 throw new Error('Could not extract video ID');
             }
-            
+
             // Basic pattern matching against common After Effects terms
             const patterns = this.getAfterEffectsPatterns();
             const matchedTopics = this.matchPatterns(url, userMessage, patterns);
-            
+
             return {
                 success: true,
                 data: {
                     method: 'Pattern Matching Fallback',
-                    videoId: videoId,
-                    url: url,
-                    matchedTopics: matchedTopics,
+                    videoId,
+                    url,
+                    matchedTopics,
                     suggestions: this.generateSuggestions(matchedTopics),
                     confidence: 'low'
                 }
             };
-            
+
         } catch (error) {
             return {
                 success: false,
@@ -223,7 +223,7 @@ class YouTubeAnalysisCascade {
             };
         }
     }
-    
+
     /**
      * Validate YouTube URL
      */
@@ -233,10 +233,10 @@ class YouTubeAnalysisCascade {
             /^https?:\/\/(www\.)?youtu\.be\/[\w-]+/,
             /^https?:\/\/(www\.)?youtube\.com\/embed\/[\w-]+/
         ];
-        
+
         return patterns.some(pattern => pattern.test(url));
     }
-    
+
     /**
      * Extract video ID from YouTube URL
      */
@@ -245,34 +245,34 @@ class YouTubeAnalysisCascade {
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
             /^([a-zA-Z0-9_-]{11})$/
         ];
-        
+
         for (const pattern of patterns) {
             const match = url.match(pattern);
-            if (match) return match[1];
+            if (match) {return match[1];}
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get basic video metadata (simplified)
      */
     async getBasicMetadata(videoId) {
         return {
-            videoId: videoId,
+            videoId,
             url: `https://www.youtube.com/watch?v=${videoId}`,
             timestamp: new Date().toISOString(),
             source: 'pattern-extraction'
         };
     }
-    
+
     /**
      * Get video info through available methods
      */
     async getVideoInfo(videoId) {
         // This would be enhanced with actual API calls in production
         return {
-            videoId: videoId,
+            videoId,
             title: 'Video Title (Analysis Required)',
             description: 'Video description would be extracted here',
             duration: 'Unknown',
@@ -280,7 +280,7 @@ class YouTubeAnalysisCascade {
             publishedAt: 'Unknown'
         };
     }
-    
+
     /**
      * Build AI analysis prompt
      */
@@ -302,7 +302,7 @@ Please provide:
 
 Focus on practical After Effects applications.`;
     }
-    
+
     /**
      * Extract insights from AI response
      */
@@ -313,18 +313,18 @@ Focus on practical After Effects applications.`;
             'motion graphics', 'text animation', '3D', 'particles',
             'tracking', 'masking', 'keyframes', 'bezier'
         ];
-        
-        const foundKeywords = keywords.filter(keyword => 
+
+        const foundKeywords = keywords.filter(keyword =>
             aiResponse.toLowerCase().includes(keyword.toLowerCase())
         );
-        
+
         return {
             keywords: foundKeywords,
-            complexity: foundKeywords.length > 5 ? 'advanced' : 
-                       foundKeywords.length > 2 ? 'intermediate' : 'beginner'
+            complexity: foundKeywords.length > 5 ? 'advanced' :
+                foundKeywords.length > 2 ? 'intermediate' : 'beginner'
         };
     }
-    
+
     /**
      * Extract timestamps from text
      */
@@ -332,23 +332,23 @@ Focus on practical After Effects applications.`;
         const timestampPattern = /(\d{1,2}):(\d{2})/g;
         const matches = [];
         let match;
-        
+
         while ((match = timestampPattern.exec(text)) !== null) {
             matches.push({
                 time: match[0],
                 seconds: parseInt(match[1]) * 60 + parseInt(match[2])
             });
         }
-        
+
         return matches;
     }
-    
+
     /**
      * Analyze text content for After Effects relevance
      */
     analyzeTextContent(metadata, userMessage) {
         const combined = `${metadata.title || ''} ${metadata.description || ''} ${userMessage}`.toLowerCase();
-        
+
         const topics = {
             animation: ['animate', 'keyframe', 'motion', 'movement'],
             effects: ['effect', 'filter', 'distort', 'glow', 'blur'],
@@ -356,25 +356,25 @@ Focus on practical After Effects applications.`;
             '3d': ['3d', 'dimension', 'camera', 'light'],
             compositing: ['composite', 'blend', 'mask', 'layer']
         };
-        
+
         const detectedTopics = {};
         Object.entries(topics).forEach(([category, keywords]) => {
             const score = keywords.reduce((sum, keyword) => {
                 return sum + (combined.split(keyword).length - 1);
             }, 0);
-            
+
             if (score > 0) {
                 detectedTopics[category] = score;
             }
         });
-        
+
         return {
             topics: detectedTopics,
             relevance: Object.keys(detectedTopics).length > 0 ? 'high' : 'low',
             summary: this.generateTopicSummary(detectedTopics)
         };
     }
-    
+
     /**
      * Get After Effects pattern keywords
      */
@@ -390,23 +390,23 @@ Focus on practical After Effects applications.`;
             'compositing': /composite|blend|green screen|chroma/i
         };
     }
-    
+
     /**
      * Match patterns in content
      */
     matchPatterns(url, userMessage, patterns) {
         const content = `${url} ${userMessage}`.toLowerCase();
         const matches = {};
-        
+
         Object.entries(patterns).forEach(([topic, pattern]) => {
             if (pattern.test(content)) {
                 matches[topic] = true;
             }
         });
-        
+
         return matches;
     }
-    
+
     /**
      * Generate suggestions based on matched topics
      */
@@ -421,10 +421,10 @@ Focus on practical After Effects applications.`;
             masking: 'Practice masking and rotoscoping techniques',
             compositing: 'Study compositing and blending modes'
         };
-        
+
         return Object.keys(matchedTopics).map(topic => suggestions[topic] || 'Explore this topic further');
     }
-    
+
     /**
      * Generate topic summary
      */
@@ -433,21 +433,21 @@ Focus on practical After Effects applications.`;
             .sort(([,a], [,b]) => b - a)
             .slice(0, 3)
             .map(([topic]) => topic);
-            
+
         if (topTopics.length === 0) {
             return 'No specific After Effects topics detected';
         }
-        
+
         return `Main topics: ${topTopics.join(', ')}`;
     }
-    
+
     /**
      * Sanitize URL for logging
      */
     sanitizeUrl(url) {
-        return url.length > 50 ? url.substring(0, 50) + '...' : url;
+        return url.length > 50 ? `${url.substring(0, 50) }...` : url;
     }
-    
+
     /**
      * Get system status
      */
@@ -458,7 +458,7 @@ Focus on practical After Effects applications.`;
             availableMethods: [],
             unavailableMethods: []
         };
-        
+
         for (const method of this.methods) {
             const isAvailable = await this.testMethod(method);
             if (isAvailable) {
@@ -474,10 +474,10 @@ Focus on practical After Effects applications.`;
                 });
             }
         }
-        
+
         return status;
     }
-    
+
     /**
      * Test if a method is available
      */
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.youtubeAnalyzer = new YouTubeAnalysisCascade(window.openaiManager);
             console.log('✅ YouTube Analysis Cascade initialized');
         };
-        
+
         if (window.openaiManager) {
             initAnalyzer();
         } else {
@@ -516,3 +516,4 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = YouTubeAnalysisCascade;
 }
+

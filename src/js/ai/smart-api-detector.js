@@ -27,7 +27,7 @@ class AIProviderAutoDetector {
 
     // Auto-detect provider from API key format
     detectProvider(apiKey) {
-        if (!apiKey || apiKey.length < 10) return null;
+        if (!apiKey || apiKey.length < 10) {return null;}
 
         for (const [providerId, config] of Object.entries(this.providerPatterns)) {
             if (config.pattern(apiKey)) {
@@ -45,7 +45,7 @@ class AIProviderAutoDetector {
     // Quick API key validation
     async validateApiKey(apiKey, provider) {
         const config = this.providerPatterns[provider];
-        if (!config) return { valid: false, error: 'Unknown provider' };
+        if (!config) {return { valid: false, error: 'Unknown provider' };}
 
         try {
             let response;
@@ -89,9 +89,9 @@ class AIProviderAutoDetector {
                 return { valid: true, provider: config.name };
             } else {
                 const errorText = await response.text();
-                return { 
-                    valid: false, 
-                    error: `API Error: ${response.status} ${response.statusText}` 
+                return {
+                    valid: false,
+                    error: `API Error: ${response.status} ${response.statusText}`
                 };
             }
 
@@ -139,7 +139,7 @@ class SmartAPIManager {
     // Handle API key input with auto-detection
     async handleApiKeyInput(apiKey, providerSelect, modelSelect) {
         const indicator = document.getElementById('api-validation-indicator');
-        
+
         // Clear previous timeout
         if (this.validationTimeout) {
             clearTimeout(this.validationTimeout);
@@ -172,7 +172,7 @@ class SmartAPIManager {
         try {
             // Step 1: Detect provider from key format
             const detection = this.detector.detectProvider(apiKey);
-            
+
             if (!detection) {
                 if (indicator) {
                     indicator.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Unknown API key format';
@@ -184,7 +184,7 @@ class SmartAPIManager {
             // Step 2: Update provider dropdown
             if (providerSelect && providerSelect.value !== detection.provider) {
                 providerSelect.value = detection.provider;
-                
+
                 // Trigger change event to update any dependent elements
                 const changeEvent = new Event('change', { bubbles: true });
                 providerSelect.dispatchEvent(changeEvent);
@@ -209,7 +209,7 @@ class SmartAPIManager {
                 }
 
                 const validation = await this.detector.validateApiKey(apiKey, detection.provider);
-                
+
                 if (validation.valid) {
                     if (indicator) {
                         indicator.innerHTML = `<i class="fa-solid fa-check-circle"></i> ✅ Valid ${detection.name} API`;
@@ -258,11 +258,11 @@ class SmartAPIManager {
         const indicator = document.createElement('div');
         indicator.id = 'api-validation-indicator';
         indicator.className = 'validation-indicator';
-        
+
         // Insert after the API key input
         const parent = apiKeyInput.parentNode;
         const nextSibling = apiKeyInput.nextSibling;
-        
+
         if (nextSibling) {
             parent.insertBefore(indicator, nextSibling);
         } else {
@@ -279,7 +279,7 @@ class SmartAPIManager {
             const providerSelect = document.getElementById('api-provider-setting');
             const modelSelect = document.getElementById('ai-model-setting');
             const indicator = document.getElementById('api-validation-indicator');
-            
+
             await this.performDetection(apiKeyInput.value, providerSelect, modelSelect, indicator);
         }
     }
@@ -338,16 +338,17 @@ const validationCSS = `
 `;
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // Add CSS for validation indicator
     const style = document.createElement('style');
     style.textContent = validationCSS;
     document.head.appendChild(style);
-    
+
     // Initialize smart API manager
     const smartManager = new SmartAPIManager();
     smartManager.init();
-    
+
     // Make it globally available
     window.smartAPIManager = smartManager;
 });
+

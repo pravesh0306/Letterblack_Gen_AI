@@ -14,7 +14,7 @@ class ProjectOrganizer {
 
     // Scan for unused assets (footage not used in any comp)
     scanUnusedAssets(callback) {
-        if (!this.csInterface) return callback('CEP interface not available');
+        if (!this.csInterface) {return callback('CEP interface not available');}
         const script = `
             var unused = [];
             try {
@@ -41,7 +41,7 @@ class ProjectOrganizer {
 
     // Scan for layer types in active comp
     scanLayerTypes(callback) {
-        if (!this.csInterface) return callback('CEP interface not available');
+        if (!this.csInterface) {return callback('CEP interface not available');}
         const script = `
             var types = {Text:0, Shape:0, Footage:0, Null:0, Other:0};
             try {
@@ -73,7 +73,7 @@ class ProjectOrganizer {
 
     // Scan for naming issues (layers/comps with default names)
     scanNamingIssues(callback) {
-        if (!this.csInterface) return callback('CEP interface not available');
+        if (!this.csInterface) {return callback('CEP interface not available');}
         const script = `
             var issues = [];
             try {
@@ -103,7 +103,7 @@ class ProjectOrganizer {
 
     // Health check: missing files, unused assets, broken expressions
     runHealthCheck(callback) {
-        if (!this.csInterface) return callback('CEP interface not available');
+        if (!this.csInterface) {return callback('CEP interface not available');}
         const script = `
             var report = {missing:[], unused:[], brokenExpressions:[]};
             try {

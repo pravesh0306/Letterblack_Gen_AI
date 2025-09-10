@@ -9,7 +9,7 @@ class EnhancedChatMemory {
         this.projectContext = null;
         this.maxHistorySize = 20; // Reduced for CEP environment
         this.sessionStartTime = Date.now();
-        
+
         this.loadFromStorage();
         console.log('🧠 Enhanced Chat Memory initialized');
     }
@@ -20,7 +20,7 @@ class EnhancedChatMemory {
     addMessage(message, role = 'user', metadata = {}) {
         const messageEntry = {
             id: this.generateMessageId(),
-            role: role, // 'user', 'assistant', 'system'
+            role, // 'user', 'assistant', 'system'
             content: message,
             timestamp: Date.now(),
             projectContext: this.projectContext ? { ...this.projectContext } : null,
@@ -64,7 +64,7 @@ class EnhancedChatMemory {
     getConversationSummary() {
         const userMessages = this.conversationHistory.filter(msg => msg.role === 'user');
         const assistantMessages = this.conversationHistory.filter(msg => msg.role === 'assistant');
-        
+
         const topics = this.extractTopics();
         const youtubeVideos = this.extractYouTubeVideos();
         const expressions = this.extractExpressions();
@@ -75,7 +75,7 @@ class EnhancedChatMemory {
             assistantMessages: assistantMessages.length,
             sessionDuration: this.getSessionDuration(),
             mainTopics: topics.slice(0, 5),
-            youtubeVideos: youtubeVideos,
+            youtubeVideos,
             expressionsUsed: expressions.length,
             projectContext: this.projectContext
         };
@@ -207,20 +207,20 @@ class EnhancedChatMemory {
     }
 
     truncateContent(content, maxLength) {
-        return content.length > maxLength ? content.substring(0, maxLength) + '...' : content;
+        return content.length > maxLength ? `${content.substring(0, maxLength) }...` : content;
     }
 
     calculateRelevance(content, query) {
         const lowerContent = content.toLowerCase();
         const lowerQuery = query.toLowerCase();
         const words = lowerQuery.split(' ');
-        
+
         let score = 0;
         words.forEach(word => {
             const occurrences = (lowerContent.match(new RegExp(word, 'g')) || []).length;
             score += occurrences;
         });
-        
+
         return score;
     }
 
@@ -272,7 +272,7 @@ class EnhancedChatMemory {
     }
 
     /**
-     * Export memory for debugging
+     * Export memory for INFOging
      */
     exportMemory() {
         return {
@@ -285,3 +285,4 @@ class EnhancedChatMemory {
 
 // Global instance
 window.enhancedChatMemory = window.enhancedChatMemory || new EnhancedChatMemory();
+

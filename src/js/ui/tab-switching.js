@@ -1,7 +1,7 @@
 // tab-switching.js
 // Handles bottom panel tab switching logic
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const bottomPanel = document.getElementById('bottom-panel');
     const toggleButton = document.getElementById('bottom-panel-toggle');
     const tabButtons = document.querySelectorAll('.bottom-panel-tabs .tab-btn');
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle panel collapsed state
     if (toggleButton && bottomPanel) {
-        toggleButton.addEventListener('click', function() {
+        toggleButton.addEventListener('click', () => {
             bottomPanel.classList.toggle('collapsed');
             const isCollapsed = bottomPanel.classList.contains('collapsed');
             toggleButton.setAttribute('title', isCollapsed ? 'Show Script Library' : 'Hide Script Library');
@@ -26,15 +26,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Tab switching logic with module loading
-    tabButtons.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            tabButtons.forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
-            tabPanes.forEach(function(pane) { pane.classList.remove('active'); });
+    tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            tabButtons.forEach((b) => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+            tabPanes.forEach((pane) => { pane.classList.remove('active'); });
             btn.classList.add('active');
             btn.setAttribute('aria-selected', 'true');
-            var tabName = btn.getAttribute('data-tab');
-            var pane = document.getElementById(tabName + '-tab');
-            if (pane) pane.classList.add('active');
+            const tabName = btn.getAttribute('data-tab');
+            const pane = document.getElementById(`${tabName }-tab`);
+            if (pane) {pane.classList.add('active');}
             // Expand panel if collapsed
             if (bottomPanel.classList.contains('collapsed')) {
                 bottomPanel.classList.remove('collapsed');
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const activeTabBtn = document.querySelector('.bottom-panel-tabs .tab-btn.active');
     if (activeTabBtn) {
         const tabName = activeTabBtn.getAttribute('data-tab');
-        const pane = document.getElementById(tabName + '-tab');
+        const pane = document.getElementById(`${tabName }-tab`);
         if (modules[tabName] && typeof modules[tabName].init === 'function') {
             modules[tabName].init(pane);
         }

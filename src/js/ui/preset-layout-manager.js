@@ -10,10 +10,10 @@ class PresetLayoutManager {
         this.userPresets = new Map();
         this.activePreset = null;
         this.observers = new Set();
-        
+
         this.init();
     }
-    
+
     /**
      * Initialize preset layout manager
      */
@@ -22,7 +22,7 @@ class PresetLayoutManager {
         this.loadUserPresets();
         console.log('✅ Preset Layout Manager initialized');
     }
-    
+
     /**
      * Load built-in layout presets
      */
@@ -81,7 +81,7 @@ class PresetLayoutManager {
                 }
             }
         });
-        
+
         // Wide screen layout
         this.presets.set('widescreen', {
             id: 'widescreen',
@@ -146,7 +146,7 @@ class PresetLayoutManager {
                 }
             }
         });
-        
+
         // Minimal layout
         this.presets.set('minimal', {
             id: 'minimal',
@@ -191,7 +191,7 @@ class PresetLayoutManager {
                 }
             }
         });
-        
+
         // Creative workspace layout
         this.presets.set('creative', {
             id: 'creative',
@@ -246,7 +246,7 @@ class PresetLayoutManager {
                 }
             }
         });
-        
+
         // Dual monitor layout
         this.presets.set('dual-monitor', {
             id: 'dual-monitor',
@@ -282,7 +282,7 @@ class PresetLayoutManager {
             }
         });
     }
-    
+
     /**
      * Load user-defined presets from localStorage
      */
@@ -304,7 +304,7 @@ class PresetLayoutManager {
             console.warn('Failed to load user presets:', error);
         }
     }
-    
+
     /**
      * Save user presets to localStorage
      */
@@ -316,7 +316,7 @@ class PresetLayoutManager {
             console.error('Failed to save user presets:', error);
         }
     }
-    
+
     /**
      * Create a new user preset from current layout
      */
@@ -325,11 +325,11 @@ class PresetLayoutManager {
             // Get current layout state from panel manager
             currentLayout = this.captureCurrentLayout();
         }
-        
+
         if (!currentLayout) {
             throw new Error('No layout provided and cannot capture current layout');
         }
-        
+
         const id = this.generatePresetId(name);
         const preset = {
             id,
@@ -340,23 +340,23 @@ class PresetLayoutManager {
             createdAt: new Date(),
             modifiedAt: new Date()
         };
-        
+
         this.userPresets.set(id, preset);
         this.saveUserPresets();
         this.notifyObservers('preset_created', preset);
-        
+
         return preset;
     }
-    
+
     /**
      * Capture current layout state
      */
     captureCurrentLayout() {
-        if (!window.panelLayoutManager) return null;
-        
+        if (!window.panelLayoutManager) {return null;}
+
         const panels = {};
         const allPanels = window.panelLayoutManager.getAllPanels();
-        
+
         allPanels.forEach(panel => {
             panels[panel.id] = {
                 position: panel.config.position,
@@ -371,7 +371,7 @@ class PresetLayoutManager {
                 maxHeight: panel.config.maxHeight
             };
         });
-        
+
         return {
             panels,
             viewport: {
@@ -381,7 +381,7 @@ class PresetLayoutManager {
             }
         };
     }
-    
+
     /**
      * Apply a preset layout
      */
@@ -391,12 +391,12 @@ class PresetLayoutManager {
             console.error('Preset not found:', presetId);
             return false;
         }
-        
+
         if (!window.panelLayoutManager) {
             console.error('Panel layout manager not available');
             return false;
         }
-        
+
         try {
             // Apply panel configurations
             Object.entries(preset.layout.panels).forEach(([panelId, config]) => {
@@ -408,7 +408,7 @@ class PresetLayoutManager {
                         height: config.height,
                         collapsed: config.collapsed
                     });
-                    
+
                     // Update panel config if needed
                     Object.assign(panel.config, {
                         minWidth: config.minWidth,
@@ -416,137 +416,137 @@ class PresetLayoutManager {
                         minHeight: config.minHeight,
                         maxHeight: config.maxHeight
                     });
-                    
+
                     // Apply state to DOM
                     window.panelLayoutManager.applyPanelState(panel);
                     window.panelLayoutManager.updateCollapseButton(panel);
                 }
             });
-            
+
             // Apply viewport scale
             if (preset.layout.viewport && preset.layout.viewport.scale) {
                 window.panelLayoutManager.scaleViewport(preset.layout.viewport.scale);
             }
-            
+
             this.activePreset = presetId;
             this.notifyObservers('preset_applied', preset);
-            
+
             return true;
         } catch (error) {
             console.error('Failed to apply preset:', error);
             return false;
         }
     }
-    
+
     /**
      * Get a preset by ID
      */
     getPreset(id) {
         return this.presets.get(id) || this.userPresets.get(id);
     }
-    
+
     /**
      * Get all presets (built-in and user)
      */
     getAllPresets() {
         const allPresets = [];
-        
+
         // Add built-in presets
         this.presets.forEach(preset => allPresets.push(preset));
-        
+
         // Add user presets
         this.userPresets.forEach(preset => allPresets.push(preset));
-        
+
         return allPresets.sort((a, b) => {
             // Built-in presets first
-            if (a.builtin && !b.builtin) return -1;
-            if (!a.builtin && b.builtin) return 1;
-            
+            if (a.builtin && !b.builtin) {return -1;}
+            if (!a.builtin && b.builtin) {return 1;}
+
             // Then by name
             return a.name.localeCompare(b.name);
         });
     }
-    
+
     /**
      * Delete a user preset
      */
     deletePreset(id) {
         const preset = this.userPresets.get(id);
-        if (!preset) return false;
-        
+        if (!preset) {return false;}
+
         if (preset.builtin) {
             console.error('Cannot delete built-in preset:', id);
             return false;
         }
-        
+
         this.userPresets.delete(id);
         this.saveUserPresets();
         this.notifyObservers('preset_deleted', { id, preset });
-        
+
         return true;
     }
-    
+
     /**
      * Update a user preset
      */
     updatePreset(id, updates) {
         const preset = this.userPresets.get(id);
-        if (!preset) return false;
-        
+        if (!preset) {return false;}
+
         if (preset.builtin) {
             console.error('Cannot update built-in preset:', id);
             return false;
         }
-        
+
         Object.assign(preset, updates, { modifiedAt: new Date() });
         this.saveUserPresets();
         this.notifyObservers('preset_updated', preset);
-        
+
         return true;
     }
-    
+
     /**
      * Create preset selection UI
      */
     createPresetSelector() {
         const container = document.createElement('div');
         container.className = 'preset-selector';
-        
+
         const header = document.createElement('div');
         header.className = 'preset-selector-header';
         header.innerHTML = `
             <h3>Layout Presets</h3>
             <button class="preset-create-btn">Create Preset</button>
         `;
-        
+
         const list = document.createElement('div');
         list.className = 'preset-list';
-        
+
         this.renderPresetList(list);
-        
+
         container.appendChild(header);
         container.appendChild(list);
-        
+
         // Bind events
         header.querySelector('.preset-create-btn').addEventListener('click', () => {
             this.showCreatePresetDialog();
         });
-        
+
         return container;
     }
-    
+
     /**
      * Render preset list
      */
     renderPresetList(container) {
         container.innerHTML = '';
-        
+
         const presets = this.getAllPresets();
-        
+
         presets.forEach(preset => {
             const item = document.createElement('div');
             item.className = `preset-item ${preset.id === this.activePreset ? 'active' : ''}`;
-            
+
             item.innerHTML = `
                 <div class="preset-info">
                     <div class="preset-name">${preset.name}</div>
@@ -561,15 +561,15 @@ class PresetLayoutManager {
                     ` : ''}
                 </div>
             `;
-            
+
             container.appendChild(item);
         });
-        
+
         // Bind action events
         container.addEventListener('click', (e) => {
             const presetId = e.target.dataset.presetId;
-            if (!presetId) return;
-            
+            if (!presetId) {return;}
+
             if (e.target.classList.contains('preset-apply-btn')) {
                 this.applyPreset(presetId);
             } else if (e.target.classList.contains('preset-edit-btn')) {
@@ -579,7 +579,7 @@ class PresetLayoutManager {
             }
         });
     }
-    
+
     /**
      * Show create preset dialog
      */
@@ -608,39 +608,39 @@ class PresetLayoutManager {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(dialog);
-        
+
         // Focus name input
         dialog.querySelector('.preset-name-input').focus();
-        
+
         // Bind events
         dialog.querySelector('.preset-dialog-close').addEventListener('click', () => {
             dialog.remove();
         });
-        
+
         dialog.querySelector('.preset-dialog-cancel').addEventListener('click', () => {
             dialog.remove();
         });
-        
+
         dialog.querySelector('.preset-dialog-save').addEventListener('click', () => {
             const name = dialog.querySelector('.preset-name-input').value.trim();
             const description = dialog.querySelector('.preset-description-input').value.trim();
-            
+
             if (!name) {
                 alert('Please enter a preset name');
                 return;
             }
-            
+
             try {
                 this.createPreset(name, description);
                 dialog.remove();
                 console.log('Preset created successfully:', name);
             } catch (error) {
-                alert('Failed to create preset: ' + error.message);
+                alert(`Failed to create preset: ${ error.message}`);
             }
         });
-        
+
         // Close on overlay click
         dialog.addEventListener('click', (e) => {
             if (e.target === dialog) {
@@ -648,14 +648,14 @@ class PresetLayoutManager {
             }
         });
     }
-    
+
     /**
      * Show edit preset dialog
      */
     showEditPresetDialog(presetId) {
         const preset = this.getPreset(presetId);
-        if (!preset || preset.builtin) return;
-        
+        if (!preset || preset.builtin) {return;}
+
         const dialog = document.createElement('div');
         dialog.className = 'preset-dialog-overlay';
         dialog.innerHTML = `
@@ -680,31 +680,31 @@ class PresetLayoutManager {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(dialog);
-        
+
         // Bind events
         dialog.querySelector('.preset-dialog-close').addEventListener('click', () => {
             dialog.remove();
         });
-        
+
         dialog.querySelector('.preset-dialog-cancel').addEventListener('click', () => {
             dialog.remove();
         });
-        
+
         dialog.querySelector('.preset-dialog-save').addEventListener('click', () => {
             const name = dialog.querySelector('.preset-name-input').value.trim();
             const description = dialog.querySelector('.preset-description-input').value.trim();
-            
+
             if (!name) {
                 alert('Please enter a preset name');
                 return;
             }
-            
+
             this.updatePreset(presetId, { name, description });
             dialog.remove();
         });
-        
+
         // Close on overlay click
         dialog.addEventListener('click', (e) => {
             if (e.target === dialog) {
@@ -712,19 +712,19 @@ class PresetLayoutManager {
             }
         });
     }
-    
+
     /**
      * Delete preset with confirmation
      */
     deletePresetWithConfirm(presetId) {
         const preset = this.getPreset(presetId);
-        if (!preset) return;
-        
+        if (!preset) {return;}
+
         if (confirm(`Delete preset "${preset.name}"?`)) {
             this.deletePreset(presetId);
         }
     }
-    
+
     /**
      * Generate unique preset ID
      */
@@ -732,15 +732,15 @@ class PresetLayoutManager {
         const base = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
         let id = base;
         let counter = 1;
-        
+
         while (this.getPreset(id)) {
             id = `${base}-${counter}`;
             counter++;
         }
-        
+
         return id;
     }
-    
+
     /**
      * Subscribe to preset events
      */
@@ -748,7 +748,7 @@ class PresetLayoutManager {
         this.observers.add(callback);
         return () => this.observers.delete(callback);
     }
-    
+
     /**
      * Notify observers of events
      */
@@ -761,26 +761,26 @@ class PresetLayoutManager {
             }
         });
     }
-    
+
     /**
      * Export preset to file
      */
     exportPreset(presetId) {
         const preset = this.getPreset(presetId);
-        if (!preset) return;
-        
+        if (!preset) {return;}
+
         const data = JSON.stringify(preset, null, 2);
         const blob = new Blob([data], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        
+
         const a = document.createElement('a');
         a.href = url;
         a.download = `${preset.name.replace(/[^a-z0-9]/gi, '-')}-preset.json`;
         a.click();
-        
+
         URL.revokeObjectURL(url);
     }
-    
+
     /**
      * Import preset from file
      */
@@ -790,19 +790,19 @@ class PresetLayoutManager {
             reader.onload = (e) => {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    
+
                     // Validate preset structure
                     if (!imported.name || !imported.layout) {
                         throw new Error('Invalid preset file format');
                     }
-                    
+
                     // Create new preset with unique ID
                     const preset = this.createPreset(
                         imported.name,
                         imported.description || '',
                         imported.layout
                     );
-                    
+
                     resolve(preset);
                 } catch (error) {
                     reject(error);
@@ -822,3 +822,4 @@ if (!window.presetLayoutManager) {
     window.presetLayoutManager = new PresetLayoutManager();
     console.log('✅ Preset Layout Manager initialized');
 }
+

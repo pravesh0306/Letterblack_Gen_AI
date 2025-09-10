@@ -1,0 +1,258 @@
+/*
+ * LetterBlack_Gen_AI Typography System
+ * Professional typography for After Effects CEP extensions
+ */
+
+:root {
+  /* ================================================
+     FONT FAMILIES
+     ================================================ */
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', Consolas, 'Courier New', monospace;
+  --font-family-system: system-ui, -apple-system, sans-serif;
+  
+  /* ================================================
+     FONT SIZES - After Effects Panel Standard
+     ================================================ */
+  --font-size-xs: 9px;     /* Very small labels */
+  --font-size-sm: 11px;    /* Small text, secondary info */
+  --font-size-base: 12px;  /* Standard panel text */
+  --font-size-md: 13px;    /* Section headers */
+  --font-size-lg: 14px;    /* Primary headers */
+  --font-size-xl: 16px;    /* Large headers */
+  --font-size-2xl: 18px;   /* Rarely used */
+  --font-size-3xl: 20px;   /* Rarely used */
+  --font-size-4xl: 22px;   /* Rarely used */
+  
+  /* ================================================
+     FONT WEIGHTS
+     ================================================ */
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  
+  /* ================================================
+     LINE HEIGHTS
+     ================================================ */
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+  
+  /* ================================================
+     LETTER SPACING
+     ================================================ */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+}
+
+/* ================================================
+   BASE TYPOGRAPHY - After Effects Panel Standard
+   ================================================ */
+body {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);  /* 12px standard */
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-snug);  /* Tighter spacing */
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================================================
+   HEADINGS - Adjusted for Panel Use
+   ================================================ */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--font-weight-medium);  /* Less bold for panels */
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+}
+
+h1 {
+  font-size: var(--font-size-xl);        /* 16px */
+  font-weight: var(--font-weight-semibold);
+}
+
+h2 {
+  font-size: var(--font-size-lg);        /* 14px */
+  font-weight: var(--font-weight-semibold);
+}
+
+h3 {
+  font-size: var(--font-size-md);        /* 13px */
+  font-weight: var(--font-weight-medium);
+}
+
+h4 {
+  font-size: var(--font-size-base);      /* 12px */
+  font-weight: var(--font-weight-medium);
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+h6 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ================================================
+   TEXT ELEMENTS
+   ================================================ */
+p {
+  margin: 0 0 1rem 0;
+  line-height: var(--line-height-normal);
+}
+
+small {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+strong, b {
+  font-weight: var(--font-weight-semibold);
+}
+
+em, i {
+  font-style: italic;
+}
+
+code {
+  font-family: var(--font-family-mono);
+  font-size: 0.875em;
+  background: var(--color-bg-elevated);
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  color: var(--color-text-primary);
+}
+
+pre {
+  font-family: var(--font-family-mono);
+  background: var(--color-bg-elevated);
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  border: 1px solid var(--color-border-primary);
+}
+
+/* ================================================
+   FONT SIZE UTILITY CLASSES
+   ================================================ */
+.text-xs { font-size: var(--font-size-xs) !important; }
+.text-sm { font-size: var(--font-size-sm) !important; }
+.text-base { font-size: var(--font-size-base) !important; }
+.text-md { font-size: var(--font-size-md) !important; }
+.text-lg { font-size: var(--font-size-lg) !important; }
+.text-xl { font-size: var(--font-size-xl) !important; }
+.text-2xl { font-size: var(--font-size-2xl) !important; }
+.text-3xl { font-size: var(--font-size-3xl) !important; }
+.text-4xl { font-size: var(--font-size-4xl) !important; }
+
+/* ================================================
+   FONT WEIGHT UTILITY CLASSES
+   ================================================ */
+.font-thin { font-weight: var(--font-weight-thin) !important; }
+.font-light { font-weight: var(--font-weight-light) !important; }
+.font-normal { font-weight: var(--font-weight-normal) !important; }
+.font-medium { font-weight: var(--font-weight-medium) !important; }
+.font-semibold { font-weight: var(--font-weight-semibold) !important; }
+.font-bold { font-weight: var(--font-weight-bold) !important; }
+.font-extrabold { font-weight: var(--font-weight-extrabold) !important; }
+.font-black { font-weight: var(--font-weight-black) !important; }
+
+/* ================================================
+   LINE HEIGHT UTILITY CLASSES
+   ================================================ */
+.leading-none { line-height: var(--line-height-none) !important; }
+.leading-tight { line-height: var(--line-height-tight) !important; }
+.leading-snug { line-height: var(--line-height-snug) !important; }
+.leading-normal { line-height: var(--line-height-normal) !important; }
+.leading-relaxed { line-height: var(--line-height-relaxed) !important; }
+.leading-loose { line-height: var(--line-height-loose) !important; }
+
+/* ================================================
+   FONT FAMILY UTILITY CLASSES
+   ================================================ */
+.font-primary { font-family: var(--font-family-primary) !important; }
+.font-mono { font-family: var(--font-family-mono) !important; }
+.font-system { font-family: var(--font-family-system) !important; }
+
+/* ================================================
+   TEXT ALIGNMENT UTILITY CLASSES
+   ================================================ */
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+.text-justify { text-align: justify !important; }
+
+/* ================================================
+   TEXT DECORATION UTILITY CLASSES
+   ================================================ */
+.underline { text-decoration: underline !important; }
+.no-underline { text-decoration: none !important; }
+.line-through { text-decoration: line-through !important; }
+
+/* ================================================
+   TEXT TRANSFORM UTILITY CLASSES
+   ================================================ */
+.uppercase { text-transform: uppercase !important; }
+.lowercase { text-transform: lowercase !important; }
+.capitalize { text-transform: capitalize !important; }
+.normal-case { text-transform: none !important; }
+
+/* ================================================
+   LETTER SPACING UTILITY CLASSES
+   ================================================ */
+.tracking-tighter { letter-spacing: var(--letter-spacing-tighter) !important; }
+.tracking-tight { letter-spacing: var(--letter-spacing-tight) !important; }
+.tracking-normal { letter-spacing: var(--letter-spacing-normal) !important; }
+.tracking-wide { letter-spacing: var(--letter-spacing-wide) !important; }
+.tracking-wider { letter-spacing: var(--letter-spacing-wider) !important; }
+.tracking-widest { letter-spacing: var(--letter-spacing-widest) !important; }
+
+/* ================================================
+   LETTERBLACK SPECIFIC TYPOGRAPHY
+   ================================================ */
+.letterblack-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-letterblack-primary);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.letterblack-subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+}
+
+.letterblack-credit {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-muted);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.ae-property-label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ae-purple);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}

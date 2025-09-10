@@ -13,12 +13,12 @@ class SimpleProjectContext {
             selectedLayers: [],
             lastError: null
         };
-        
+
         this.csInterface = null;
         if (window.CSInterface) {
             this.csInterface = new CSInterface();
         }
-        
+
         console.log('📋 Simple Project Context initialized');
     }
 
@@ -63,7 +63,7 @@ class SimpleProjectContext {
             this.csInterface.evalScript(script, (result) => {
                 try {
                     const response = JSON.parse(result);
-                    
+
                     if (response.status === 'success') {
                         this.projectData = {
                             hasProject: response.data.hasProject,
@@ -73,10 +73,10 @@ class SimpleProjectContext {
                             selectedLayers: response.data.selectedLayersCount,
                             lastError: null
                         };
-                        
+
                         // Update UI breadcrumbs
                         this.updateUIBreadcrumbs();
-                        
+
                         // Create context string
                         let context = `Project: ${this.projectData.name}`;
                         if (this.projectData.hasActiveComp) {
@@ -85,7 +85,7 @@ class SimpleProjectContext {
                                 context += ` | Selected Layers: ${this.projectData.selectedLayers}`;
                             }
                         }
-                        
+
                         resolve(context);
                     } else {
                         this.projectData.lastError = response.message;
@@ -106,16 +106,16 @@ class SimpleProjectContext {
     updateUIBreadcrumbs() {
         const breadcrumbItems = document.querySelectorAll('.breadcrumb-item');
         const contextIndicator = document.getElementById('context-indicator');
-        
+
         if (breadcrumbItems.length >= 2) {
             // Update project/comp breadcrumbs
-            breadcrumbItems[0].textContent = this.projectData.hasProject ? 
+            breadcrumbItems[0].textContent = this.projectData.hasProject ?
                 this.projectData.name.replace('.aep', '') : 'No Project';
-            
-            breadcrumbItems[1].textContent = this.projectData.hasActiveComp ? 
+
+            breadcrumbItems[1].textContent = this.projectData.hasActiveComp ?
                 this.projectData.compName : 'No Comp';
         }
-        
+
         if (contextIndicator) {
             if (this.projectData.hasProject && this.projectData.hasActiveComp) {
                 contextIndicator.textContent = 'Context Active';
@@ -134,15 +134,15 @@ class SimpleProjectContext {
         if (this.projectData.lastError) {
             return { status: 'error', message: this.projectData.lastError };
         }
-        
+
         if (!this.projectData.hasProject) {
             return { status: 'warning', message: 'No After Effects project open' };
         }
-        
+
         if (!this.projectData.hasActiveComp) {
             return { status: 'warning', message: 'No active composition' };
         }
-        
+
         return { status: 'success', message: 'Project context available' };
     }
 
@@ -157,3 +157,4 @@ class SimpleProjectContext {
 
 // Export for global use
 window.SimpleProjectContext = SimpleProjectContext;
+

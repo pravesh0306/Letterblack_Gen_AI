@@ -1,0 +1,167 @@
+/* API Key Validation Feedback */
+
+#api-key-setting {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--vscode-input-border);
+}
+
+#api-key-setting.valid {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.3);
+}
+
+#api-key-setting.invalid {
+    border-color: #f44336;
+    box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.3);
+}
+
+#api-key-setting.warning {
+    border-color: #ff9800;
+    box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.3);
+}
+
+#api-key-setting.neutral {
+    border-color: var(--vscode-input-border);
+    box-shadow: none;
+}
+
+/* Settings Button States */
+.setting-btn {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.setting-btn:hover {
+    transform: translateY(-1px);
+}
+
+.setting-btn:active {
+    transform: translateY(0);
+}
+
+.setting-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.setting-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    z-index: 10000;
+    max-width: 300px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.toast.success {
+    background-color: #4CAF50;
+}
+
+.toast.error {
+    background-color: #f44336;
+}
+
+.toast.warning {
+    background-color: #ff9800;
+}
+
+.toast.info {
+    background-color: #2196F3;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Loading overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    background: var(--vscode-editor-background);
+    padding: 24px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 200px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--vscode-button-background);
+    border-top: 4px solid var(--vscode-button-foreground);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+.loading-text {
+    color: var(--vscode-foreground);
+    font-size: 14px;
+}
+
+/* Send button states */
+#send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#send-button:not(:disabled):hover {
+    background-color: var(--vscode-button-hoverBackground);
+}
+
+/* Character counter styling */
+.char-count {
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.char-count.warning {
+    color: #ff9800;
+}
+
+.char-count.error {
+    color: #f44336;
+}

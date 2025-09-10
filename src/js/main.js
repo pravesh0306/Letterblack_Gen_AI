@@ -6,17 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const modelSelect = document.getElementById('model-select-setting');
         const memoryTextarea = document.getElementById('memory-textarea');
         const saveBtn = document.getElementById('save-and-test-btn');
-        const mascotDebugBtn = document.getElementById('mascot-debug-btn');
+        const mascotINFOBtn = document.getElementById('mascot-INFO-btn');
         const deleteCacheBtn = document.getElementById('delete-cache-btn');
 
         // Load settings
         async function loadSettings() {
             if (window.cepStorage) {
                 const settings = await window.cepStorage.loadSettings();
-                if (apiKeyInput) apiKeyInput.value = settings.ai_api_key || '';
-                if (providerSelect) providerSelect.value = settings.ai_provider || 'google';
-                if (modelSelect) modelSelect.value = settings.ai_model || 'gemini-2.5-flash-preview-05-20';
-                if (memoryTextarea) memoryTextarea.value = settings.ai_context_memory || '';
+                if (apiKeyInput) {apiKeyInput.value = settings.ai_api_key || '';}
+                if (providerSelect) {providerSelect.value = settings.ai_provider || 'google';}
+                if (modelSelect) {modelSelect.value = settings.ai_model || 'gemini-2.5-flash-preview-05-20';}
+                if (memoryTextarea) {memoryTextarea.value = settings.ai_context_memory || '';}
             }
         }
 
@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Mascot debug button
-        if (mascotDebugBtn) {
-            mascotDebugBtn.addEventListener('click', () => {
+        // Mascot INFO button
+        if (mascotINFOBtn) {
+            mascotINFOBtn.addEventListener('click', () => {
                 if (window.testFloatingMascot) {
                     window.testFloatingMascot();
                 }
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // FLOATING MASCOT
     (function initializeFloatingMascot() {
         const bubble = document.getElementById('floating-mascot');
-        if (!bubble) return;
+        if (!bubble) {return;}
 
         let dragging = false;
         let offX = 0;
@@ -98,8 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const pos = JSON.parse(localStorage.getItem('floatingMascotPos'));
             if (pos && pos.x != null && pos.y != null) {
                 const constrained = constrainPosition(pos.x, pos.y);
-                bubble.style.left = constrained.x + 'px';
-                bubble.style.top = constrained.y + 'px';
+                bubble.style.left = `${constrained.x }px`;
+                bubble.style.top = `${constrained.y }px`;
                 bubble.style.right = 'auto';
                 bubble.style.bottom = 'auto';
             }
@@ -124,19 +124,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function move(e) {
-            if (!dragging) return;
+            if (!dragging) {return;}
             e.preventDefault();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             const x = clientX - offX;
             const y = clientY - offY;
             const constrained = constrainPosition(x, y);
-            bubble.style.left = constrained.x + 'px';
-            bubble.style.top = constrained.y + 'px';
+            bubble.style.left = `${constrained.x }px`;
+            bubble.style.top = `${constrained.y }px`;
         }
 
         function up() {
-            if (!dragging) return;
+            if (!dragging) {return;}
             dragging = false;
             bubble.style.transition = '';
             bubble.classList.remove('dragging');
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const commandPanel = document.getElementById('command-menu-panel');
         const commandSearch = document.getElementById('command-search');
 
-        if (!commandTrigger || !commandPanel) return;
+        if (!commandTrigger || !commandPanel) {return;}
 
         commandTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
                 tabPanes.forEach(pane => pane.classList.remove('active'));
-                const targetPane = document.getElementById(this.getAttribute('data-tab') + '-tab');
+                const targetPane = document.getElementById(`${this.getAttribute('data-tab') }-tab`);
                 if (targetPane) {
                     targetPane.classList.add('active');
                 }
@@ -227,3 +227,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     })();
 });
+

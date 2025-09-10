@@ -3,28 +3,31 @@
 
 class AIModule {
     constructor() {
+        // Initialize logging system
+        this.logger = this.createLogger();
+
         if (window.AIProviders) {
             this.apiProviders = new window.AIProviders();
-            console.log('🤖 AI Module initialized with real providers');
+            console.log('AI Module initialized with real providers');
         } else {
             this.apiProviders = null;
-            console.error('❌ AIProviders not available - NO FAKE RESPONSES WILL BE GIVEN');
+            console.error('AIProviders not available - NO FAKE RESPONSES WILL BE GIVEN');
         }
-        
+
         // Initialize rate limiting and queue system
         this.rateLimiter = new Map();
         this.requestQueue = [];
         this.isProcessing = false;
-        
+
         // Initialize effects module (will be set when chat memory is available)
         this.effectsModule = null;
-        
+
         // Initialize utility modules
         this.performanceCache = null;
         this.enhancedChatMemory = null;
         this.youtubeTutorialHelper = null;
         this.browserVideoTranscriber = null;
-        
+
         // Try to connect utility modules
         this.initializeUtilityModules();
     }
@@ -36,26 +39,49 @@ class AIModule {
         // Connect performance cache
         if (window.performanceCache) {
             this.performanceCache = window.performanceCache;
-            console.log('📦 Performance Cache connected to AI Module');
+            console.log('Performance Cache connected to AI Module');
         }
-        
-        // Connect enhanced chat memory  
+
+        // Connect enhanced chat memory
         if (window.enhancedChatMemory) {
             this.enhancedChatMemory = window.enhancedChatMemory;
-            console.log('🧠 Enhanced Chat Memory connected to AI Module');
+            console.log('Enhanced Chat Memory connected to AI Module');
         }
-        
+
         // Connect YouTube tutorial helper
         if (window.youtubeTutorialHelper) {
             this.youtubeTutorialHelper = window.youtubeTutorialHelper;
-            console.log('🎬 YouTube Tutorial Helper connected to AI Module');
+            console.log('YouTube Tutorial Helper connected to AI Module');
         }
-        
+
         // Connect browser video transcriber
         if (window.browserVideoTranscriber) {
             this.browserVideoTranscriber = window.browserVideoTranscriber;
-            console.log('🎥 Browser Video Transcriber connected to AI Module');
+            console.log('Browser Video Transcriber connected to AI Module');
         }
+    }
+
+    /**
+     * Creates a production-ready logging system
+     * @returns {Object} Logger with INFO, info, warn, error methods
+     */
+    createLogger() {
+        const isDev = window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1';
+
+        return {
+            INFO: (message, ...args) => {
+                if (isDev) {console.log(`🔍 [INFO] ${message}`, ...args);}
+            },
+            info: (message, ...args) => {
+                if (isDev) {console.log(`ℹ️ [INFO] ${message}`, ...args);}
+            },
+            warn: (message, ...args) => {
+                console.warn(`⚠️ [WARN] ${message}`, ...args);
+            },
+            error: (message, ...args) => {
+                console.error(`❌ [ERROR] ${message}`, ...args);
+            }
+        };
     }
 
     /**
@@ -63,37 +89,37 @@ class AIModule {
      * Sets up dependencies and prepares for operation
      */
     async init(container) {
-        console.log('🤖 Initializing AI Module...');
+        console.log('Initializing AI Module...');
         if (container) {
             container.innerHTML = '<div class="module-status">AI Module Loaded.<br>Ready to generate scripts and analyze context.</div>';
         }
         // ...existing initialization logic...
         try {
             if (!this.apiProviders) {
-                console.warn('⚠️ AI Providers not available - module will have limited functionality');
+                console.warn('AI Providers not available - module will have limited functionality');
                 return false;
             }
             if (window.ChatMemory) {
                 this.setChatMemory(new window.ChatMemory());
-                console.log('💭 Chat memory initialized');
+                console.log('Chat memory initialized');
             }
             if (window.SettingsManager) {
                 this.settingsManager = window.SettingsManager;
-                console.log('⚙️ Settings manager connected');
+                console.log('Settings manager connected');
             }
             if (typeof CSInterface !== 'undefined') {
                 try {
                     const projectContext = await this.getProjectContext();
-                    console.log('📁 Project context loaded:', projectContext ? 'Available' : 'None');
+                    console.log('Project context loaded:', projectContext ? 'Available' : 'None');
                 } catch (error) {
-                    console.warn('⚠️ Could not load project context:', error.message);
+                    console.warn('Could not load project context:', error.message);
                 }
             }
-            console.log('✅ AI Module initialization complete');
+            console.log('AI Module initialization complete');
             return true;
-            
+
         } catch (error) {
-            console.error('❌ AI Module initialization failed:', error);
+            console.error('AI Module initialization failed:', error);
             return false;
         }
     }
@@ -103,20 +129,20 @@ class AIModule {
         this.chatMemory = chatMemory;
         if (window.EffectsPresetsModule) {
             this.effectsModule = new window.EffectsPresetsModule(chatMemory);
-            console.log('🎨 Effects & Presets module initialized with chat memory');
+            console.log('Effects & Presets module initialized with chat memory');
         }
-        
+
         // Initialize layer analysis module
         if (window.LayerAnalysisModule) {
             this.layerAnalysis = new window.LayerAnalysisModule();
-            console.log('🔍 Layer Analysis module initialized');
+            console.log('Layer Analysis module initialized');
         }
 
         // Initialize Advanced SDK Integration
         if (window.AdvancedSDKIntegration) {
             this.advancedSDK = new window.AdvancedSDKIntegration();
-            console.log('🚀 Advanced SDK Integration initialized');
-            
+            console.log('Advanced SDK Integration initialized');
+
             // Listen for project changes to trigger AI context updates
             window.addEventListener('aeProjectChange', (event) => {
                 this.handleProjectChange(event.detail);
@@ -126,20 +152,20 @@ class AIModule {
 
     async sendMessage(message) {
         console.log('📤 AI Module: Received message:', message);
-        
+
         throw new Error('sendMessage is deprecated. Use generateResponse instead.');
     }
 
     async handleYouTubeLinks(message) {
         const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/g;
         const videoFileRegex = /\.(?:mp4|mov|avi|mkv|webm|m4v)$/i;
-        
+
         // Check for YouTube URLs
         const youtubeMatches = message.match(youtubeRegex);
-        
+
         if (youtubeMatches) {
             console.log('🎬 YouTube link detected, processing with enhanced modules...');
-            
+
             // Use YouTube Tutorial Helper if available
             if (this.youtubeTutorialHelper) {
                 try {
@@ -156,26 +182,26 @@ class AIModule {
                     console.warn('YouTube Tutorial Helper error:', error);
                 }
             }
-            
+
             // Fallback to browser video transcriber
             if (this.browserVideoTranscriber) {
                 try {
                     const videoUrl = youtubeMatches[0];
                     const transcription = await this.browserVideoTranscriber.processVideoUrl(videoUrl);
-                    
+
                     if (transcription) {
                         const response = {
                             type: 'video_analysis',
                             content: `🎥 **Video Analysis Complete**\n\n${transcription.summary}\n\n**Key Points:**\n${transcription.keyPoints.map(p => `• ${p}`).join('\n')}\n\n**Suggested Actions:**\n${transcription.suggestedActions.map(a => `• ${a}`).join('\n')}`,
-                            transcription: transcription
+                            transcription
                         };
-                        
+
                         // Cache the response
                         if (this.performanceCache) {
                             const cacheKey = this.performanceCache.generateKey(videoUrl);
                             this.performanceCache.set(cacheKey, response);
                         }
-                        
+
                         return response;
                     }
                 } catch (error) {
@@ -194,7 +220,7 @@ class AIModule {
                 console.warn('YouTube processing failed:', error);
             }
         }
-        
+
         // Check for video file references
         if (videoFileRegex.test(message) || message.includes('tutorial video') || message.includes('video file')) {
             return {
@@ -222,27 +248,27 @@ I can help you work with tutorial videos in several ways:
 • "Write an expression for wiggling position"
 
 What specific technique would you like me to help automate?`,
-                
+
                 suggestedActions: [
                     {
-                        label: "Upload Tutorial Video",
-                        action: "upload_video",
-                        description: "Import MP4/MOV file for analysis"
+                        label: 'Upload Tutorial Video',
+                        action: 'upload_video',
+                        description: 'Import MP4/MOV file for analysis'
                     },
                     {
-                        label: "Show Text Animations",
-                        action: "showTextAnimations", 
-                        description: "Available text automation"
+                        label: 'Show Text Animations',
+                        action: 'showTextAnimations',
+                        description: 'Available text automation'
                     },
                     {
-                        label: "Show Effects Library",
-                        action: "showEffectsLibrary",
-                        description: "Browse automation-ready effects"
+                        label: 'Show Effects Library',
+                        action: 'showEffectsLibrary',
+                        description: 'Browse automation-ready effects'
                     }
                 ]
             };
         }
-        
+
         return null;
     }
 
@@ -251,7 +277,7 @@ What specific technique would you like me to help automate?`,
         const apiKeyInput = document.getElementById('api-key-setting');
         const modelSelect = document.getElementById('model-select-setting');
         const providerSelect = document.getElementById('ai-provider');
-        
+
         return {
             provider: providerSelect?.value || 'gemini',
             apiKey: apiKeyInput?.value || '',
@@ -280,19 +306,19 @@ What specific technique would you like me to help automate?`,
 
     async generateResponse(message, options = {}) {
         const { apiKey, provider, fileData, model, temperature, maxTokens, chatHistory = [] } = options;
-        
+
         try {
             console.log('🤖 AI generateResponse called with:', { provider, hasKey: !!apiKey, hasModel: !!model });
-            
+
             // Validate inputs
             if (!provider) {
                 throw new Error('No AI provider specified');
             }
-            
+
             if (!apiKey) {
                 throw new Error('API key is required for AI responses. Please set your API key in Settings.');
             }
-            
+
             if (!this.apiProviders) {
                 throw new Error('AI providers module not loaded');
             }
@@ -306,7 +332,7 @@ What specific technique would you like me to help automate?`,
                     imageBase64 = `data:${fileData.mimeType};base64,${imageBase64}`;
                 }
             }
-            
+
             // First check for YouTube URLs and handle them specially
             const youtubeResponse = await this.handleYouTubeLinks(message);
             if (youtubeResponse) {
@@ -328,7 +354,7 @@ What specific technique would you like me to help automate?`,
             // Build context-aware prompt
             const contextualPrompt = this.buildContextualPrompt(message, null, null, imageBase64, chatHistory, layerAnalysis);
             console.log('📝 Built contextual prompt, length:', contextualPrompt.length);
-            
+
             // Make REAL API request
             console.log(`🌐 Making API request to ${provider}...`);
             const response = await this.apiProviders.sendRequest(
@@ -343,12 +369,12 @@ What specific technique would you like me to help automate?`,
                 imageBase64
             );
             console.log('✅ API response received successfully');
-            
+
             return this.processAIResponse(response, provider);
-            
+
         } catch (error) {
             console.error('❌ AI generateResponse error:', error);
-            
+
             // Return helpful error messages
             if (error.message.includes('API key') || error.message.includes('api key')) {
                 return `❌ **API Key Error**: Please set your API key in the Settings tab.\n\n📍 **How to fix:**\n1. Click the "Settings" tab below\n2. Get your API key from Google AI Studio\n3. Paste it in the API Key field\n4. Click "Save & Test"`;
@@ -371,24 +397,346 @@ What specific technique would you like me to help automate?`,
         if (!response) {
             return 'No response received from AI provider.';
         }
-        
+
         // Clean up common formatting issues
         let cleanResponse = response.trim();
-        
+
         // Remove any provider-specific artifacts
         if (provider === 'google') {
             // Clean up Gemini-specific formatting
             cleanResponse = cleanResponse.replace(/^\*\*Assistant:\*\*\s*/i, '');
         }
-        
-        return cleanResponse;
+
+        // Format the response content with enhanced code blocks but return as string
+        return this.formatResponseContent(cleanResponse);
+    }
+
+    /**
+     * Format response content with enhanced code blocks
+     */
+    formatResponseContent(text) {
+        // Process code blocks with enhanced features
+        const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+        let processedText = text;
+
+        processedText = processedText.replace(codeBlockRegex, (match, language, code) => {
+            const lang = language || 'javascript';
+            const blockId = `code-block-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            const detectedType = this.detectCodeType(code, lang);
+
+            return `
+                <div class="enhanced-code-block" data-block-id="${blockId}">
+                    <div class="code-header">
+                        <span class="code-language" data-current-type="${detectedType}" data-block-id="${blockId}">
+                            ${lang || detectedType}
+                            <i class="fas fa-sync-alt toggle-icon" title="Toggle between Expression/JSX"></i>
+                        </span>
+                        <div class="code-actions">
+                            <button class="code-btn" data-action="copy" title="Copy to clipboard">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="code-btn" data-action="save" title="Save to library">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                            <button class="code-btn primary" data-action="apply" title="Apply to After Effects">
+                                <i class="fas fa-play"></i> Apply to AE
+                            </button>
+                        </div>
+                    </div>
+                    <pre class="code-content"><code class="language-${lang}" data-raw-code="${this.escapeHtml(code)}">${this.escapeHtml(code)}</code></pre>
+                    <div class="code-feedback"></div>
+                </div>
+            `;
+        });
+
+        // Process other markdown elements
+        processedText = this.processBasicMarkdown(processedText);
+
+        // Note: setupCodeBlockInteractions will be called by the parent function that has access to messageElement
+
+        return processedText;
+    }
+
+    /**
+     * Add message to chat with enhanced features from comparison analysis
+     */
+    addAIMessage(content, isUser = false, chatContainer = null) {
+        const chatMessages = chatContainer || document.getElementById('chat-messages');
+        if (!chatMessages) {
+            console.error('Chat messages container not found');
+            return null;
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+
+        if (isUser) {
+            // User messages are plain text with proper escaping
+            messageContent.innerHTML = `<p>${this.escapeHtml(content)}</p>`;
+        } else {
+            // AI messages get full formatting with enhanced code blocks
+            messageContent.innerHTML = this.formatResponseContent(content);
+            // Set up interactions after content is added
+            setTimeout(() => {
+                this.setupCodeBlockInteractions(messageContent);
+            }, 10);
+        }
+
+        // Add timestamp (enhanced feature from comparison)
+        const timestamp = document.createElement('div');
+        timestamp.className = 'message-timestamp';
+        timestamp.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(timestamp);
+        chatMessages.appendChild(messageDiv);
+
+        // Auto-scroll to bottom (enhanced feature from comparison)
+        this.scrollToBottom(chatMessages);
+
+        // Apply syntax highlighting if available
+        if (window.Prism) {
+            Prism.highlightAllUnder(messageDiv);
+        }
+
+        return messageDiv;
+    }
+
+    /**
+     * Show typing indicator while AI processes (enhanced feature from comparison)
+     */
+    showTypingIndicator(chatContainer = null) {
+        const chatMessages = chatContainer || document.getElementById('chat-messages');
+        if (!chatMessages) {return null;}
+
+        // Remove existing typing indicator
+        this.hideTypingIndicator(chatContainer);
+
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message assistant typing-indicator';
+        typingDiv.innerHTML = `
+            <div class="message-content">
+                <div class="typing-animation">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(typingDiv);
+        this.scrollToBottom(chatMessages);
+
+        return typingDiv;
+    }
+
+    /**
+     * Hide typing indicator
+     */
+    hideTypingIndicator(chatContainer = null) {
+        const chatMessages = chatContainer || document.getElementById('chat-messages');
+        if (!chatMessages) {return;}
+
+        const typingIndicator = chatMessages.querySelector('.typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    /**
+     * Smooth scroll to bottom (enhanced feature from comparison)
+     */
+    scrollToBottom(chatContainer) {
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }
+
+    /**
+     * Enhanced AI response handler with typing indicator
+     */
+    handleAIResponse(response, chatContainer = null) {
+        // Remove typing indicator
+        this.hideTypingIndicator(chatContainer);
+
+        // Add formatted AI response with timestamp
+        return this.addAIMessage(response, false, chatContainer);
+    }
+
+    /**
+     * Enhanced send message with typing indicator
+     */
+    async sendUserMessage(message, chatContainer = null) {
+        if (!message || !message.trim()) {return;}
+
+        // Add user message with timestamp
+        this.addAIMessage(message, true, chatContainer);
+
+        // Show typing indicator
+        this.showTypingIndicator(chatContainer);
+
+        try {
+            // Get current settings for AI request
+            const settings = this.getCurrentSettings();
+
+            // Generate AI response
+            const response = await this.generateResponse(message, {
+                provider: settings.provider,
+                apiKey: settings.apiKey,
+                model: settings.model
+            });
+
+            // Handle the response
+            this.handleAIResponse(response, chatContainer);
+
+        } catch (error) {
+            console.error('Error in sendUserMessage:', error);
+            this.hideTypingIndicator(chatContainer);
+            this.handleAIResponse(`❌ Error: ${error.message}`, chatContainer);
+        }
+    }
+
+    /**
+     * Setup interactive features for code blocks
+     */
+    setupCodeBlockInteractions(messageElement) {
+        const codeBlocks = messageElement.querySelectorAll('.enhanced-code-block');
+
+        codeBlocks.forEach(block => {
+            const actions = block.querySelectorAll('[data-action]');
+            const feedback = block.querySelector('.code-feedback');
+            const codeElement = block.querySelector('code');
+
+            actions.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const action = button.dataset.action;
+                    const code = codeElement.dataset.rawCode || codeElement.textContent;
+
+                    try {
+                        switch (action) {
+                        case 'copy':
+                            await navigator.clipboard.writeText(code);
+                            this.showFeedback(feedback, '✅ Copied to clipboard', 'success');
+                            break;
+
+                        case 'save':
+                            this.saveCodeToLibrary(code);
+                            this.showFeedback(feedback, '✅ Saved to library', 'success');
+                            break;
+
+                        case 'apply':
+                            await this.applyCodeToAfterEffects(code);
+                            this.showFeedback(feedback, '✅ Applied to After Effects', 'success');
+                            break;
+                        }
+                    } catch (error) {
+                        this.showFeedback(feedback, `❌ ${error.message}`, 'error');
+                    }
+                });
+            });
+        });
+    }
+
+    /**
+     * Show feedback messages in code blocks
+     */
+    showFeedback(feedbackElement, message, type = 'info') {
+        if (!feedbackElement) {return;}
+
+        feedbackElement.textContent = message;
+        feedbackElement.className = `code-feedback ${type}`;
+        feedbackElement.style.display = 'block';
+
+        setTimeout(() => {
+            feedbackElement.style.display = 'none';
+        }, 3000);
+    }
+
+    /**
+     * Apply code to After Effects
+     */
+    async applyCodeToAfterEffects(code) {
+        if (!window.CSInterface) {
+            throw new Error('After Effects connection not available');
+        }
+
+        return new Promise((resolve, reject) => {
+            const cs = new CSInterface();
+
+            // Wrap code in try-catch for safety
+            const safeCode = `
+                try {
+                    ${code}
+                    "SUCCESS: Code executed";
+                } catch (error) {
+                    "ERROR: " + error.toString();
+                }
+            `;
+
+            cs.evalScript(safeCode, (result) => {
+                if (result.startsWith('ERROR:')) {
+                    reject(new Error(result.replace('ERROR: ', '')));
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+
+    /**
+     * Save code to library
+     */
+    saveCodeToLibrary(code) {
+        const savedScripts = JSON.parse(localStorage.getItem('ae_saved_scripts') || '[]');
+        const timestamp = new Date().toISOString();
+
+        savedScripts.push({
+            code,
+            timestamp,
+            id: Date.now()
+        });
+
+        localStorage.setItem('ae_saved_scripts', JSON.stringify(savedScripts));
+    }
+
+    // DUPLICATE METHOD REMOVED - Using comprehensive detectCodeType method from line 1237
+
+    /**
+     * Escape HTML entities - MASTER METHOD
+     */
+    escapeHtml(text) {
+        if (!text) {return '';}
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Process basic markdown (bold, italic, links)
+     */
+    processBasicMarkdown(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            .replace(/\n/g, '<br>');
+    }
+
+    /**
+     * Apply syntax highlighting using Prism.js
+     */
+    applySyntaxHighlighting() {
+        if (window.Prism) {
+            window.Prism.highlightAll();
+        }
     }
 
     buildContextualPrompt(userMessage, projectContext, analysisResult = null, imageBase64 = null, chatHistory = [], layerAnalysis = null) {
         // Get recent chat history for context (last 6 messages)
         const recentHistory = chatHistory.slice(-6);
         let historyContext = '';
-        
+
         if (recentHistory.length > 0) {
             historyContext = '\n\nRECENT CONVERSATION:\n';
             recentHistory.forEach((msg, index) => {
@@ -401,14 +749,14 @@ What specific technique would you like me to help automate?`,
         // Add layer analysis context if available
         let layerContext = '';
         if (layerAnalysis && this.layerAnalysis && !layerAnalysis.error) {
-            layerContext = '\n' + this.layerAnalysis.formatAnalysisForAI(layerAnalysis) + '\n';
-            
+            layerContext = `\n${ this.layerAnalysis.formatAnalysisForAI(layerAnalysis) }\n`;
+
             // Add smart suggestions
             const suggestions = this.layerAnalysis.generateSmartSuggestions(layerAnalysis);
             if (suggestions.length > 0) {
                 layerContext += '**🎯 SMART SUGGESTIONS:**\n';
                 suggestions.forEach(suggestion => {
-                    layerContext += suggestion + '\n';
+                    layerContext += `${suggestion }\n`;
                 });
                 layerContext += '\n';
             }
@@ -419,7 +767,7 @@ What specific technique would you like me to help automate?`,
         if (isEffectRequest && this.effectsModule) {
             const effectContext = this.effectsModule.analyzeEffectContext(userMessage);
             const effectResponse = this.effectsModule.generateEffectResponse(userMessage, effectContext);
-            
+
             if (effectResponse) {
                 // Return the specialized effect response with layer context
                 return `You are an After Effects assistant specialized in effects and presets.
@@ -436,7 +784,7 @@ Based on the conversation history and current layer analysis, provide the follow
 ${effectResponse}`;
             }
         }
-        
+
         // Detect UI/ExtendScript requests specifically
         const isUIRequest = userMessage && (
             userMessage.toLowerCase().includes('create ui') ||
@@ -530,14 +878,14 @@ RESPONSE FORMAT FOR UI REQUESTS:
 \`\`\`
 
 USER REQUEST: ${userMessage}`;
-            
+
             if (projectContext) {
                 prompt += `\n\nAE PROJECT CONTEXT: ${projectContext}`;
             }
-            
+
             return prompt;
         }
-        
+
         // Standard After Effects assistant prompt (with image support)
         let prompt = `You are a friendly After Effects assistant with perfect memory of our conversation and full awareness of the current layer state. ${imageBase64 ? 'You can see and analyze images to help with creative projects.' : 'You love helping with expressions, animations, and creative problem-solving.'}
 
@@ -627,7 +975,7 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
      */
     analyzeRequestClarity(message, projectContext) {
         const lowerMessage = message.toLowerCase().trim();
-        
+
         // Indicators user wants code/script
         const codeRequestIndicators = [
             'code', 'script', 'expression', 'write me', 'create', 'generate',
@@ -643,12 +991,12 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
         ];
 
         // Check if user explicitly wants code
-        const wantsCode = codeRequestIndicators.some(indicator => 
+        const wantsCode = codeRequestIndicators.some(indicator =>
             lowerMessage.includes(indicator)
         );
 
         // Check if it's a conversational question
-        const isConversational = conversationIndicators.some(indicator => 
+        const isConversational = conversationIndicators.some(indicator =>
             lowerMessage.includes(indicator)
         );
 
@@ -661,44 +1009,27 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
         }
 
         return {
-            wantsCode: wantsCode,
-            isConversational: isConversational,
-            suggestedApproach: suggestedApproach,
+            wantsCode,
+            isConversational,
+            suggestedApproach,
             message: lowerMessage
         };
     }
 
     processAIResponse(response, provider) {
         // Clean up response formatting
-        let processedResponse = response.trim();
-        
+        const processedResponse = response.trim();
+
         // Remove provider attribution - keep responses clean
         // processedResponse += `\n\n*Response from ${provider.toUpperCase()}*`;
-        
+
         // Log successful response
         console.log(`✅ AI response received from ${provider}`);
-        
+
         return processedResponse;
     }
 
-    /**
-     * Detect the type of code for better labeling
-     */
-    detectCodeType(code) {
-        const codeLines = code.toLowerCase().trim();
-        
-        if (codeLines.includes('wiggle') || codeLines.includes('time') || codeLines.includes('value')) {
-            return 'Expression';
-        } else if (codeLines.includes('app.') || codeLines.includes('comp') || codeLines.includes('layer')) {
-            return 'ExtendScript';
-        } else if (codeLines.includes('function') || codeLines.includes('var ') || codeLines.includes('let ')) {
-            return 'JavaScript';
-        } else if (codeLines.includes('transform.') || codeLines.includes('index')) {
-            return 'Expression';
-        } else {
-            return 'Code';
-        }
-    }
+    // DUPLICATE METHOD REMOVED - Using detectCodeType(code, language) method from line 541
 
     /**
      * Get SVG icon for code type
@@ -718,34 +1049,27 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
                 <path d="M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6Z"/>
             </svg>`
         };
-        return icons[codeType] || icons['Code'];
+        return icons[codeType] || icons.Code;
     }
 
-    /**
-     * Escape HTML for safe display
-     */
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    // DUPLICATE METHOD REMOVED - Using escapeHtml method from line 558
 
     // Format YouTube tutorial responses
     formatTutorialResponse(tutorialResponse) {
         if (tutorialResponse.type === 'youtube_tutorial') {
             // Add execute buttons for suggested actions
             let formattedResponse = tutorialResponse.response;
-            
+
             if (tutorialResponse.suggestedActions) {
                 formattedResponse += '\n\n**🎯 QUICK ACTIONS:**\n';
                 tutorialResponse.suggestedActions.forEach(action => {
                     formattedResponse += `[Execute: ${action.label}] - ${action.description}\n`;
                 });
             }
-            
+
             return formattedResponse;
         }
-        
+
         return tutorialResponse.response;
     }
 
@@ -756,26 +1080,26 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
         };
 
         switch (provider) {
-            case 'google':
-                options.model = 'gemini-1.5-flash-latest';
-                break;
-            case 'openai':
-                options.model = 'gpt-4';
-                break;
-            case 'groq':
-                options.model = 'mixtral-8x7b-32768';
-                options.temperature = 0.5; // More focused for coding
-                break;
-            case 'claude':
-                options.model = 'claude-3-sonnet-20240229';
-                break;
-            case 'local':
-                options.baseUrl = 'http://localhost:1234/v1/chat/completions';
-                break;
-            case 'ollama':
-                options.baseUrl = 'http://localhost:11434/api/generate';
-                options.model = 'codellama';
-                break;
+        case 'google':
+            options.model = 'gemini-1.5-flash-latest';
+            break;
+        case 'openai':
+            options.model = 'gpt-4';
+            break;
+        case 'groq':
+            options.model = 'mixtral-8x7b-32768';
+            options.temperature = 0.5; // More focused for coding
+            break;
+        case 'claude':
+            options.model = 'claude-3-sonnet-20240229';
+            break;
+        case 'local':
+            options.baseUrl = 'http://localhost:1234/v1/chat/completions';
+            break;
+        case 'ollama':
+            options.baseUrl = 'http://localhost:11434/api/generate';
+            options.model = 'codellama';
+            break;
         }
 
         return options;
@@ -785,19 +1109,19 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
     isRateLimited(provider) {
         const now = Date.now();
         const lastRequest = this.rateLimiter.get(provider);
-        
-        if (!lastRequest) return false;
-        
+
+        if (!lastRequest) {return false;}
+
         // Different limits per provider
         const limits = {
-            google: 1000,   // 1 second
-            openai: 2000,   // 2 seconds (more expensive)
-            groq: 500,      // 0.5 seconds (faster/cheaper)
-            claude: 2000,   // 2 seconds
-            local: 100,     // 0.1 seconds
-            ollama: 100     // 0.1 seconds
+            google: 1000, // 1 second
+            openai: 2000, // 2 seconds (more expensive)
+            groq: 500, // 0.5 seconds (faster/cheaper)
+            claude: 2000, // 2 seconds
+            local: 100, // 0.1 seconds
+            ollama: 100 // 0.1 seconds
         };
-        
+
         const limit = limits[provider] || 1000;
         return (now - lastRequest) < limit;
     }
@@ -814,9 +1138,9 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
             timestamp: new Date().toISOString(),
             context
         };
-        
+
         console.error(`[AI Module] ${message}:`, errorInfo);
-        
+
         // Could send to analytics or error tracking service
         this.sendErrorToAnalytics(errorInfo);
     }
@@ -838,31 +1162,31 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
     }
 
     async processQueue() {
-        if (this.isProcessing || this.requestQueue.length === 0) return;
-        
+        if (this.isProcessing || this.requestQueue.length === 0) {return;}
+
         this.isProcessing = true;
-        
+
         while (this.requestQueue.length > 0) {
             const { requestFn, resolve, reject } = this.requestQueue.shift();
-            
+
             try {
                 const result = await requestFn();
                 resolve(result);
             } catch (error) {
                 reject(error);
             }
-            
+
             // Small delay between requests
             await new Promise(resolve => setTimeout(resolve, 100));
         }
-        
+
         this.isProcessing = false;
     }
 
     // Handle project change events from Advanced SDK
     handleProjectChange(changeDetail) {
         console.log('🎬 Project change detected:', changeDetail);
-        
+
         // Update context automatically for more intelligent responses
         if (this.chatMemory && changeDetail.type === 'selection_changed') {
             // Add context message about layer selection
@@ -905,7 +1229,7 @@ USER: ${userMessage || 'Image uploaded for analysis'}`;
      * Format response for tutorial steps with interactive buttons
      */
     formatTutorialStepResponse(response) {
-        if (!response) return null;
+        if (!response) {return null;}
 
         let formattedResponse = response.response;
 
@@ -942,28 +1266,28 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
      */
     getRandomAEFact() {
         const facts = [
-            "💡 **Did you know?** After Effects was originally created in 1993 by David Herbstman, David Simons, and David M. Cotter at the Company of Science and Art.",
-            "🎬 **Fun Fact:** The maximum composition length in After Effects is 3 hours - perfect for feature films!",
-            "⚡ **Pro Tip:** You can use expressions to link properties across multiple layers with just `pickwhip` connections.",
-            "🚀 **Speed Hack:** Pre-composing (Ctrl/Cmd+Shift+C) can dramatically improve render times for complex animations.",
-            "🎨 **Creative Trick:** The Echo effect can create multiple trailing copies of your layer for stunning motion graphics.",
-            "🔥 **Performance:** After Effects can utilize up to 128 GB of RAM - more RAM = faster previews and renders!",
-            "🎯 **Precision:** You can position layers with sub-pixel accuracy using decimal values (e.g., 100.5, 200.25).",
-            "⭐ **Hidden Gem:** The Graph Editor (Shift+F3) is where the real animation magic happens - master those curves!",
-            "💫 **Time Saver:** Ctrl/Cmd+D duplicates layers, but Alt+drag creates linked duplicates that update together.",
-            "🎪 **Amazing:** After Effects has been used in over 90% of Hollywood blockbusters since the 2000s!",
-            "🔧 **Workflow:** You can import Photoshop files as compositions and retain all layer styles and blend modes.",
-            "🎵 **Audio Magic:** After Effects can visualize audio waveforms and automatically sync animations to beats.",
-            "🌟 **Expressions:** The 'wiggle()' function is the most used expression - it adds natural randomness to any property.",
-            "⚡ **Shortcut Master:** 'U' twice (UU) reveals all modified properties - essential for debugging complex projects.",
-            "🎬 **Industry Standard:** After Effects is used by 99% of motion graphics professionals worldwide.",
-            "🚀 **GPU Power:** After Effects leverages GPU acceleration for effects like Lumetri Color and Element 3D.",
-            "🎨 **Color Science:** After Effects works in 32-bit color depth for maximum image quality and color grading.",
-            "💎 **Hidden Feature:** You can use the Roto Brush tool to automatically separate subjects from backgrounds.",
-            "🎯 **Precision Tool:** The Puppet Pin tool uses advanced mesh deformation - perfect for character animation.",
-            "⭐ **Time Magic:** Time Remapping lets you speed up, slow down, or reverse time on any layer dynamically."
+            '💡 **Did you know?** After Effects was originally created in 1993 by David Herbstman, David Simons, and David M. Cotter at the Company of Science and Art.',
+            '🎬 **Fun Fact:** The maximum composition length in After Effects is 3 hours - perfect for feature films!',
+            '⚡ **Pro Tip:** You can use expressions to link properties across multiple layers with just `pickwhip` connections.',
+            '🚀 **Speed WORKAROUND:** Pre-composing (Ctrl/Cmd+Shift+C) can dramatically improve render times for complex animations.',
+            '🎨 **Creative Trick:** The Echo effect can create multiple trailing copies of your layer for stunning motion graphics.',
+            '🔥 **Performance:** After Effects can utilize up to 128 GB of RAM - more RAM = faster previews and renders!',
+            '🎯 **Precision:** You can position layers with sub-pixel accuracy using decimal values (e.g., 100.5, 200.25).',
+            '⭐ **Hidden Gem:** The Graph Editor (Shift+F3) is where the real animation magic happens - master those curves!',
+            '💫 **Time Saver:** Ctrl/Cmd+D duplicates layers, but Alt+drag creates linked duplicates that update together.',
+            '🎪 **Amazing:** After Effects has been used in over 90% of Hollywood blockbusters since the 2000s!',
+            '🔧 **Workflow:** You can import Photoshop files as compositions and retain all layer styles and blend modes.',
+            '🎵 **Audio Magic:** After Effects can visualize audio waveforms and automatically sync animations to beats.',
+            '🌟 **Expressions:** The \'wiggle()\' function is the most used expression - it adds natural randomness to any property.',
+            '⚡ **Shortcut Master:** \'U\' twice (UU) reveals all modified properties - essential for INFOging complex projects.',
+            '🎬 **Industry Standard:** After Effects is used by 99% of motion graphics professionals worldwide.',
+            '🚀 **GPU Power:** After Effects leverages GPU acceleration for effects like Lumetri Color and Element 3D.',
+            '🎨 **Color Science:** After Effects works in 32-bit color depth for maximum image quality and color grading.',
+            '💎 **Hidden Feature:** You can use the Roto Brush tool to automatically separate subjects from backgrounds.',
+            '🎯 **Precision Tool:** The Puppet Pin tool uses advanced mesh deformation - perfect for character animation.',
+            '⭐ **Time Magic:** Time Remapping lets you speed up, slow down, or reverse time on any layer dynamically.'
         ];
-        
+
         return facts[Math.floor(Math.random() * facts.length)];
     }
 
@@ -971,11 +1295,11 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
     isEffectOrPresetRequest(message) {
         const lowerMessage = message.toLowerCase();
         const effectKeywords = [
-            'apply', 'add', 'effect', 'preset', 'glow', 'shadow', 'blur', 
+            'apply', 'add', 'effect', 'preset', 'glow', 'shadow', 'blur',
             'color correction', 'lumetri', 'motion blur', 'drop shadow',
             'make it', 'change', 'adjust', 'modify', 'turn it', 'set it to'
         ];
-        
+
         return effectKeywords.some(keyword => lowerMessage.includes(keyword));
     }
 
@@ -988,7 +1312,7 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
             'modify', 'adjust', 'change', 'update', 'tweak',
             'apply', 'add', 'remove', 'delete', 'effect', 'preset'
         ];
-        
+
         return analysisKeywords.some(keyword => lowerMessage.includes(keyword));
     }
 
@@ -1001,18 +1325,18 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
         }
 
         console.log('🎨 Formatting response with Chat Assistant...');
-        
+
         // Use Chat Assistant's processMarkdown for consistent rendering
         if (window.chatAssistant && typeof window.chatAssistant.processMarkdown === 'function') {
             return window.chatAssistant.processMarkdown(response);
         }
-        
+
         // Fallback to original method if Chat Assistant not available
         console.warn('⚠️ Chat Assistant not available, using fallback formatting');
-        
+
         const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
         let formattedResponse = response;
-        
+
         formattedResponse = formattedResponse.replace(codeBlockRegex, (match, language, code) => {
             const cleanLang = language || 'text';
             const cleanCode = code.trim();
@@ -1034,7 +1358,7 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
         const escapedCode = this.escapeHtml(code);
         const detectedType = this.detectCodeType(code, language);
         const blockId = `code-block-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-        
+
         return `
             <div class="code-block-container" id="${blockId}">
                 <div class="code-header">
@@ -1069,8 +1393,8 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
 
         // After Effects Expression detection
         if (lowerLang === 'javascript' || lowerLang === 'js' || lowerLang === 'expression') {
-            if (lowerCode.includes('wiggle') || 
-                lowerCode.includes('time') || 
+            if (lowerCode.includes('wiggle') ||
+                lowerCode.includes('time') ||
                 lowerCode.includes('transform') ||
                 lowerCode.includes('rotation') ||
                 lowerCode.includes('position') ||
@@ -1084,7 +1408,7 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
 
         // ExtendScript detection
         if (lowerLang === 'javascript' || lowerLang === 'js' || lowerLang === 'extendscript') {
-            if (lowerCode.includes('app.project') || 
+            if (lowerCode.includes('app.project') ||
                 lowerCode.includes('compitem') ||
                 lowerCode.includes('layer') ||
                 lowerCode.includes('property') ||
@@ -1097,7 +1421,7 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
         // Default cases
         const displayMap = {
             'javascript': 'JavaScript',
-            'js': 'JavaScript', 
+            'js': 'JavaScript',
             'html': 'HTML',
             'css': 'CSS',
             'json': 'JSON',
@@ -1106,21 +1430,14 @@ Please configure your AI provider in the Settings tab, or ask me for specific au
             'jsx': 'JSX'
         };
 
-        return { 
-            type: lowerLang || 'text', 
-            display: displayMap[lowerLang] || (language || 'Code').toUpperCase(), 
-            canApply: false 
+        return {
+            type: lowerLang || 'text',
+            display: displayMap[lowerLang] || (language || 'Code').toUpperCase(),
+            canApply: false
         };
     }
 
-    /**
-     * Escape HTML characters for safe display
-     */
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    // DUPLICATE METHOD REMOVED - Using escapeHtml method from line 558
 }
 
 // Global code block functions for CEP environment
@@ -1131,10 +1448,10 @@ window.copyCodeBlock = function(blockId) {
         console.error('❌ Code block not found:', blockId);
         return;
     }
-    
+
     const codeContent = codeBlock.querySelector('.code-content');
     const code = codeContent.getAttribute('data-code') || codeContent.textContent.trim();
-    
+
     try {
         // Try modern clipboard API first
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1161,11 +1478,11 @@ window.applyCodeBlock = function(blockId) {
         console.error('❌ Code block not found:', blockId);
         return;
     }
-    
+
     const codeContent = codeBlock.querySelector('.code-content');
     const code = codeContent.getAttribute('data-code') || codeContent.textContent.trim();
     const codeType = codeContent.getAttribute('data-type') || 'expression';
-    
+
     try {
         if (window.__adobe_cep__) {
             // CEP environment - apply to After Effects with robust script
@@ -1221,7 +1538,7 @@ window.applyCodeBlock = function(blockId) {
                     alert("❌ Script error: " + mainError.toString());
                 }
             `;
-            
+
             console.log('🔧 Sending script to After Effects:', script);
             window.__adobe_cep__.evalScript(script, function(result) {
                 console.log('📝 After Effects script result:', result);
@@ -1231,7 +1548,7 @@ window.applyCodeBlock = function(blockId) {
                     showCodeFeedback(blockId, '⚠️ Check AE alert', 'warning');
                 }
             });
-            
+
         } else {
             // Browser environment - copy to script editor if available
             const scriptEditor = document.getElementById('script-editor');
@@ -1257,11 +1574,11 @@ window.viewCodeBlock = function(blockId) {
         console.error('❌ Code block not found:', blockId);
         return;
     }
-    
+
     const codeContent = codeBlock.querySelector('.code-content');
     const code = codeContent.getAttribute('data-code') || codeContent.textContent.trim();
     const codeType = codeContent.getAttribute('data-type') || 'code';
-    
+
     // Create a modal to show the full code
     const modal = document.createElement('div');
     modal.className = 'code-modal-overlay';
@@ -1272,7 +1589,7 @@ window.viewCodeBlock = function(blockId) {
                 <button class="code-modal-close" onclick="this.closest('.code-modal-overlay').remove()">×</button>
             </div>
             <div class="code-modal-body">
-                <pre><code>${escapeHtml(code)}</code></pre>
+                <pre><code>${this.escapeHtml(code)}</code></pre>
             </div>
             <div class="code-modal-footer">
                 <button onclick="window.copyCodeBlock('${blockId}')">📋 Copy</button>
@@ -1281,7 +1598,7 @@ window.viewCodeBlock = function(blockId) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     showCodeFeedback(blockId, '👁️ Opened!', 'info');
 };
@@ -1307,12 +1624,12 @@ function fallbackCopy(text, blockId) {
 
 function showCodeFeedback(blockId, message, type = 'info') {
     const codeBlock = document.getElementById(blockId);
-    if (!codeBlock) return;
-    
+    if (!codeBlock) {return;}
+
     // Remove existing feedback
     const existing = codeBlock.querySelector('.code-feedback');
-    if (existing) existing.remove();
-    
+    if (existing) {existing.remove();}
+
     // Add new feedback
     const feedback = document.createElement('div');
     feedback.className = `code-feedback ${type}`;
@@ -1329,10 +1646,10 @@ function showCodeFeedback(blockId, message, type = 'info') {
         z-index: 1000;
         animation: fadeIn 0.3s ease-out;
     `;
-    
+
     codeBlock.style.position = 'relative';
     codeBlock.appendChild(feedback);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         if (feedback.parentNode) {
@@ -1341,11 +1658,12 @@ function showCodeFeedback(blockId, message, type = 'info') {
     }, 3000);
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+// DUPLICATE FUNCTION REMOVED - Using class method escapeHtml instead
+// function escapeHtml(text) {
+//     const div = document.createElement('div');
+//     div.textContent = text;
+//     return div.innerHTML;
+// }
 
 // Export for global use
 window.AIModule = AIModule;

@@ -16,7 +16,7 @@ class EnhancedPerformanceSystem {
             correlationThreshold: 0.6,
             predictionConfidence: 0.85
         };
-        
+
         console.log('🚀 Initializing Enhanced Performance System...');
         this.initializeSystem();
     }
@@ -139,15 +139,15 @@ class EnhancedPerformanceSystem {
         let score = 100;
 
         // Memory impact
-        if (!memory.isHealthy) score -= 20;
-        if (memory.current > (memory.limit * 0.9)) score -= 10;
+        if (!memory.isHealthy) {score -= 20;}
+        if (memory.current > (memory.limit * 0.9)) {score -= 10;}
 
         // Rendering impact
-        if (!rendering.isSmooth) score -= 15;
-        if (rendering.averageFrameTime > 33) score -= 10;
+        if (!rendering.isSmooth) {score -= 15;}
+        if (rendering.averageFrameTime > 33) {score -= 10;}
 
         // Error impact
-        if (!errors.isClean) score -= 25;
+        if (!errors.isClean) {score -= 25;}
         score -= Math.min(errors.total * 5, 30);
 
         return Math.max(score, 0);
@@ -161,11 +161,11 @@ class EnhancedPerformanceSystem {
         const memoryInfo = this.getMemoryInfo();
         const renderingInfo = this.getRenderingInfo();
         const errorInfo = this.getErrorInfo();
-        
+
         const score = this.calculateOverallScore(memoryInfo, renderingInfo, errorInfo);
-        if (score >= 80) return 'EXCELLENT';
-        if (score >= 60) return 'GOOD';
-        if (score >= 40) return 'FAIR';
+        if (score >= 80) {return 'EXCELLENT';}
+        if (score >= 60) {return 'GOOD';}
+        if (score >= 40) {return 'FAIR';}
         return 'POOR';
     }
 
@@ -333,9 +333,9 @@ class EnhancedPerformanceSystem {
     assessRiskLevel(insights) {
         const { patterns, anomalies } = insights;
         const highSeverity = [...patterns, ...anomalies].filter(item => item.severity === 'high');
-        
-        if (highSeverity.length >= 2) return 'high';
-        if (highSeverity.length === 1 || patterns.length + anomalies.length >= 3) return 'medium';
+
+        if (highSeverity.length >= 2) {return 'high';}
+        if (highSeverity.length === 1 || patterns.length + anomalies.length >= 3) {return 'medium';}
         return 'low';
     }
 
@@ -398,3 +398,4 @@ if (typeof window !== 'undefined') {
 }
 
 console.log('✅ Enhanced Performance System loaded');
+

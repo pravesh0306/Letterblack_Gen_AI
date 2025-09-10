@@ -8,7 +8,7 @@
     function backupRaw(key, value) {
         try {
             const time = new Date().toISOString().replace(/[:.]/g, '-');
-            localStorage.setItem(BACKUP_KEY_PREFIX + key + '-' + time, JSON.stringify(value));
+            localStorage.setItem(`${BACKUP_KEY_PREFIX + key }-${ time}`, JSON.stringify(value));
         } catch (e) { console.warn('backupRaw failed', e); }
     }
 
@@ -19,13 +19,13 @@
     }
 
     function migrateOnce() {
-        if (!window.ChatMemoryUnified) return;
+        if (!window.ChatMemoryUnified) {return;}
         let importedSessions = 0;
         let importedMessages = 0;
         try {
             for (const key of LEGACY_KEYS) {
                 const raw = localStorage.getItem(key);
-                if (!raw) continue;
+                if (!raw) {continue;}
                 let parsed;
                 try { parsed = JSON.parse(raw); } catch (e) { continue; }
 
@@ -92,3 +92,4 @@
     }
 
 })();
+

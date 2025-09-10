@@ -18,21 +18,21 @@ class DependencyChecker {
                 required: true,
                 description: 'CSInterface for ExtendScript communication'
             },
-            
+
             // File system dependencies
             'FileSystem': {
                 check: () => typeof window.cep?.fs !== 'undefined',
                 required: true,
                 description: 'CEP File System API'
             },
-            
+
             // After Effects dependencies
             'AfterEffects': {
                 check: () => this.checkAfterEffectsConnection(),
                 required: true,
                 description: 'Adobe After Effects application'
             },
-            
+
             // Speech API dependencies
             'SpeechSynthesis': {
                 check: () => 'speechSynthesis' in window,
@@ -44,7 +44,7 @@ class DependencyChecker {
                 required: false,
                 description: 'Speech-to-Text API'
             },
-            
+
             // Modern browser features
             'LocalStorage': {
                 check: () => typeof Storage !== 'undefined',
@@ -62,17 +62,17 @@ class DependencyChecker {
                 description: 'WebGL for advanced graphics'
             }
         };
-        
+
         this.lastCheck = null;
         this.statusDisplayed = false;
     }
-    
+
     /**
      * Check all dependencies and return status
      */
     async checkAllDependencies() {
         console.log('🔍 Checking system dependencies...');
-        
+
         const results = {
             timestamp: new Date().toISOString(),
             total: Object.keys(this.dependencies).length,
@@ -82,30 +82,30 @@ class DependencyChecker {
             required: 0,
             details: {}
         };
-        
+
         for (const [name, dep] of Object.entries(this.dependencies)) {
             try {
                 const isAvailable = await this.checkDependency(name);
-                
+
                 results.details[name] = {
                     available: isAvailable,
                     required: dep.required,
                     description: dep.description,
                     status: isAvailable ? 'ok' : (dep.required ? 'error' : 'warning')
                 };
-                
+
                 if (isAvailable) {
                     results.passed++;
                 } else {
                     results.failed++;
                 }
-                
+
                 if (dep.required) {
                     results.required++;
                 } else {
                     results.optional++;
                 }
-                
+
             } catch (error) {
                 console.error(`Error checking ${name}:`, error);
                 results.details[name] = {
@@ -118,11 +118,11 @@ class DependencyChecker {
                 results.failed++;
             }
         }
-        
+
         this.lastCheck = results;
         return results;
     }
-    
+
     /**
      * Check individual dependency
      */
@@ -131,21 +131,21 @@ class DependencyChecker {
         if (!dependency) {
             throw new Error(`Unknown dependency: ${name}`);
         }
-        
+
         if (typeof dependency.check === 'function') {
             return await dependency.check();
         }
-        
+
         return false;
     }
-    
+
     /**
      * Check After Effects connection
      */
     checkAfterEffectsConnection() {
         try {
-            if (typeof CSInterface === 'undefined') return false;
-            
+            if (typeof CSInterface === 'undefined') {return false;}
+
             const cs = new CSInterface();
             const appName = cs.hostEnvironment.appName;
             return appName === 'AEFT' || appName === 'AfterEffects';
@@ -153,7 +153,7 @@ class DependencyChecker {
             return false;
         }
     }
-    
+
     /**
      * Check WebGL support
      */
@@ -166,7 +166,7 @@ class DependencyChecker {
             return false;
         }
     }
-    
+
     /**
      * Display dependency status in console and UI
      */
@@ -174,9 +174,9 @@ class DependencyChecker {
         if (!this.lastCheck) {
             await this.checkAllDependencies();
         }
-        
+
         const results = this.lastCheck;
-        
+
         console.log('\n📊 DEPENDENCY STATUS REPORT');
         console.log('═'.repeat(50));
         console.log(`✅ Passed: ${results.passed}/${results.total}`);
@@ -184,14 +184,14 @@ class DependencyChecker {
         console.log(`🔧 Required: ${results.required}`);
         console.log(`⚡ Optional: ${results.optional}`);
         console.log('─'.repeat(50));
-        
+
         // Group dependencies by status
         const categories = { ok: [], warning: [], error: [] };
-        
+
         Object.entries(results.details).forEach(([name, info]) => {
             categories[info.status].push({ name, ...info });
         });
-        
+
         // Display each category
         if (categories.ok.length > 0) {
             console.log('✅ AVAILABLE:');
@@ -199,14 +199,14 @@ class DependencyChecker {
                 console.log(`  ✓ ${dep.name}: ${dep.description}`);
             });
         }
-        
+
         if (categories.warning.length > 0) {
             console.log('\n⚠️  OPTIONAL (Not Available):');
             categories.warning.forEach(dep => {
                 console.log(`  ⚠ ${dep.name}: ${dep.description}`);
             });
         }
-        
+
         if (categories.error.length > 0) {
             console.log('\n❌ MISSING REQUIRED:');
             categories.error.forEach(dep => {
@@ -216,9 +216,9 @@ class DependencyChecker {
                 }
             });
         }
-        
+
         console.log('═'.repeat(50));
-        
+
         // Show UI notification for critical issues
         const criticalIssues = categories.error.length;
         if (criticalIssues > 0) {
@@ -226,11 +226,11 @@ class DependencyChecker {
         } else {
             this.showUISuccess();
         }
-        
+
         this.statusDisplayed = true;
         return results;
     }
-    
+
     /**
      * Show UI warning for missing dependencies
      */
@@ -242,14 +242,14 @@ class DependencyChecker {
                 5000
             );
         }
-        
+
         // Log actionable advice
         console.log('\n🔧 RECOMMENDED ACTIONS:');
         errors.forEach(dep => {
             console.log(`  • ${dep.name}: ${this.getRecommendation(dep.name)}`);
         });
     }
-    
+
     /**
      * Show UI success message
      */
@@ -263,44 +263,44 @@ class DependencyChecker {
         }
         console.log('🎉 All critical dependencies are available!');
     }
-    
+
     /**
      * Get recommendation for missing dependency
      */
     getRecommendation(depName) {
         const recommendations = {
             'CEP': 'Ensure extension is running inside Adobe CEP environment',
-            'CSInterface': 'Check that CEP debug mode is enabled',
+            'CSInterface': 'Check that CEP INFO mode is enabled',
             'AfterEffects': 'Launch Adobe After Effects and load the extension',
             'FileSystem': 'Enable CEP file system permissions',
             'LocalStorage': 'Use a modern browser or enable local storage',
             'Fetch': 'Update to a modern browser that supports Fetch API'
         };
-        
+
         return recommendations[depName] || 'Check system requirements and configuration';
     }
-    
+
     /**
      * Get system readiness score
      */
     getReadinessScore() {
-        if (!this.lastCheck) return 0;
-        
+        if (!this.lastCheck) {return 0;}
+
         const required = Object.values(this.lastCheck.details)
             .filter(dep => dep.required);
-        
+
         const requiredAvailable = required.filter(dep => dep.available).length;
-        
+
         return required.length > 0 ? (requiredAvailable / required.length) * 100 : 100;
     }
-    
+
     /**
      * Check if system is ready for operation
      */
     isSystemReady() {
         return this.getReadinessScore() >= 100;
     }
-    
+
     /**
      * Add custom dependency
      */
@@ -310,11 +310,11 @@ class DependencyChecker {
             required: config.required || false,
             description: config.description || `Custom dependency: ${name}`
         };
-        
+
         // Clear last check to force recheck
         this.lastCheck = null;
     }
-    
+
     /**
      * Remove dependency
      */
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.dependencyChecker) {
         window.dependencyChecker = new DependencyChecker();
         console.log('✅ Dependency Checker initialized');
-        
+
         // Auto-check dependencies after a short delay
         setTimeout(() => {
             window.dependencyChecker.showDependencyStatus();
@@ -341,3 +341,4 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = DependencyChecker;
 }
+

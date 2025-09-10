@@ -3,7 +3,7 @@
     'use strict';
     function createPanel() {
         try {
-            if (document.getElementById('dev-log-wrapper')) return;
+            if (document.getElementById('dev-log-wrapper')) {return;}
             const wrapper = document.createElement('div');
             wrapper.id = 'dev-log-wrapper';
             wrapper.innerHTML = `
@@ -26,6 +26,6 @@
         } catch (e) { /* ignore */ }
     }
 
-    if (document.readyState === 'complete' || document.readyState === 'interactive') createPanel();
-    else window.addEventListener('DOMContentLoaded', createPanel);
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {createPanel();}
+    else {window.addEventListener('DOMContentLoaded', createPanel);}
 })();

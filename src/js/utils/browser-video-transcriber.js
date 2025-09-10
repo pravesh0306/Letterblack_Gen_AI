@@ -1,5 +1,5 @@
 /**
- * Browser Video Transcriber - Streamlined for CEP Extension  
+ * Browser Video Transcriber - Streamlined for CEP Extension
  * Provides YouTube transcript functionality (browser-compatible)
  */
 
@@ -25,7 +25,7 @@ class BrowserVideoTranscriber {
             this.transcriptionCache.set(videoId, transcript);
             console.log('✅ Video analysis completed');
             return transcript;
-            
+
         } catch (error) {
             console.log('❌ Video analysis not available:', error.message);
             return this.generateTranscriptUnavailableMessage(videoUrl);
@@ -38,14 +38,14 @@ class BrowserVideoTranscriber {
     async analyzeYouTubeVideo(videoId) {
         // Since we can't access YouTube API directly in CEP,
         // we provide structured guidance based on video analysis
-        
+
         const analysisResult = {
-            videoId: videoId,
+            videoId,
             status: 'analyzed',
             summary: 'Video analysis completed - providing guidance based on After Effects tutorial patterns',
             keyPoints: [
                 'Tutorial focuses on After Effects techniques',
-                'Step-by-step workflow identified', 
+                'Step-by-step workflow identified',
                 'Key tools and effects highlighted',
                 'Common workflows and best practices included'
             ],
@@ -66,7 +66,7 @@ class BrowserVideoTranscriber {
      */
     generateTranscriptUnavailableMessage(videoUrl) {
         return {
-            videoUrl: videoUrl,
+            videoUrl,
             status: 'guidance_available',
             summary: 'While automatic transcription is not available, I can still help you with this tutorial!',
             keyPoints: [
@@ -150,3 +150,4 @@ class BrowserVideoTranscriber {
 
 // Global instance
 window.browserVideoTranscriber = window.browserVideoTranscriber || new BrowserVideoTranscriber();
+

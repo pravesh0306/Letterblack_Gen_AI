@@ -39,7 +39,7 @@ class ComponentLoader {
             }
 
             console.log(`Loading component: ${componentName} from ${filePath}`);
-            
+
             const response = await fetch(filePath);
             if (!response.ok) {
                 throw new Error(`Failed to load component: ${response.statusText}`);
@@ -47,10 +47,10 @@ class ComponentLoader {
 
             const html = await response.text();
             target.innerHTML = html;
-            
+
             this.loadedComponents.add(componentName);
             console.log(`✅ Component '${componentName}' loaded successfully`);
-            
+
             // Dispatch custom event
             target.dispatchEvent(new CustomEvent('component-loaded', {
                 detail: { componentName, target }
@@ -58,7 +58,7 @@ class ComponentLoader {
 
         } catch (error) {
             console.error(`❌ Failed to load component '${componentName}':`, error);
-            
+
             // Show fallback content
             const target = document.querySelector(targetSelector);
             if (target) {
@@ -76,10 +76,10 @@ class ComponentLoader {
      * Load multiple components in parallel
      */
     async loadAll(componentMap) {
-        const promises = Object.entries(componentMap).map(([componentName, targetSelector]) => 
+        const promises = Object.entries(componentMap).map(([componentName, targetSelector]) =>
             this.load(componentName, targetSelector)
         );
-        
+
         await Promise.all(promises);
         console.log('✅ All components loaded');
     }
@@ -124,22 +124,22 @@ window.componentLoader
  */
 async function initializeComponents() {
     console.log('🚀 Initializing LetterBlack components...');
-    
+
     try {
         await window.componentLoader.loadAll({
             'header': '#header-container',
-            'navigation': '#navigation-container', 
+            'navigation': '#navigation-container',
             'chat-interface': '#chat-container',
             'script-editor': '#script-container',
             'quick-actions': '#quick-container',
             'settings-panel': '#settings-container'
         });
-        
+
         console.log('✅ All LetterBlack components initialized');
-        
+
         // Trigger component initialization event
         document.dispatchEvent(new CustomEvent('components-ready'));
-        
+
     } catch (error) {
         console.error('❌ Component initialization failed:', error);
     }
@@ -154,3 +154,4 @@ if (document.readyState === 'loading') {
 
 // Export for manual use
 window.initializeComponents = initializeComponents;
+

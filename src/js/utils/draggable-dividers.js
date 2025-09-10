@@ -14,32 +14,32 @@ class DraggableDividers {
     }
 
     init() {
-        if (this.initialized) return;
-        
+        if (this.initialized) {return;}
+
         console.log('Initializing draggable dividers...');
-        
+
         // Wait for DOM to be ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.setupDividers());
         } else {
             this.setupDividers();
         }
-        
+
         this.initialized = true;
     }
 
     setupDividers() {
         const dividers = document.querySelectorAll('.draggable-divider');
         console.log(`Found ${dividers.length} draggable dividers`);
-        
+
         dividers.forEach(divider => {
             this.setupDivider(divider);
         });
-        
+
         // Add global mouse event handlers
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
-        
+
         // Prevent text selection during drag
         document.addEventListener('selectstart', (e) => {
             if (this.isDragging) {
@@ -51,62 +51,62 @@ class DraggableDividers {
     setupDivider(divider) {
         const targetId = divider.dataset.target;
         const targetElement = document.getElementById(targetId);
-        
+
         if (!targetElement) {
             console.warn(`Target element '${targetId}' not found for divider`);
             return;
         }
-        
+
         // Store reference to target
         divider._targetElement = targetElement;
-        
+
         // Add mouse down handler
         divider.addEventListener('mousedown', (e) => this.handleMouseDown(e, divider));
-        
+
         // Add visual feedback
         divider.addEventListener('mouseenter', () => {
             if (!this.isDragging) {
                 divider.style.cursor = 'ns-resize';
             }
         });
-        
+
         console.log(`Setup divider for target: ${targetId}`);
     }
 
     handleMouseDown(e, divider) {
         e.preventDefault();
-        
+
         this.isDragging = true;
         this.currentDivider = divider;
         this.currentTarget = divider._targetElement;
         this.startY = e.clientY;
-        
+
         // Get current height
         const rect = this.currentTarget.getBoundingClientRect();
         this.startHeight = rect.height;
-        
+
         // Add visual feedback
         document.body.classList.add('dragging-active');
         this.currentTarget.classList.add('dragging');
-        
+
         // Change cursor globally
         document.body.style.cursor = 'ns-resize';
-        
+
         console.log(`Started dragging divider for ${this.currentTarget.id}`);
     }
 
     handleMouseMove(e) {
-        if (!this.isDragging || !this.currentTarget) return;
-        
+        if (!this.isDragging || !this.currentTarget) {return;}
+
         e.preventDefault();
-        
+
         const deltaY = e.clientY - this.startY;
         const newHeight = Math.max(50, this.startHeight + deltaY); // Minimum height of 50px
-        
+
         // Apply new height
         this.currentTarget.style.height = `${newHeight}px`;
         this.currentTarget.style.minHeight = `${newHeight}px`;
-        
+
         // Visual feedback on divider
         if (Math.abs(deltaY) > 5) {
             this.currentDivider.style.background = `linear-gradient(90deg, 
@@ -120,18 +120,18 @@ class DraggableDividers {
     }
 
     handleMouseUp(e) {
-        if (!this.isDragging) return;
-        
+        if (!this.isDragging) {return;}
+
         console.log(`Finished dragging divider for ${this.currentTarget?.id}`);
-        
+
         // Clean up
         this.isDragging = false;
         document.body.classList.remove('dragging-active');
         document.body.style.cursor = '';
-        
+
         if (this.currentTarget) {
             this.currentTarget.classList.remove('dragging');
-            
+
             // Save the new height preference
             const newHeight = this.currentTarget.style.height;
             if (newHeight) {
@@ -139,12 +139,12 @@ class DraggableDividers {
                 console.log(`Saved height ${newHeight} for ${this.currentTarget.id}`);
             }
         }
-        
+
         if (this.currentDivider) {
             // Reset divider appearance
             this.currentDivider.style.background = '';
         }
-        
+
         this.currentDivider = null;
         this.currentTarget = null;
     }
@@ -187,3 +187,4 @@ setTimeout(() => {
 }, 100);
 
 console.log('Draggable dividers module loaded');
+

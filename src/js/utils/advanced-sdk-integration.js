@@ -10,7 +10,7 @@ class AdvancedSDKIntegration {
         this.isConnected = false;
         this.lastRealtimeState = null; // Track the last known state of AE
         this.pollInterval = null; // To hold the interval ID
-        
+
         this.init();
     }
 
@@ -25,7 +25,7 @@ class AdvancedSDKIntegration {
             this.extensionInfo = this.csInterface.getExtensions();
             this.hostCapabilities = this.csInterface.getHostCapabilities();
             this.isConnected = true;
-            
+
             console.log('🚀 Advanced SDK Integration initialized:', {
                 hostApp: this.csInterface.hostEnvironment?.appName,
                 version: this.csInterface.hostEnvironment?.appVersion,
@@ -37,10 +37,10 @@ class AdvancedSDKIntegration {
 
             // Start polling for After Effects changes
             this.pollInterval = setInterval(this.pollForChanges.bind(this), 2000); // Check every 2 seconds
-            
+
             // Add cleanup for page unload
             window.addEventListener('beforeunload', () => this.cleanup());
-            
+
         } catch (error) {
             console.error('Failed to initialize Advanced SDK:', error);
         }
@@ -53,7 +53,7 @@ class AdvancedSDKIntegration {
             this.pollInterval = null;
             console.log('🧹 Advanced SDK cleanup completed');
         }
-        
+
         // Remove event listeners
         if (this.csInterface) {
             // Note: CSInterface doesn't have removeEventListener, so we track and avoid re-adding
@@ -73,7 +73,7 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 1: Real-time Project Monitoring
     setupAdvancedEventListeners() {
-        if (!this.csInterface) return;
+        if (!this.csInterface) {return;}
 
         // Listen for composition changes
         this.csInterface.addEventListener('com.adobe.csxs.events.ApplicationActivate', (event) => {
@@ -96,7 +96,7 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 2: Intelligent Layer Analysis with Real-time Updates
     async getAdvancedLayerAnalysis() {
-        if (!this.csInterface) return null;
+        if (!this.csInterface) {return null;}
 
         return new Promise((resolve) => {
             const advancedScript = `
@@ -257,7 +257,7 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 3: Smart Effect Application with Context Awareness
     async applySmartEffect(effectName, settings = {}, aiContext = null) {
-        if (!this.csInterface) return false;
+        if (!this.csInterface) {return false;}
 
         return new Promise((resolve) => {
             const smartEffectScript = `
@@ -338,7 +338,7 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 4: Dynamic Expression Generation with Validation
     async applyIntelligentExpression(propertyPath, expressionCode, validationContext = null) {
-        if (!this.csInterface) return false;
+        if (!this.csInterface) {return false;}
 
         return new Promise((resolve) => {
             const expressionScript = `
@@ -408,7 +408,7 @@ class AdvancedSDKIntegration {
             this.csInterface.evalScript(expressionScript, (result) => {
                 try {
                     const response = JSON.parse(result);
-                     if (response.status === 'error') {
+                    if (response.status === 'error') {
                         console.error('Intelligent expression script failed:', response.message);
                     }
                     resolve(response);
@@ -422,7 +422,7 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 5: Automated Project Setup Based on AI Analysis
     async createIntelligentComposition(specs) {
-        if (!this.csInterface) return null;
+        if (!this.csInterface) {return null;}
 
         return new Promise((resolve) => {
             const creationScript = `
@@ -484,7 +484,7 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 6: Real-time Performance Monitoring
     async getPerformanceMetrics() {
-        if (!this.csInterface) return null;
+        if (!this.csInterface) {return null;}
 
         return new Promise((resolve) => {
             const metricsScript = `
@@ -541,11 +541,11 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 7: Custom Event System for AI-AE Communication
     registerCustomEvent(eventType, callback) {
-        if (!this.csInterface) return;
+        if (!this.csInterface) {return;}
 
         const eventName = `com.ai.${eventType}`;
         this.eventListeners.set(eventName, callback);
-        
+
         this.csInterface.addEventListener(eventName, (event) => {
             try {
                 const data = JSON.parse(event.data);
@@ -557,7 +557,7 @@ class AdvancedSDKIntegration {
     }
 
     dispatchAIEvent(eventType, data) {
-        if (!this.csInterface) return;
+        if (!this.csInterface) {return;}
 
         const event = new CSEvent(`com.ai.${eventType}`, 'APPLICATION');
         event.data = JSON.stringify(data);
@@ -566,7 +566,7 @@ class AdvancedSDKIntegration {
 
     // ENHANCED AI FEATURE 8: Dynamic UI Generation
     createDynamicPanel(panelSpec) {
-        if (!this.csInterface) return;
+        if (!this.csInterface) {return;}
 
         // This would create custom UI elements based on AI analysis
         // For now, we can dispatch events to update existing UI
@@ -577,25 +577,25 @@ class AdvancedSDKIntegration {
     generateLayerCreationScript(layerSpecs) {
         return layerSpecs.map(spec => {
             switch (spec.type) {
-                case 'text':
-                    return `
+            case 'text':
+                return `
                         var textLayer = comp.layers.addText("${spec.text || 'AI Text'}");
                         textLayer.name = "${spec.name || 'AI Text Layer'}";
                         results.createdLayers.push(textLayer.name);
                     `;
-                case 'solid':
-                    return `
+            case 'solid':
+                return `
                         var solidLayer = comp.layers.addSolid([${spec.color.join(',')}], "${spec.name || 'AI Solid'}", comp.width, comp.height, 1);
                         results.createdLayers.push(solidLayer.name);
                     `;
-                case 'null':
-                    return `
+            case 'null':
+                return `
                         var nullLayer = comp.layers.addNull();
                         nullLayer.name = "${spec.name || 'AI Null'}";
                         results.createdLayers.push(nullLayer.name);
                     `;
-                default:
-                    return '';
+            default:
+                return '';
             }
         }).join('\n');
     }
@@ -605,7 +605,7 @@ class AdvancedSDKIntegration {
         window.dispatchEvent(new CustomEvent('aeProjectChange', {
             detail: {
                 type: changeType,
-                data: data,
+                data,
                 timestamp: Date.now()
             }
         }));
@@ -629,3 +629,4 @@ class AdvancedSDKIntegration {
 if (typeof window !== 'undefined') {
     window.AdvancedSDKIntegration = AdvancedSDKIntegration;
 }
+

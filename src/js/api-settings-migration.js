@@ -5,214 +5,214 @@
  */
 
 class APISettingsMigration {
-  constructor() {
-    this.oldKeys = ['ai_api_key', 'ai_model'];
-    this.secureStorage = null;
-  }
+    constructor() {
+        this.oldKeys = ['ai_api_key', 'ai_model'];
+        this.secureStorage = null;
+    }
 
-  /**
+    /**
    * Initialize migration system
    */
-  async init() {
-    try {
-      // Wait for SecureAPIStorage to be available
-      let attempts = 0;
-      while (!window.SecureAPIStorage && attempts < 10) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        attempts++;
-      }
-      
-      // Load secure storage
-      if (window.SecureAPIStorage) {
-        this.secureStorage = new window.SecureAPIStorage();
-        
-        // Initialize enhanced features
-        this.initKeyboardShortcuts();
-        this.initializePreferences();
-        
-        console.log('✅ API Settings Migration System v2.0 initialized with enhanced features');
-        return true;
-      } else {
-        console.warn('⚠️ SecureAPIStorage not available after waiting - migration disabled');
-        return false;
-      }
-    } catch (error) {
-      console.error('❌ Failed to initialize API migration:', error);
-      return false;
-    }
-  }
+    async init() {
+        try {
+            // Wait for SecureAPIStorage to be available
+            let attempts = 0;
+            while (!window.SecureAPIStorage && attempts < 10) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
 
-  /**
+            // Load secure storage
+            if (window.SecureAPIStorage) {
+                this.secureStorage = new window.SecureAPIStorage();
+
+                // Initialize enhanced features
+                this.initKeyboardShortcuts();
+                this.initializePreferences();
+
+                console.log('✅ API Settings Migration System v2.0 initialized with enhanced features');
+                return true;
+            } else {
+                console.warn('⚠️ SecureAPIStorage not available after waiting - migration disabled');
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ Failed to initialize API migration:', error);
+            return false;
+        }
+    }
+
+    /**
    * Check if API migration is needed
    */
-  needsMigration() {
-    try {
-      return this.oldKeys.some(key => {
-        const value = localStorage.getItem(key);
-        return value && value.trim() !== '';
-      });
-    } catch (error) {
-      console.error('❌ Failed to check migration status:', error);
-      return false;
+    needsMigration() {
+        try {
+            return this.oldKeys.some(key => {
+                const value = localStorage.getItem(key);
+                return value && value.trim() !== '';
+            });
+        } catch (error) {
+            console.error('❌ Failed to check migration status:', error);
+            return false;
+        }
     }
-  }
 
-  /**
+    /**
    * Get existing localStorage API data
    */
-  getExistingData() {
-    try {
-      const data = {};
-      this.oldKeys.forEach(key => {
-        const value = localStorage.getItem(key);
-        if (value) {
-          data[key] = value;
+    getExistingData() {
+        try {
+            const data = {};
+            this.oldKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    data[key] = value;
+                }
+            });
+            return data;
+        } catch (error) {
+            console.error('❌ Failed to read existing API data:', error);
+            return {};
         }
-      });
-      return data;
-    } catch (error) {
-      console.error('❌ Failed to read existing API data:', error);
-      return {};
     }
-  }
 
-  /**
+    /**
    * Perform automatic migration
    */
-  async migrateAPISettings() {
-    try {
-      if (!this.secureStorage) {
-        throw new Error('Secure storage not initialized');
-      }
+    async migrateAPISettings() {
+        try {
+            if (!this.secureStorage) {
+                throw new Error('Secure storage not initialized');
+            }
 
-      const existingData = this.getExistingData();
-      
-      if (Object.keys(existingData).length === 0) {
-        return { success: true, migrated: false, message: 'No API data to migrate' };
-      }
+            const existingData = this.getExistingData();
 
-      // Convert to new format
-      const settings = {
-        apiKey: existingData.ai_api_key || '',
-        model: existingData.ai_model || 'gemini-2.5-flash-preview-05-20',
-        provider: this.detectProvider(existingData.ai_api_key),
-        migrationDate: new Date().toISOString(),
-        migratedFrom: 'localStorage'
-      };
+            if (Object.keys(existingData).length === 0) {
+                return { success: true, migrated: false, message: 'No API data to migrate' };
+            }
 
-      // Save to secure storage
-      const saveResult = await this.secureStorage.saveSettings(settings);
-      
-      if (saveResult.success) {
-        // Clean up old localStorage
-        this.cleanupOldStorage();
-        
-        console.log('✅ API settings migrated successfully');
-        return {
-          success: true,
-          migrated: true,
-          message: 'API settings migrated to secure storage',
-          settings: {
-            provider: settings.provider,
-            model: settings.model,
-            hasApiKey: !!settings.apiKey
-          }
-        };
-      } else {
-        throw new Error(saveResult.error || 'Failed to save migrated settings');
-      }
+            // Convert to new format
+            const settings = {
+                apiKey: existingData.ai_api_key || '',
+                model: existingData.ai_model || 'gemini-2.5-flash-preview-05-20',
+                provider: this.detectProvider(existingData.ai_api_key),
+                migrationDate: new Date().toISOString(),
+                migratedFrom: 'localStorage'
+            };
 
-    } catch (error) {
-      console.error('❌ API migration failed:', error);
-      return {
-        success: false,
-        migrated: false,
-        error: error.message
-      };
+            // Save to secure storage
+            const saveResult = await this.secureStorage.saveSettings(settings);
+
+            if (saveResult.success) {
+                // Clean up old localStorage
+                this.cleanupOldStorage();
+
+                console.log('✅ API settings migrated successfully');
+                return {
+                    success: true,
+                    migrated: true,
+                    message: 'API settings migrated to secure storage',
+                    settings: {
+                        provider: settings.provider,
+                        model: settings.model,
+                        hasApiKey: !!settings.apiKey
+                    }
+                };
+            } else {
+                throw new Error(saveResult.error || 'Failed to save migrated settings');
+            }
+
+        } catch (error) {
+            console.error('❌ API migration failed:', error);
+            return {
+                success: false,
+                migrated: false,
+                error: error.message
+            };
+        }
     }
-  }
 
-  /**
+    /**
    * Detect API provider from key format
    */
-  detectProvider(apiKey) {
-    if (!apiKey) return 'gemini';
-    
-    if (apiKey.startsWith('AIza') || apiKey.startsWith('AI')) {
-      return 'gemini';
-    } else if (apiKey.startsWith('sk-')) {
-      return 'openai';
-    } else if (apiKey.startsWith('sk-ant-')) {
-      return 'anthropic';
-    } else {
-      return 'custom';
-    }
-  }
+    detectProvider(apiKey) {
+        if (!apiKey) {return 'gemini';}
 
-  /**
+        if (apiKey.startsWith('AIza') || apiKey.startsWith('AI')) {
+            return 'gemini';
+        } else if (apiKey.startsWith('sk-')) {
+            return 'openai';
+        } else if (apiKey.startsWith('sk-ant-')) {
+            return 'anthropic';
+        } else {
+            return 'custom';
+        }
+    }
+
+    /**
    * Clean up old localStorage entries
    */
-  cleanupOldStorage() {
-    try {
-      this.oldKeys.forEach(key => {
-        localStorage.removeItem(key);
-        console.log(`🧹 Removed old localStorage key: ${key}`);
-      });
-    } catch (error) {
-      console.error('❌ Failed to cleanup old storage:', error);
+    cleanupOldStorage() {
+        try {
+            this.oldKeys.forEach(key => {
+                localStorage.removeItem(key);
+                console.log(`🧹 Removed old localStorage key: ${key}`);
+            });
+        } catch (error) {
+            console.error('❌ Failed to cleanup old storage:', error);
+        }
     }
-  }
 
-  /**
+    /**
    * Show migration prompt with advanced features
    */
-  showMigrationPrompt(style = 'banner', options = {}) {
-    const defaultOptions = {
-      autoDismiss: true,
-      dismissDelay: 10000, // 10 seconds
-      soundEnabled: true,
-      theme: 'default',
-      showProgress: false,
-      ...options
-    };
+    showMigrationPrompt(style = 'banner', options = {}) {
+        const defaultOptions = {
+            autoDismiss: true,
+            dismissDelay: 10000, // 10 seconds
+            soundEnabled: true,
+            theme: 'default',
+            showProgress: false,
+            ...options
+        };
 
-    return new Promise((resolve) => {
-      const existingData = this.getExistingData();
-      const hasApiKey = !!existingData.ai_api_key;
-      const hasModel = !!existingData.ai_model;
-      
-      // Choose notification style
-      switch(style) {
-        case 'corner':
-          return this.showCornerNotification(resolve, existingData, hasApiKey, hasModel, defaultOptions);
-        case 'sidebar':
-          return this.showSidebarNotification(resolve, existingData, hasApiKey, hasModel, defaultOptions);
-        case 'banner':
-        default:
-          return this.showBannerNotification(resolve, existingData, hasApiKey, hasModel, defaultOptions);
-      }
-    });
-  }
+        return new Promise((resolve) => {
+            const existingData = this.getExistingData();
+            const hasApiKey = !!existingData.ai_api_key;
+            const hasModel = !!existingData.ai_model;
 
-  /**
+            // Choose notification style
+            switch(style) {
+            case 'corner':
+                return this.showCornerNotification(resolve, existingData, hasApiKey, hasModel, defaultOptions);
+            case 'sidebar':
+                return this.showSidebarNotification(resolve, existingData, hasApiKey, hasModel, defaultOptions);
+            case 'banner':
+            default:
+                return this.showBannerNotification(resolve, existingData, hasApiKey, hasModel, defaultOptions);
+            }
+        });
+    }
+
+    /**
    * Banner notification (top of screen)
    */
-  showBannerNotification(resolve, existingData, hasApiKey, hasModel, options = {}) {
+    showBannerNotification(resolve, existingData, hasApiKey, hasModel, options = {}) {
     // Security warning banner disabled - auto-resolve migration
-    console.log('API migration check completed silently');
-    
-    // Auto-resolve without showing banner
-    resolve({
-      migrated: true,
-      method: 'silent',
-      preservedData: existingData
-    });
-    
-    return; // Skip banner creation
-    
-    const banner = document.createElement('div');
-    banner.className = `api-migration-banner theme-${options.theme || 'default'}`;
-    banner.innerHTML = `
+        console.log('API migration check completed silently');
+
+        // Auto-resolve without showing banner
+        resolve({
+            migrated: true,
+            method: 'silent',
+            preservedData: existingData
+        });
+
+        return; // Skip banner creation
+
+        const banner = document.createElement('div');
+        banner.className = `api-migration-banner theme-${options.theme || 'default'}`;
+        banner.innerHTML = `
       <div class="banner-content">
         <div class="banner-icon">🔒</div>
         <div class="banner-text">
@@ -248,111 +248,111 @@ class APISettingsMigration {
         </div>
       </div>
     `;
-    
-    document.body.appendChild(banner);
-    
-    // Play sound effect if enabled
-    if (options.soundEnabled) {
-      this.playNotificationSound('notification');
-    }
-    
-    // Animate in
-    setTimeout(() => banner.classList.add('visible'), 100);
-    
-    // Auto-dismiss timer
-    let dismissTimer = null;
-    let progressInterval = null;
-    
-    if (options.autoDismiss && options.dismissDelay > 0) {
-      const startTime = Date.now();
-      
-      if (options.showProgress) {
-        const progressBar = banner.querySelector('#progress-bar .progress-fill');
-        progressInterval = setInterval(() => {
-          const elapsed = Date.now() - startTime;
-          const progress = Math.max(0, (elapsed / options.dismissDelay) * 100);
-          progressBar.style.width = `${100 - progress}%`;
-          
-          if (progress >= 100) {
-            clearInterval(progressInterval);
-          }
-        }, 100);
-      }
-      
-      dismissTimer = setTimeout(() => {
-        this.dismissNotification(banner, 'auto');
-        resolve({ action: 'auto-dismiss', result: null });
-      }, options.dismissDelay);
-    }
-    
-    // Event handlers
-    const clearTimers = () => {
-      if (dismissTimer) clearTimeout(dismissTimer);
-      if (progressInterval) clearInterval(progressInterval);
-    };
-    
-    banner.querySelector('#banner-migrate-now').onclick = async () => {
-      clearTimers();
-      if (options.soundEnabled) this.playNotificationSound('action');
-      banner.remove();
-      const result = await this.migrateAPISettings();
-      resolve({ action: 'migrate', result });
-    };
-    
-    banner.querySelector('#banner-migrate-later').onclick = () => {
-      clearTimers();
-      if (options.soundEnabled) this.playNotificationSound('dismiss');
-      banner.remove();
-      localStorage.setItem('api_migration_reminder', Date.now() + (24 * 60 * 60 * 1000));
-      resolve({ action: 'later', result: null });
-    };
-    
-    banner.querySelector('#banner-close').onclick = () => {
-      clearTimers();
-      if (options.soundEnabled) this.playNotificationSound('dismiss');
-      banner.classList.remove('visible');
-      setTimeout(() => banner.remove(), 300);
-      resolve({ action: 'dismiss', result: null });
-    };
-    
-    // Toggle details
-    banner.querySelector('.banner-content').onclick = (e) => {
-      if (!e.target.matches('button')) {
-        const details = banner.querySelector('#banner-details');
-        details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        if (options.soundEnabled) this.playNotificationSound('toggle');
-      }
-    };
-    
-    // Pause auto-dismiss on hover
-    banner.addEventListener('mouseenter', () => {
-      if (dismissTimer) {
-        clearTimeout(dismissTimer);
-        dismissTimer = null;
-      }
-      if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-      }
-    });
-    
-    banner.addEventListener('mouseleave', () => {
-      if (options.autoDismiss && options.dismissDelay > 0) {
-        dismissTimer = setTimeout(() => {
-          this.dismissNotification(banner, 'auto');
-          resolve({ action: 'auto-dismiss', result: null });
-        }, options.dismissDelay);
-      }
-    });
-  }
 
-  /**
+        document.body.appendChild(banner);
+
+        // Play sound effect if enabled
+        if (options.soundEnabled) {
+            this.playNotificationSound('notification');
+        }
+
+        // Animate in
+        setTimeout(() => banner.classList.add('visible'), 100);
+
+        // Auto-dismiss timer
+        let dismissTimer = null;
+        let progressInterval = null;
+
+        if (options.autoDismiss && options.dismissDelay > 0) {
+            const startTime = Date.now();
+
+            if (options.showProgress) {
+                const progressBar = banner.querySelector('#progress-bar .progress-fill');
+                progressInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.max(0, (elapsed / options.dismissDelay) * 100);
+                    progressBar.style.width = `${100 - progress}%`;
+
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                    }
+                }, 100);
+            }
+
+            dismissTimer = setTimeout(() => {
+                this.dismissNotification(banner, 'auto');
+                resolve({ action: 'auto-dismiss', result: null });
+            }, options.dismissDelay);
+        }
+
+        // Event handlers
+        const clearTimers = () => {
+            if (dismissTimer) {clearTimeout(dismissTimer);}
+            if (progressInterval) {clearInterval(progressInterval);}
+        };
+
+        banner.querySelector('#banner-migrate-now').onclick = async () => {
+            clearTimers();
+            if (options.soundEnabled) {this.playNotificationSound('action');}
+            banner.remove();
+            const result = await this.migrateAPISettings();
+            resolve({ action: 'migrate', result });
+        };
+
+        banner.querySelector('#banner-migrate-later').onclick = () => {
+            clearTimers();
+            if (options.soundEnabled) {this.playNotificationSound('dismiss');}
+            banner.remove();
+            localStorage.setItem('api_migration_reminder', Date.now() + (24 * 60 * 60 * 1000));
+            resolve({ action: 'later', result: null });
+        };
+
+        banner.querySelector('#banner-close').onclick = () => {
+            clearTimers();
+            if (options.soundEnabled) {this.playNotificationSound('dismiss');}
+            banner.classList.remove('visible');
+            setTimeout(() => banner.remove(), 300);
+            resolve({ action: 'dismiss', result: null });
+        };
+
+        // Toggle details
+        banner.querySelector('.banner-content').onclick = (e) => {
+            if (!e.target.matches('button')) {
+                const details = banner.querySelector('#banner-details');
+                details.style.display = details.style.display === 'none' ? 'block' : 'none';
+                if (options.soundEnabled) {this.playNotificationSound('toggle');}
+            }
+        };
+
+        // Pause auto-dismiss on hover
+        banner.addEventListener('mouseenter', () => {
+            if (dismissTimer) {
+                clearTimeout(dismissTimer);
+                dismissTimer = null;
+            }
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        });
+
+        banner.addEventListener('mouseleave', () => {
+            if (options.autoDismiss && options.dismissDelay > 0) {
+                dismissTimer = setTimeout(() => {
+                    this.dismissNotification(banner, 'auto');
+                    resolve({ action: 'auto-dismiss', result: null });
+                }, options.dismissDelay);
+            }
+        });
+    }
+
+    /**
    * Corner slide-in notification
    */
-  showCornerNotification(resolve, existingData, hasApiKey, hasModel, options = {}) {
-    const corner = document.createElement('div');
-    corner.className = 'api-migration-corner';
-    corner.innerHTML = `
+    showCornerNotification(resolve, existingData, hasApiKey, hasModel, options = {}) {
+        const corner = document.createElement('div');
+        corner.className = 'api-migration-corner';
+        corner.innerHTML = `
       <div class="corner-header">
         <span class="corner-icon">🔒</span>
         <span class="corner-title">Security Upgrade</span>
@@ -370,40 +370,40 @@ class APISettingsMigration {
         <button class="corner-btn corner-btn-primary" id="corner-upgrade">Upgrade</button>
       </div>
     `;
-    
-    document.body.appendChild(corner);
-    
-    // Animate in
-    setTimeout(() => corner.classList.add('visible'), 100);
-    
-    // Event handlers
-    corner.querySelector('#corner-upgrade').onclick = async () => {
-      corner.remove();
-      const result = await this.migrateAPISettings();
-      resolve({ action: 'migrate', result });
-    };
-    
-    corner.querySelector('#corner-later').onclick = () => {
-      corner.classList.remove('visible');
-      setTimeout(() => corner.remove(), 300);
-      localStorage.setItem('api_migration_reminder', Date.now() + (24 * 60 * 60 * 1000));
-      resolve({ action: 'later', result: null });
-    };
-    
-    corner.querySelector('#corner-close').onclick = () => {
-      corner.classList.remove('visible');
-      setTimeout(() => corner.remove(), 300);
-      resolve({ action: 'dismiss', result: null });
-    };
-  }
 
-  /**
+        document.body.appendChild(corner);
+
+        // Animate in
+        setTimeout(() => corner.classList.add('visible'), 100);
+
+        // Event handlers
+        corner.querySelector('#corner-upgrade').onclick = async () => {
+            corner.remove();
+            const result = await this.migrateAPISettings();
+            resolve({ action: 'migrate', result });
+        };
+
+        corner.querySelector('#corner-later').onclick = () => {
+            corner.classList.remove('visible');
+            setTimeout(() => corner.remove(), 300);
+            localStorage.setItem('api_migration_reminder', Date.now() + (24 * 60 * 60 * 1000));
+            resolve({ action: 'later', result: null });
+        };
+
+        corner.querySelector('#corner-close').onclick = () => {
+            corner.classList.remove('visible');
+            setTimeout(() => corner.remove(), 300);
+            resolve({ action: 'dismiss', result: null });
+        };
+    }
+
+    /**
    * Sidebar slide-in notification
    */
-  showSidebarNotification(resolve, existingData, hasApiKey, hasModel, options = {}) {
-    const sidebar = document.createElement('div');
-    sidebar.className = 'api-migration-sidebar';
-    sidebar.innerHTML = `
+    showSidebarNotification(resolve, existingData, hasApiKey, hasModel, options = {}) {
+        const sidebar = document.createElement('div');
+        sidebar.className = 'api-migration-sidebar';
+        sidebar.innerHTML = `
       <div class="sidebar-header">
         <h3>🔒 API Security Upgrade</h3>
         <button class="sidebar-close" id="sidebar-close">×</button>
@@ -445,216 +445,216 @@ class APISettingsMigration {
         </button>
       </div>
     `;
-    
-    document.body.appendChild(sidebar);
-    
-    // Animate in
-    setTimeout(() => sidebar.classList.add('visible'), 100);
-    
-    // Event handlers
-    sidebar.querySelector('#sidebar-upgrade').onclick = async () => {
-      sidebar.classList.remove('visible');
-      setTimeout(async () => {
-        sidebar.remove();
-        const result = await this.migrateAPISettings();
-        resolve({ action: 'migrate', result });
-      }, 300);
-    };
-    
-    sidebar.querySelector('#sidebar-later').onclick = () => {
-      sidebar.classList.remove('visible');
-      setTimeout(() => {
-        sidebar.remove();
-        localStorage.setItem('api_migration_reminder', Date.now() + (24 * 60 * 60 * 1000));
-        resolve({ action: 'later', result: null });
-      }, 300);
-    };
-    
-    sidebar.querySelector('#sidebar-close').onclick = () => {
-      sidebar.classList.remove('visible');
-      setTimeout(() => sidebar.remove(), 300);
-      resolve({ action: 'dismiss', result: null });
-    };
-  }
 
-  /**
+        document.body.appendChild(sidebar);
+
+        // Animate in
+        setTimeout(() => sidebar.classList.add('visible'), 100);
+
+        // Event handlers
+        sidebar.querySelector('#sidebar-upgrade').onclick = async () => {
+            sidebar.classList.remove('visible');
+            setTimeout(async () => {
+                sidebar.remove();
+                const result = await this.migrateAPISettings();
+                resolve({ action: 'migrate', result });
+            }, 300);
+        };
+
+        sidebar.querySelector('#sidebar-later').onclick = () => {
+            sidebar.classList.remove('visible');
+            setTimeout(() => {
+                sidebar.remove();
+                localStorage.setItem('api_migration_reminder', Date.now() + (24 * 60 * 60 * 1000));
+                resolve({ action: 'later', result: null });
+            }, 300);
+        };
+
+        sidebar.querySelector('#sidebar-close').onclick = () => {
+            sidebar.classList.remove('visible');
+            setTimeout(() => sidebar.remove(), 300);
+            resolve({ action: 'dismiss', result: null });
+        };
+    }
+
+    /**
    * Check if user should be reminded about migration
    */
-  shouldShowReminder() {
-    try {
-      const declined = localStorage.getItem('api_migration_declined');
-      if (declined === 'true') return false;
-      
-      const reminderTime = localStorage.getItem('api_migration_reminder');
-      if (reminderTime) {
-        return Date.now() > parseInt(reminderTime);
-      }
-      
-      return this.needsMigration();
-    } catch (error) {
-      return false;
-    }
-  }
+    shouldShowReminder() {
+        try {
+            const declined = localStorage.getItem('api_migration_declined');
+            if (declined === 'true') {return false;}
 
-  /**
+            const reminderTime = localStorage.getItem('api_migration_reminder');
+            if (reminderTime) {
+                return Date.now() > parseInt(reminderTime);
+            }
+
+            return this.needsMigration();
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
    * Set notification style preference
    */
-  setNotificationStyle(style) {
-    if (['banner', 'corner', 'sidebar', 'modal'].includes(style)) {
-      localStorage.setItem('api_migration_notification_style', style);
-      console.log(`🔧 API migration notification style set to: ${style}`);
-      return true;
+    setNotificationStyle(style) {
+        if (['banner', 'corner', 'sidebar', 'modal'].includes(style)) {
+            localStorage.setItem('api_migration_notification_style', style);
+            console.log(`🔧 API migration notification style set to: ${style}`);
+            return true;
+        }
+        console.warn(`⚠️ Invalid notification style: ${style}. Use: banner, corner, sidebar, or modal`);
+        return false;
     }
-    console.warn(`⚠️ Invalid notification style: ${style}. Use: banner, corner, sidebar, or modal`);
-    return false;
-  }
 
-  /**
+    /**
    * Get current notification style preference
    */
-  getNotificationStyle() {
-    return localStorage.getItem('api_migration_notification_style') || 'banner';
-  }
+    getNotificationStyle() {
+        return localStorage.getItem('api_migration_notification_style') || 'banner';
+    }
 
-  /**
+    /**
    * Save user preferences for notifications
    */
-  saveNotificationPreferences(preferences) {
-    try {
-      const currentPrefs = this.getNotificationPreferences();
-      const updatedPrefs = { ...currentPrefs, ...preferences };
-      
-      localStorage.setItem('api_migration_preferences', JSON.stringify(updatedPrefs));
-      
-      // Apply theme immediately if changed
-      if (preferences.theme && preferences.theme !== currentPrefs.theme) {
-        document.documentElement.setAttribute('data-theme', preferences.theme);
-        const overlay = document.querySelector('.notification-preferences-overlay');
-        if (overlay) {
-          overlay.setAttribute('data-theme', preferences.theme);
-        }
-      }
-      
-      console.log('✅ Notification preferences saved:', updatedPrefs);
-      return true;
-    } catch (error) {
-      console.error('❌ Failed to save notification preferences:', error);
-      return false;
-    }
-  }
+    saveNotificationPreferences(preferences) {
+        try {
+            const currentPrefs = this.getNotificationPreferences();
+            const updatedPrefs = { ...currentPrefs, ...preferences };
 
-  /**
+            localStorage.setItem('api_migration_preferences', JSON.stringify(updatedPrefs));
+
+            // Apply theme immediately if changed
+            if (preferences.theme && preferences.theme !== currentPrefs.theme) {
+                document.documentElement.setAttribute('data-theme', preferences.theme);
+                const overlay = document.querySelector('.notification-preferences-overlay');
+                if (overlay) {
+                    overlay.setAttribute('data-theme', preferences.theme);
+                }
+            }
+
+            console.log('✅ Notification preferences saved:', updatedPrefs);
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to save notification preferences:', error);
+            return false;
+        }
+    }
+
+    /**
    * Get user preferences for notifications
    */
-  getNotificationPreferences() {
-    try {
-      const prefs = localStorage.getItem('api_migration_preferences');
-      return prefs ? JSON.parse(prefs) : {
-        style: 'banner',
-        theme: 'default',
-        autoDismiss: true,
-        dismissDelay: 10000,
-        soundEnabled: true,
-        showProgress: false
-      };
-    } catch (error) {
-      console.error('❌ Failed to load notification preferences:', error);
-      return {
-        style: 'banner',
-        theme: 'default',
-        autoDismiss: true,
-        dismissDelay: 10000,
-        soundEnabled: true,
-        showProgress: false
-      };
+    getNotificationPreferences() {
+        try {
+            const prefs = localStorage.getItem('api_migration_preferences');
+            return prefs ? JSON.parse(prefs) : {
+                style: 'banner',
+                theme: 'default',
+                autoDismiss: true,
+                dismissDelay: 10000,
+                soundEnabled: true,
+                showProgress: false
+            };
+        } catch (error) {
+            console.error('❌ Failed to load notification preferences:', error);
+            return {
+                style: 'banner',
+                theme: 'default',
+                autoDismiss: true,
+                dismissDelay: 10000,
+                soundEnabled: true,
+                showProgress: false
+            };
+        }
     }
-  }
 
-  /**
+    /**
    * Enhanced error handling for migration process
    */
-  async migrateAPISettingsWithRetry(maxRetries = 3) {
-    let lastError = null;
-    
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log(`🔄 Migration attempt ${attempt}/${maxRetries}`);
-        const result = await this.migrateAPISettings();
-        
-        if (result.success) {
-          console.log('✅ Migration successful on attempt', attempt);
-          return result;
-        } else {
-          throw new Error(result.error || 'Migration failed');
-        }
-      } catch (error) {
-        lastError = error;
-        console.warn(`⚠️ Migration attempt ${attempt} failed:`, error.message);
-        
-        if (attempt < maxRetries) {
-          // Wait before retry (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
-        }
-      }
-    }
-    
-    console.error('❌ Migration failed after', maxRetries, 'attempts:', lastError);
-    return {
-      success: false,
-      error: lastError.message,
-      attempts: maxRetries
-    };
-  }
+    async migrateAPISettingsWithRetry(maxRetries = 3) {
+        let lastError = null;
 
-  /**
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`🔄 Migration attempt ${attempt}/${maxRetries}`);
+                const result = await this.migrateAPISettings();
+
+                if (result.success) {
+                    console.log('✅ Migration successful on attempt', attempt);
+                    return result;
+                } else {
+                    throw new Error(result.error || 'Migration failed');
+                }
+            } catch (error) {
+                lastError = error;
+                console.warn(`⚠️ Migration attempt ${attempt} failed:`, error.message);
+
+                if (attempt < maxRetries) {
+                    // Wait before retry (exponential backoff)
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+                }
+            }
+        }
+
+        console.error('❌ Migration failed after', maxRetries, 'attempts:', lastError);
+        return {
+            success: false,
+            error: lastError.message,
+            attempts: maxRetries
+        };
+    }
+
+    /**
    * Performance optimization: Debounce rapid calls
    */
-  debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
 
-  /**
+    /**
    * Memory management: Clean up event listeners and timers
    */
-  cleanup() {
-    try {
-      // Clear any pending timers
-      if (this._autoMigrationTimer) {
-        clearTimeout(this._autoMigrationTimer);
-        this._autoMigrationTimer = null;
-      }
-      
-      // Remove any lingering notification elements
-      const notifications = document.querySelectorAll('.api-migration-banner, .api-migration-corner, .api-migration-sidebar');
-      notifications.forEach(notification => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      });
-      
-      console.log('🧹 Notification system cleaned up');
-    } catch (error) {
-      console.error('❌ Cleanup failed:', error);
-    }
-  }
+    cleanup() {
+        try {
+            // Clear any pending timers
+            if (this._autoMigrationTimer) {
+                clearTimeout(this._autoMigrationTimer);
+                this._autoMigrationTimer = null;
+            }
 
-  /**
+            // Remove any lingering notification elements
+            const notifications = document.querySelectorAll('.api-migration-banner, .api-migration-corner, .api-migration-sidebar');
+            notifications.forEach(notification => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            });
+
+            console.log('🧹 Notification system cleaned up');
+        } catch (error) {
+            console.error('❌ Cleanup failed:', error);
+        }
+    }
+
+    /**
    * Show preferences panel for notification customization
    */
-  showPreferencesPanel() {
-    const prefs = this.getNotificationPreferences();
-    
-    const panel = document.createElement('div');
-    panel.className = 'notification-preferences-overlay';
-    panel.innerHTML = `
+    showPreferencesPanel() {
+        const prefs = this.getNotificationPreferences();
+
+        const panel = document.createElement('div');
+        panel.className = 'notification-preferences-overlay';
+        panel.innerHTML = `
       <div class="preferences-panel">
         <div class="preferences-header">
           <h3>🔧 Notification Preferences</h3>
@@ -730,117 +730,117 @@ class APISettingsMigration {
         </div>
       </div>
     `;
-    
-    document.body.appendChild(panel);
-    setTimeout(() => panel.classList.add('visible'), 100);
-    
-    // Event handlers
-    panel.querySelector('#prefs-close').onclick = () => {
-      panel.classList.remove('visible');
-      setTimeout(() => panel.remove(), 300);
-    };
-    
-    panel.querySelector('#prefs-save').onclick = () => {
-      const newPrefs = {
-        style: panel.querySelector('#pref-style').value,
-        theme: panel.querySelector('#pref-theme').value,
-        autoDismiss: panel.querySelector('#pref-autodismiss').checked,
-        dismissDelay: parseInt(panel.querySelector('#pref-delay').value) * 1000,
-        showProgress: panel.querySelector('#pref-progress').checked,
-        soundEnabled: panel.querySelector('#pref-sound').checked
-      };
-      
-      if (this.saveNotificationPreferences(newPrefs)) {
-        panel.classList.remove('visible');
-        setTimeout(() => panel.remove(), 300);
-        console.log('✅ Preferences saved successfully');
-      }
-    };
-    
-    panel.querySelector('#prefs-reset').onclick = () => {
-      localStorage.removeItem('api_migration_preferences');
-      panel.classList.remove('visible');
-      setTimeout(() => panel.remove(), 300);
-      console.log('🔄 Preferences reset to defaults');
-    };
-    
-    // Sound test buttons
-    panel.querySelector('#test-notification-sound').onclick = () => {
-      this.playNotificationSound('notification');
-    };
-    
-    panel.querySelector('#test-action-sound').onclick = () => {
-      this.playNotificationSound('action');
-    };
-    
-    panel.querySelector('#test-dismiss-sound').onclick = () => {
-      this.playNotificationSound('dismiss');
-    };
-  }
 
-  /**
+        document.body.appendChild(panel);
+        setTimeout(() => panel.classList.add('visible'), 100);
+
+        // Event handlers
+        panel.querySelector('#prefs-close').onclick = () => {
+            panel.classList.remove('visible');
+            setTimeout(() => panel.remove(), 300);
+        };
+
+        panel.querySelector('#prefs-save').onclick = () => {
+            const newPrefs = {
+                style: panel.querySelector('#pref-style').value,
+                theme: panel.querySelector('#pref-theme').value,
+                autoDismiss: panel.querySelector('#pref-autodismiss').checked,
+                dismissDelay: parseInt(panel.querySelector('#pref-delay').value) * 1000,
+                showProgress: panel.querySelector('#pref-progress').checked,
+                soundEnabled: panel.querySelector('#pref-sound').checked
+            };
+
+            if (this.saveNotificationPreferences(newPrefs)) {
+                panel.classList.remove('visible');
+                setTimeout(() => panel.remove(), 300);
+                console.log('✅ Preferences saved successfully');
+            }
+        };
+
+        panel.querySelector('#prefs-reset').onclick = () => {
+            localStorage.removeItem('api_migration_preferences');
+            panel.classList.remove('visible');
+            setTimeout(() => panel.remove(), 300);
+            console.log('🔄 Preferences reset to defaults');
+        };
+
+        // Sound test buttons
+        panel.querySelector('#test-notification-sound').onclick = () => {
+            this.playNotificationSound('notification');
+        };
+
+        panel.querySelector('#test-action-sound').onclick = () => {
+            this.playNotificationSound('action');
+        };
+
+        panel.querySelector('#test-dismiss-sound').onclick = () => {
+            this.playNotificationSound('dismiss');
+        };
+    }
+
+    /**
    * Initialize keyboard shortcuts for testing and preferences
    */
-  initKeyboardShortcuts() {
-    document.addEventListener('keydown', (event) => {
-      // Ctrl+Shift+M: Show migration notification
-      if (event.ctrlKey && event.shiftKey && event.key === 'M') {
-        event.preventDefault();
-        console.log('🔧 Keyboard shortcut: Show migration notification');
-        this.showMigrationPrompt({
-          title: 'Test Migration Notification',
-          message: 'This is a test of the enhanced notification system with sound effects and auto-dismiss.',
-          type: 'info',
-          soundEnabled: true,
-          autoDismiss: true,
-          showProgress: true
-        });
-      }
-      
-      // Ctrl+Shift+P: Show preferences panel
-      if (event.ctrlKey && event.shiftKey && event.key === 'P') {
-        event.preventDefault();
-        console.log('🔧 Keyboard shortcut: Show preferences panel');
-        this.showPreferencesPanel();
-      }
-      
-      // Ctrl+Shift+T: Test all notification types
-      if (event.ctrlKey && event.shiftKey && event.key === 'T') {
-        event.preventDefault();
-        console.log('🔧 Keyboard shortcut: Test all notification types');
-        this.testAllNotificationTypes();
-      }
-      
-      // Ctrl+Shift+D: Show notification demo
-      if (event.ctrlKey && event.shiftKey && event.key === 'D') {
-        event.preventDefault();
-        console.log('🔧 Keyboard shortcut: Show notification demo');
-        this.showNotificationDemo();
-      }
-      
-      // Ctrl+Shift+H: Show help dialog
-      if (event.ctrlKey && event.shiftKey && event.key === 'H') {
-        event.preventDefault();
-        console.log('🔧 Keyboard shortcut: Show help dialog');
-        this.showHelpDialog();
-      }
-    });
-    
-    console.log('⌨️ Keyboard shortcuts initialized:');
-    console.log('  Ctrl+Shift+M: Show test migration notification');
-    console.log('  Ctrl+Shift+P: Show preferences panel');
-    console.log('  Ctrl+Shift+T: Test all notification types');
-    console.log('  Ctrl+Shift+D: Show notification demo');
-    console.log('  Ctrl+Shift+H: Show help dialog');
-  }
+    initKeyboardShortcuts() {
+        document.addEventListener('keydown', (event) => {
+            // Ctrl+Shift+M: Show migration notification
+            if (event.ctrlKey && event.shiftKey && event.key === 'M') {
+                event.preventDefault();
+                console.log('🔧 Keyboard shortcut: Show migration notification');
+                this.showMigrationPrompt({
+                    title: 'Test Migration Notification',
+                    message: 'This is a test of the enhanced notification system with sound effects and auto-dismiss.',
+                    type: 'info',
+                    soundEnabled: true,
+                    autoDismiss: true,
+                    showProgress: true
+                });
+            }
 
-  /**
+            // Ctrl+Shift+P: Show preferences panel
+            if (event.ctrlKey && event.shiftKey && event.key === 'P') {
+                event.preventDefault();
+                console.log('🔧 Keyboard shortcut: Show preferences panel');
+                this.showPreferencesPanel();
+            }
+
+            // Ctrl+Shift+T: Test all notification types
+            if (event.ctrlKey && event.shiftKey && event.key === 'T') {
+                event.preventDefault();
+                console.log('🔧 Keyboard shortcut: Test all notification types');
+                this.testAllNotificationTypes();
+            }
+
+            // Ctrl+Shift+D: Show notification demo
+            if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+                event.preventDefault();
+                console.log('🔧 Keyboard shortcut: Show notification demo');
+                this.showNotificationDemo();
+            }
+
+            // Ctrl+Shift+H: Show help dialog
+            if (event.ctrlKey && event.shiftKey && event.key === 'H') {
+                event.preventDefault();
+                console.log('🔧 Keyboard shortcut: Show help dialog');
+                this.showHelpDialog();
+            }
+        });
+
+        console.log('⌨️ Keyboard shortcuts initialized:');
+        console.log('  Ctrl+Shift+M: Show test migration notification');
+        console.log('  Ctrl+Shift+P: Show preferences panel');
+        console.log('  Ctrl+Shift+T: Test all notification types');
+        console.log('  Ctrl+Shift+D: Show notification demo');
+        console.log('  Ctrl+Shift+H: Show help dialog');
+    }
+
+    /**
    * Show help dialog with keyboard shortcuts and features
    */
-  showHelpDialog() {
-    const helpDialog = document.createElement('div');
-    helpDialog.className = 'notification-help-overlay';
-    helpDialog.innerHTML = `
+    showHelpDialog() {
+        const helpDialog = document.createElement('div');
+        helpDialog.className = 'notification-help-overlay';
+        helpDialog.innerHTML = `
       <div class="help-dialog">
         <div class="help-header">
           <h2>🎯 Enhanced Notification System Help</h2>
@@ -917,184 +917,184 @@ class APISettingsMigration {
         </div>
       </div>
     `;
-    
-    document.body.appendChild(helpDialog);
-    setTimeout(() => helpDialog.classList.add('visible'), 100);
-    
-    // Event handlers
-    helpDialog.querySelector('#help-close').onclick = () => {
-      helpDialog.classList.remove('visible');
-      setTimeout(() => helpDialog.remove(), 300);
-    };
-    
-    helpDialog.querySelector('#help-demo').onclick = () => {
-      helpDialog.classList.remove('visible');
-      setTimeout(() => {
-        helpDialog.remove();
-        this.showNotificationDemo();
-      }, 300);
-    };
-    
-    helpDialog.querySelector('#help-preferences').onclick = () => {
-      helpDialog.classList.remove('visible');
-      setTimeout(() => {
-        helpDialog.remove();
-        this.showPreferencesPanel();
-      }, 300);
-    };
-  }
 
-  /**
+        document.body.appendChild(helpDialog);
+        setTimeout(() => helpDialog.classList.add('visible'), 100);
+
+        // Event handlers
+        helpDialog.querySelector('#help-close').onclick = () => {
+            helpDialog.classList.remove('visible');
+            setTimeout(() => helpDialog.remove(), 300);
+        };
+
+        helpDialog.querySelector('#help-demo').onclick = () => {
+            helpDialog.classList.remove('visible');
+            setTimeout(() => {
+                helpDialog.remove();
+                this.showNotificationDemo();
+            }, 300);
+        };
+
+        helpDialog.querySelector('#help-preferences').onclick = () => {
+            helpDialog.classList.remove('visible');
+            setTimeout(() => {
+                helpDialog.remove();
+                this.showPreferencesPanel();
+            }, 300);
+        };
+    }
+
+    /**
    * Show a comprehensive demo of all notification features
    */
-  showNotificationDemo() {
-    console.log('🎭 Starting notification system demo...');
-    
-    // Demo sequence with different features
-    const demoSteps = [
-      {
-        delay: 0,
-        title: 'Welcome to Enhanced Notifications!',
-        message: 'This demo will showcase all the advanced features of the notification system.',
-        type: 'info',
-        soundEnabled: true,
-        autoDismiss: false,
-        showProgress: false
-      },
-      {
-        delay: 3000,
-        title: 'Sound Effects Demo',
-        message: 'Notifications can play different sounds for different actions.',
-        type: 'success',
-        soundEnabled: true,
-        autoDismiss: true,
-        showProgress: true
-      },
-      {
-        delay: 6000,
-        title: 'Auto-Dismiss with Progress',
-        message: 'This notification will auto-dismiss in 5 seconds with a progress bar.',
-        type: 'warning',
-        soundEnabled: true,
-        autoDismiss: true,
-        showProgress: true,
-        dismissDelay: 5000
-      },
-      {
-        delay: 12000,
-        title: 'Theme Support',
-        message: 'Notifications support multiple themes and can be customized in preferences.',
-        type: 'info',
-        soundEnabled: true,
-        autoDismiss: true,
-        showProgress: false
-      },
-      {
-        delay: 15000,
-        title: 'Demo Complete!',
-        message: 'Use Ctrl+Shift+P to open preferences and customize your notification experience.',
-        type: 'success',
-        soundEnabled: true,
-        autoDismiss: false,
-        showProgress: false
-      }
-    ];
-    
-    demoSteps.forEach(step => {
-      setTimeout(() => {
-        this.showMigrationPrompt(step);
-      }, step.delay);
-    });
-    
-    console.log('✅ Notification demo started - watch for the sequence of notifications!');
-  }
+    showNotificationDemo() {
+        console.log('🎭 Starting notification system demo...');
 
-  /**
-   * Test all notification types for debugging
-   */
-  testAllNotificationTypes() {
-    const types = ['success', 'error', 'warning', 'info'];
-    const messages = {
-      success: 'Migration completed successfully! All settings have been transferred.',
-      error: 'Migration failed. Please check your API settings and try again.',
-      warning: 'Migration partially completed. Some settings may need manual review.',
-      info: 'Migration in progress. Please wait while we transfer your settings.'
-    };
-    
-    types.forEach((type, index) => {
-      setTimeout(() => {
-        this.showMigrationPrompt({
-          title: `${type.charAt(0).toUpperCase() + type.slice(1)} Test`,
-          message: messages[type],
-          type: type,
-          soundEnabled: true,
-          autoDismiss: true,
-          showProgress: true
+        // Demo sequence with different features
+        const demoSteps = [
+            {
+                delay: 0,
+                title: 'Welcome to Enhanced Notifications!',
+                message: 'This demo will showcase all the advanced features of the notification system.',
+                type: 'info',
+                soundEnabled: true,
+                autoDismiss: false,
+                showProgress: false
+            },
+            {
+                delay: 3000,
+                title: 'Sound Effects Demo',
+                message: 'Notifications can play different sounds for different actions.',
+                type: 'success',
+                soundEnabled: true,
+                autoDismiss: true,
+                showProgress: true
+            },
+            {
+                delay: 6000,
+                title: 'Auto-Dismiss with Progress',
+                message: 'This notification will auto-dismiss in 5 seconds with a progress bar.',
+                type: 'warning',
+                soundEnabled: true,
+                autoDismiss: true,
+                showProgress: true,
+                dismissDelay: 5000
+            },
+            {
+                delay: 12000,
+                title: 'Theme Support',
+                message: 'Notifications support multiple themes and can be customized in preferences.',
+                type: 'info',
+                soundEnabled: true,
+                autoDismiss: true,
+                showProgress: false
+            },
+            {
+                delay: 15000,
+                title: 'Demo Complete!',
+                message: 'Use Ctrl+Shift+P to open preferences and customize your notification experience.',
+                type: 'success',
+                soundEnabled: true,
+                autoDismiss: false,
+                showProgress: false
+            }
+        ];
+
+        demoSteps.forEach(step => {
+            setTimeout(() => {
+                this.showMigrationPrompt(step);
+            }, step.delay);
         });
-      }, index * 2000); // Stagger notifications by 2 seconds
-    });
-  }
 
-  /**
+        console.log('✅ Notification demo started - watch for the sequence of notifications!');
+    }
+
+    /**
+   * Test all notification types for INFOging
+   */
+    testAllNotificationTypes() {
+        const types = ['success', 'error', 'warning', 'info'];
+        const messages = {
+            success: 'Migration completed successfully! All settings have been transferred.',
+            error: 'Migration failed. Please check your API settings and try again.',
+            warning: 'Migration partially completed. Some settings may need manual review.',
+            info: 'Migration in progress. Please wait while we transfer your settings.'
+        };
+
+        types.forEach((type, index) => {
+            setTimeout(() => {
+                this.showMigrationPrompt({
+                    title: `${type.charAt(0).toUpperCase() + type.slice(1)} Test`,
+                    message: messages[type],
+                    type,
+                    soundEnabled: true,
+                    autoDismiss: true,
+                    showProgress: true
+                });
+            }, index * 2000); // Stagger notifications by 2 seconds
+        });
+    }
+
+    /**
    * Initialize user preferences and apply theme
    */
-  initializePreferences() {
-    const prefs = this.getNotificationPreferences();
-    
-    // Apply theme to document
-    document.documentElement.setAttribute('data-theme', prefs.theme);
-    
-    // Apply theme to preferences overlay if it exists
-    const overlay = document.querySelector('.notification-preferences-overlay');
-    if (overlay) {
-      overlay.setAttribute('data-theme', prefs.theme);
-    }
-    
-    console.log('🎨 Preferences initialized:', prefs);
-  }
+    initializePreferences() {
+        const prefs = this.getNotificationPreferences();
 
-  /**
+        // Apply theme to document
+        document.documentElement.setAttribute('data-theme', prefs.theme);
+
+        // Apply theme to preferences overlay if it exists
+        const overlay = document.querySelector('.notification-preferences-overlay');
+        if (overlay) {
+            overlay.setAttribute('data-theme', prefs.theme);
+        }
+
+        console.log('🎨 Preferences initialized:', prefs);
+    }
+
+    /**
    * Initialize automatic migration check with user preferences
    */
-  async initAutoMigration(notificationStyle = null) {
-    try {
-      const initialized = await this.init();
-      if (!initialized) {
-        console.warn('⚠️ Secure storage not available - migration disabled');
-        return false;
-      }
-
-      // Use provided style or load from preferences
-      const style = notificationStyle || this.getNotificationPreferences().style;
-      
-      if (this.shouldShowReminder()) {
-        // Debounce to prevent rapid successive calls
-        const debouncedShow = this.debounce(() => {
-          const prefs = this.getNotificationPreferences();
-          this.showMigrationPrompt(style, prefs).then(result => {
-            console.log('🔒 API migration prompt result:', result);
-            
-            if (result.action === 'migrate' && result.result?.success) {
-              // Notify other systems about successful migration
-              window.dispatchEvent(new CustomEvent('apiMigrationComplete', {
-                detail: result.result
-              }));
+    async initAutoMigration(notificationStyle = null) {
+        try {
+            const initialized = await this.init();
+            if (!initialized) {
+                console.warn('⚠️ Secure storage not available - migration disabled');
+                return false;
             }
-          }).catch(error => {
-            console.error('❌ Migration prompt failed:', error);
-          });
-        }, 500);
-        
-        // Show migration prompt after a short delay
-        this._autoMigrationTimer = setTimeout(debouncedShow, 2000);
-      }
 
-      return true;
-    } catch (error) {
-      console.error('❌ Auto migration initialization failed:', error);
-      return false;
+            // Use provided style or load from preferences
+            const style = notificationStyle || this.getNotificationPreferences().style;
+
+            if (this.shouldShowReminder()) {
+                // Debounce to prevent rapid successive calls
+                const debouncedShow = this.debounce(() => {
+                    const prefs = this.getNotificationPreferences();
+                    this.showMigrationPrompt(style, prefs).then(result => {
+                        console.log('🔒 API migration prompt result:', result);
+
+                        if (result.action === 'migrate' && result.result?.success) {
+                            // Notify other systems about successful migration
+                            window.dispatchEvent(new CustomEvent('apiMigrationComplete', {
+                                detail: result.result
+                            }));
+                        }
+                    }).catch(error => {
+                        console.error('❌ Migration prompt failed:', error);
+                    });
+                }, 500);
+
+                // Show migration prompt after a short delay
+                this._autoMigrationTimer = setTimeout(debouncedShow, 2000);
+            }
+
+            return true;
+        } catch (error) {
+            console.error('❌ Auto migration initialization failed:', error);
+            return false;
+        }
     }
-  }
 }
 
 // Global instance
@@ -1753,44 +1753,45 @@ const migrationCSS = `
 
 // Inject CSS
 if (!document.querySelector('#api-migration-styles')) {
-  const styleSheet = document.createElement('style');
-  styleSheet.id = 'api-migration-styles';
-  styleSheet.innerHTML = migrationCSS;
-  document.head.appendChild(styleSheet);
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'api-migration-styles';
+    styleSheet.innerHTML = migrationCSS;
+    document.head.appendChild(styleSheet);
 }
 
 // Auto-initialize on page load
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const prefs = window.apiSettingsMigration.getNotificationPreferences();
+        window.apiSettingsMigration.initAutoMigration(prefs.style);
+    });
+} else {
     const prefs = window.apiSettingsMigration.getNotificationPreferences();
     window.apiSettingsMigration.initAutoMigration(prefs.style);
-  });
-} else {
-  const prefs = window.apiSettingsMigration.getNotificationPreferences();
-  window.apiSettingsMigration.initAutoMigration(prefs.style);
 }
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {
-  if (window.apiSettingsMigration) {
-    window.apiSettingsMigration.cleanup();
-  }
+    if (window.apiSettingsMigration) {
+        window.apiSettingsMigration.cleanup();
+    }
 });
 
 // Add keyboard shortcuts for testing
 document.addEventListener('keydown', (e) => {
-  // Ctrl+Shift+M: Test migration notification
-  if (e.ctrlKey && e.shiftKey && e.key === 'M') {
-    e.preventDefault();
-    const prefs = window.apiSettingsMigration.getNotificationPreferences();
-    window.apiSettingsMigration.showMigrationPrompt(prefs.style, prefs);
-  }
-  
-  // Ctrl+Shift+P: Open preferences
-  if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-    e.preventDefault();
-    window.apiSettingsMigration.showPreferencesPanel();
-  }
+    // Ctrl+Shift+M: Test migration notification
+    if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+        e.preventDefault();
+        const prefs = window.apiSettingsMigration.getNotificationPreferences();
+        window.apiSettingsMigration.showMigrationPrompt(prefs.style, prefs);
+    }
+
+    // Ctrl+Shift+P: Open preferences
+    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        window.apiSettingsMigration.showPreferencesPanel();
+    }
 });
 
 console.log('✅ API Settings Migration Helper loaded');
+

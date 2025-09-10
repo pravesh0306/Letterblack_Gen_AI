@@ -74,7 +74,7 @@ class UIEnhancer {
     addSuccessFeedback(button) {
         const originalText = button.textContent;
         const checkmark = '✓';
-        
+
         setTimeout(() => {
             button.style.transform = 'scale(0.95)';
             setTimeout(() => {
@@ -82,7 +82,7 @@ class UIEnhancer {
                 if (!button.textContent.includes(checkmark)) {
                     button.textContent = `${checkmark} ${originalText}`;
                     button.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
-                    
+
                     setTimeout(() => {
                         button.textContent = originalText;
                         button.style.background = '';
@@ -95,10 +95,10 @@ class UIEnhancer {
     // Enhanced mascot interactions
     setupMascotInteractions() {
         const mascot = document.querySelector('.app-mascot, .mascot-container');
-        if (!mascot) return;
+        if (!mascot) {return;}
 
         let interactionCount = 0;
-        
+
         mascot.addEventListener('click', () => {
             interactionCount++;
             this.triggerMascotResponse(interactionCount);
@@ -122,11 +122,11 @@ class UIEnhancer {
         ];
 
         const response = responses[(count - 1) % responses.length];
-        
+
         if (window.triggerMascotAnimation) {
             window.triggerMascotAnimation(response.animation);
         }
-        
+
         if (window.updateMascotMessage) {
             window.updateMascotMessage(response.message);
         }
@@ -195,10 +195,10 @@ class UIEnhancer {
     setupVisualFeedback() {
         // Progress indicators
         this.createProgressRing();
-        
+
         // Success/error notifications
         this.setupNotificationSystem();
-        
+
         // Loading states
         this.setupLoadingStates();
     }
@@ -243,8 +243,8 @@ class UIEnhancer {
     }
 
     createNotificationContainer() {
-        if (document.querySelector('.notification-container')) return;
-        
+        if (document.querySelector('.notification-container')) {return;}
+
         const container = document.createElement('div');
         container.className = 'notification-container';
         container.style.cssText = `
@@ -277,7 +277,7 @@ class UIEnhancer {
         const container = document.querySelector('.notification-container');
         if (container) {
             container.appendChild(notification);
-            
+
             setTimeout(() => {
                 notification.style.animation = 'slideOutToRight 0.3s ease forwards';
                 setTimeout(() => notification.remove(), 300);
@@ -303,7 +303,7 @@ class UIEnhancer {
     // Smart scrolling with momentum
     setupSmartScrolling() {
         const chatContainer = document.querySelector('.chat-messages');
-        if (!chatContainer) return;
+        if (!chatContainer) {return;}
 
         let isScrolling = false;
         let scrollTimeout;

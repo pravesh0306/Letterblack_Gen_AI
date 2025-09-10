@@ -1,7 +1,7 @@
 // panel-shortcuts.js
 // Handles keyboard shortcuts for tab switching, chat send, and script save
 
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', (e) => {
     // Tab switching: Ctrl+1 to Ctrl+5
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
         if (e.key === '1') {
@@ -23,19 +23,19 @@ document.addEventListener('keydown', function(e) {
     }
     // Ctrl+Enter to send chat (if chat composer is visible)
     if (e.ctrlKey && e.key === 'Enter') {
-        var composer = document.getElementById('chat-composer');
+        const composer = document.getElementById('chat-composer');
         if (composer && composer.offsetParent !== null) {
-            var sendBtn = composer.querySelector('.send-btn');
-            if (sendBtn) sendBtn.click();
+            const sendBtn = composer.querySelector('.send-btn');
+            if (sendBtn) {sendBtn.click();}
             e.preventDefault();
         }
     }
     // Ctrl+S to save script (if script editor is visible)
     if (e.ctrlKey && e.key.toLowerCase() === 's') {
-        var scriptPane = document.getElementById('script-library-tab');
+        const scriptPane = document.getElementById('script-library-tab');
         if (scriptPane && scriptPane.classList.contains('active')) {
-            var saveBtn = document.getElementById('save-script-btn');
-            if (saveBtn) saveBtn.click();
+            const saveBtn = document.getElementById('save-script-btn');
+            if (saveBtn) {saveBtn.click();}
             e.preventDefault();
         }
     }

@@ -3,7 +3,7 @@
 
 (function() {
     'use strict';
-    
+
     // Wait for page to load then show welcome
     function showInitialWelcome() {
         setTimeout(() => {
@@ -14,7 +14,7 @@
             }
         }, 1000);
     }
-    
+
     function addWelcomeMessage() {
         const welcomeHTML = `
             <div class="message assistant">
@@ -45,11 +45,11 @@
                 <div class="message-timestamp">${new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</div>
             </div>
         `;
-        
+
         const chatMessages = document.getElementById('chat-messages');
         if (chatMessages) {
             chatMessages.innerHTML = welcomeHTML;
-            
+
             // Add styles for quick action buttons
             if (!document.getElementById('quick-cmd-styles')) {
                 const styles = document.createElement('style');
@@ -95,15 +95,15 @@
             }
         }
     }
-    
+
     // Auto-run welcome message
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', showInitialWelcome);
     } else {
         showInitialWelcome();
     }
-    
+
     // Make function available globally for testing
     window.showWelcomeMessage = addWelcomeMessage;
-    
+
 })();

@@ -6,31 +6,31 @@ class EffectsPresetsModule {
         this.chatMemory = chatMemory;
         this.commonEffects = {
             glow: {
-                name: "Glow",
-                properties: ["Glow Threshold", "Glow Radius", "Glow Intensity", "Glow Colors"],
+                name: 'Glow',
+                properties: ['Glow Threshold', 'Glow Radius', 'Glow Intensity', 'Glow Colors'],
                 script: this.createGlowScript,
-                category: "stylize"
+                category: 'stylize'
             },
             dropShadow: {
-                name: "Drop Shadow", 
-                properties: ["Shadow Color", "Opacity", "Direction", "Distance", "Softness"],
+                name: 'Drop Shadow',
+                properties: ['Shadow Color', 'Opacity', 'Direction', 'Distance', 'Softness'],
                 script: this.createDropShadowScript,
-                category: "perspective"
+                category: 'perspective'
             },
             motionBlur: {
-                name: "Motion Blur",
-                properties: ["Shutter Angle", "Shutter Phase", "Samples"],
+                name: 'Motion Blur',
+                properties: ['Shutter Angle', 'Shutter Phase', 'Samples'],
                 script: this.createMotionBlurScript,
-                category: "blur"
+                category: 'blur'
             },
             colorCorrection: {
-                name: "Lumetri Color",
-                properties: ["Exposure", "Contrast", "Highlights", "Shadows", "Saturation"],
+                name: 'Lumetri Color',
+                properties: ['Exposure', 'Contrast', 'Highlights', 'Shadows', 'Saturation'],
                 script: this.createColorCorrectionScript,
-                category: "color"
+                category: 'color'
             }
         };
-        
+
         this.recentEffectsApplied = [];
     }
 
@@ -38,7 +38,7 @@ class EffectsPresetsModule {
     analyzeEffectContext(message) {
         const lowerMessage = message.toLowerCase();
         const history = this.chatMemory ? this.chatMemory.getRecentHistory(10) : [];
-        
+
         const context = {
             requestedEffect: null,
             lastAppliedEffect: null,
@@ -67,7 +67,7 @@ class EffectsPresetsModule {
         // Detect requested effect
         Object.keys(this.commonEffects).forEach(effectKey => {
             const effect = this.commonEffects[effectKey];
-            if (lowerMessage.includes(effect.name.toLowerCase()) || 
+            if (lowerMessage.includes(effect.name.toLowerCase()) ||
                 lowerMessage.includes(effectKey)) {
                 context.requestedEffect = effectKey;
             }
@@ -91,10 +91,10 @@ class EffectsPresetsModule {
 
     generateEffectApplication(effectKey, context) {
         const effect = this.commonEffects[effectKey];
-        if (!effect) return null;
+        if (!effect) {return null;}
 
         let response = `I'll apply the ${effect.name} effect to your selected layer! `;
-        
+
         // Add context from conversation
         if (context.lastAppliedEffect && context.lastAppliedEffect !== effectKey) {
             response += `This will complement the ${context.lastAppliedEffect} we applied earlier. `;
@@ -121,7 +121,7 @@ class EffectsPresetsModule {
     generateEffectModification(lastEffect, colorModification) {
         let response = `I'll modify that ${lastEffect} effect to be ${colorModification}! `;
         response += `\n\nBased on our conversation, I'm updating the color properties of the effect we just applied.\n\n`;
-        
+
         if (lastEffect === 'glow') {
             response += this.createGlowColorModification(colorModification);
         } else if (lastEffect === 'dropShadow') {
@@ -205,7 +205,7 @@ if (comp && comp.selectedLayers.length > 0) {
     createGlowColorModification(color) {
         const colorValues = {
             red: '[1, 0, 0]',
-            blue: '[0, 0.5, 1]', 
+            blue: '[0, 0.5, 1]',
             green: '[0, 1, 0]',
             yellow: '[1, 1, 0]',
             purple: '[0.8, 0, 1]',
@@ -257,7 +257,7 @@ if (comp && comp.selectedLayers.length > 0) {
     // Get smart effect suggestions based on context
     getSmartSuggestions(context) {
         const suggestions = [];
-        
+
         if (context.lastAppliedEffect === 'glow') {
             suggestions.push('Add drop shadow for depth');
             suggestions.push('Apply motion blur for movement');

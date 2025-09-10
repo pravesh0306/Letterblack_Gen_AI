@@ -8,11 +8,11 @@ class StatusBarEnhancer {
             error: { color: '#f44336', text: 'Error', icon: '⚠' },
             success: { color: '#4CAF50', text: 'Success', icon: '✓' }
         };
-        
+
         this.currentState = 'idle';
         this.messageQueue = [];
         this.isProcessingQueue = false;
-        
+
         this.init();
     }
 
@@ -65,7 +65,7 @@ class StatusBarEnhancer {
                 <button class="status-action-btn" id="refresh-status-btn" title="Refresh Status">
                     🔄
                 </button>
-                <button class="status-action-btn" id="toggle-debug-btn" title="Toggle Debug Mode">
+                <button class="status-action-btn" id="toggle-INFO-btn" title="Toggle INFO Mode">
                     🐛
                 </button>
             </div>
@@ -86,31 +86,31 @@ class StatusBarEnhancer {
             this.refreshStatus();
         });
 
-        document.getElementById('toggle-debug-btn')?.addEventListener('click', () => {
-            this.toggleDebugMode();
+        document.getElementById('toggle-INFO-btn')?.addEventListener('click', () => {
+            this.toggleINFOMode();
         });
     }
 
     setState(state, message = null) {
-        if (!this.statusStates[state]) return;
-        
+        if (!this.statusStates[state]) {return;}
+
         this.currentState = state;
         const stateConfig = this.statusStates[state];
-        
+
         const statusDot = document.querySelector('.status-dot');
         const statusText = document.querySelector('.status-text');
-        
+
         if (statusDot && statusText) {
             statusDot.style.backgroundColor = stateConfig.color;
             statusText.textContent = message || stateConfig.text;
-            
+
             // Add animation for state changes
             statusDot.style.animation = 'none';
             statusDot.offsetHeight; // Trigger reflow
-            statusDot.style.animation = state === 'working' ? 'spin 2s linear infinite' : 
-                                      state === 'thinking' ? 'pulse 1.5s ease-in-out infinite' : '';
+            statusDot.style.animation = state === 'working' ? 'spin 2s linear infinite' :
+                state === 'thinking' ? 'pulse 1.5s ease-in-out infinite' : '';
         }
-        
+
         if (message) {
             this.queueMessage(message, state);
         }
@@ -122,36 +122,36 @@ class StatusBarEnhancer {
     }
 
     async processMessageQueue() {
-        if (this.isProcessingQueue || this.messageQueue.length === 0) return;
-        
+        if (this.isProcessingQueue || this.messageQueue.length === 0) {return;}
+
         this.isProcessingQueue = true;
-        
+
         while (this.messageQueue.length > 0) {
             const { message, type, duration } = this.messageQueue.shift();
             await this.showMessage(message, type, duration);
             await this.wait(500); // Brief pause between messages
         }
-        
+
         this.isProcessingQueue = false;
     }
 
     async showMessage(message, type = 'info', duration = 3000) {
         const statusText = document.querySelector('.status-text');
-        if (!statusText) return;
-        
+        if (!statusText) {return;}
+
         const originalText = statusText.textContent;
         const typeConfig = this.statusStates[type] || { color: '#2196F3', icon: 'ℹ' };
-        
+
         // Show message with animation
         statusText.style.transition = 'opacity 0.3s ease';
         statusText.style.opacity = '0';
-        
+
         await this.wait(300);
-        
+
         statusText.textContent = `${typeConfig.icon} ${message}`;
         statusText.style.color = typeConfig.color;
         statusText.style.opacity = '1';
-        
+
         // Return to original state after duration
         setTimeout(async () => {
             statusText.style.opacity = '0';
@@ -165,13 +165,13 @@ class StatusBarEnhancer {
     setupPerformanceMonitor() {
         const performanceFill = document.querySelector('.performance-fill');
         const performanceText = document.querySelector('.performance-text');
-        
-        if (!performanceFill || !performanceText) return;
-        
+
+        if (!performanceFill || !performanceText) {return;}
+
         setInterval(() => {
             const performance = this.getPerformanceMetrics();
             const percentage = Math.max(0, Math.min(100, performance.score));
-            
+
             performanceFill.style.width = `${percentage}%`;
             performanceFill.style.backgroundColor = this.getPerformanceColor(percentage);
             performanceText.textContent = this.getPerformanceLabel(percentage);
@@ -180,38 +180,38 @@ class StatusBarEnhancer {
 
     getPerformanceMetrics() {
         // Simple performance heuristic
-        const memory = performance.memory ? 
+        const memory = performance.memory ?
             (performance.memory.usedJSHeapSize / performance.memory.totalJSHeapSize) * 100 : 50;
-        
+
         // Estimate based on memory usage and frame timing
         const score = Math.max(0, 100 - memory);
-        
+
         return { score, memory };
     }
 
     getPerformanceColor(percentage) {
-        if (percentage >= 80) return '#4CAF50';
-        if (percentage >= 60) return '#FF9800';
+        if (percentage >= 80) {return '#4CAF50';}
+        if (percentage >= 60) {return '#FF9800';}
         return '#f44336';
     }
 
     getPerformanceLabel(percentage) {
-        if (percentage >= 80) return 'Excellent';
-        if (percentage >= 60) return 'Good';
-        if (percentage >= 40) return 'Fair';
+        if (percentage >= 80) {return 'Excellent';}
+        if (percentage >= 60) {return 'Good';}
+        if (percentage >= 40) {return 'Fair';}
         return 'Poor';
     }
 
     setupConnectionMonitor() {
         const connectionDot = document.querySelector('.connection-dot');
         const connectionText = document.querySelector('.connection-text');
-        
-        if (!connectionDot || !connectionText) return;
-        
+
+        if (!connectionDot || !connectionText) {return;}
+
         const updateConnectionStatus = () => {
             const isOnline = navigator.onLine;
             const hasAI = window.aiModule && window.aiModule.isAvailable;
-            
+
             if (isOnline && hasAI) {
                 connectionDot.style.backgroundColor = '#4CAF50';
                 connectionText.textContent = 'Connected';
@@ -227,7 +227,7 @@ class StatusBarEnhancer {
         // Monitor connection changes
         window.addEventListener('online', updateConnectionStatus);
         window.addEventListener('offline', updateConnectionStatus);
-        
+
         // Check AI module availability
         setInterval(updateConnectionStatus, 5000);
         updateConnectionStatus();
@@ -235,56 +235,56 @@ class StatusBarEnhancer {
 
     refreshStatus() {
         this.setState('working', 'Refreshing status...');
-        
+
         setTimeout(() => {
             // Simulate refresh
             this.setState('success', 'Status refreshed');
-            
+
             setTimeout(() => {
                 this.setState('idle');
             }, 2000);
         }, 1000);
     }
 
-    toggleDebugMode() {
-        const isDebug = document.body.classList.toggle('debug-mode');
-        this.showMessage(isDebug ? 'Debug mode enabled' : 'Debug mode disabled', 'info');
-        
-        if (isDebug) {
-            this.addDebugInfo();
+    toggleINFOMode() {
+        const isINFO = document.body.classList.toggle('INFO-mode');
+        this.showMessage(isINFO ? 'INFO mode enabled' : 'INFO mode disabled', 'info');
+
+        if (isINFO) {
+            this.addINFOInfo();
         } else {
-            this.removeDebugInfo();
+            this.removeINFOInfo();
         }
     }
 
-    addDebugInfo() {
-        if (document.querySelector('.debug-panel')) return;
-        
-        const debugPanel = document.createElement('div');
-        debugPanel.className = 'debug-panel';
-        debugPanel.innerHTML = `
-            <div class="debug-header">Debug Information</div>
-            <div class="debug-content">
-                <div class="debug-item">
-                    <span class="debug-label">User Agent:</span>
-                    <span class="debug-value">${navigator.userAgent.slice(0, 50)}...</span>
+    addINFOInfo() {
+        if (document.querySelector('.INFO-panel')) {return;}
+
+        const INFOPanel = document.createElement('div');
+        INFOPanel.className = 'INFO-panel';
+        INFOPanel.innerHTML = `
+            <div class="INFO-header">INFO Information</div>
+            <div class="INFO-content">
+                <div class="INFO-item">
+                    <span class="INFO-label">User Agent:</span>
+                    <span class="INFO-value">${navigator.userAgent.slice(0, 50)}...</span>
                 </div>
-                <div class="debug-item">
-                    <span class="debug-label">Memory Usage:</span>
-                    <span class="debug-value" id="memory-usage">Calculating...</span>
+                <div class="INFO-item">
+                    <span class="INFO-label">Memory Usage:</span>
+                    <span class="INFO-value" id="memory-usage">Calculating...</span>
                 </div>
-                <div class="debug-item">
-                    <span class="debug-label">AI Module:</span>
-                    <span class="debug-value">${window.aiModule ? 'Available' : 'Not Available'}</span>
+                <div class="INFO-item">
+                    <span class="INFO-label">AI Module:</span>
+                    <span class="INFO-value">${window.aiModule ? 'Available' : 'Not Available'}</span>
                 </div>
-                <div class="debug-item">
-                    <span class="debug-label">CEP Version:</span>
-                    <span class="debug-value">${window.__adobe_cep__ ? 'Available' : 'Browser Mode'}</span>
+                <div class="INFO-item">
+                    <span class="INFO-label">CEP Version:</span>
+                    <span class="INFO-value">${window.__adobe_cep__ ? 'Available' : 'Browser Mode'}</span>
                 </div>
             </div>
         `;
-        
-        debugPanel.style.cssText = `
+
+        INFOPanel.style.cssText = `
             position: fixed;
             top: 10px;
             left: 10px;
@@ -297,9 +297,9 @@ class StatusBarEnhancer {
             min-width: 300px;
             backdrop-filter: blur(10px);
         `;
-        
-        document.body.appendChild(debugPanel);
-        
+
+        document.body.appendChild(INFOPanel);
+
         // Update memory usage periodically
         setInterval(() => {
             const memoryElement = document.getElementById('memory-usage');
@@ -311,10 +311,10 @@ class StatusBarEnhancer {
         }, 1000);
     }
 
-    removeDebugInfo() {
-        const debugPanel = document.querySelector('.debug-panel');
-        if (debugPanel) {
-            debugPanel.remove();
+    removeINFOInfo() {
+        const INFOPanel = document.querySelector('.INFO-panel');
+        if (INFOPanel) {
+            INFOPanel.remove();
         }
     }
 
@@ -324,13 +324,13 @@ class StatusBarEnhancer {
             if (this.currentState === 'idle') {
                 const hour = new Date().getHours();
                 let greeting = 'Good ';
-                if (hour < 12) greeting += 'morning';
-                else if (hour < 18) greeting += 'afternoon';
-                else greeting += 'evening';
-                
+                if (hour < 12) {greeting += 'morning';}
+                else if (hour < 18) {greeting += 'afternoon';}
+                else {greeting += 'evening';}
+
                 // Occasionally show friendly messages
                 if (Math.random() < 0.1) {
-                    this.queueMessage(greeting + '! Ready to help.', 'info', 2000);
+                    this.queueMessage(`${greeting }! Ready to help.`, 'info', 2000);
                 }
             }
         }, 30000); // Every 30 seconds
@@ -460,23 +460,23 @@ statusBarStyles.textContent = `
         color: var(--vscode-text-primary);
     }
 
-    .debug-panel .debug-header {
+    .INFO-panel .INFO-header {
         font-weight: bold;
         margin-bottom: 8px;
         color: var(--vscode-text-accent);
     }
 
-    .debug-item {
+    .INFO-item {
         display: flex;
         justify-content: space-between;
         margin-bottom: 4px;
     }
 
-    .debug-label {
+    .INFO-label {
         font-weight: 500;
     }
 
-    .debug-value {
+    .INFO-value {
         color: var(--vscode-text-secondary);
     }
 

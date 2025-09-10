@@ -30,14 +30,14 @@ class AIProviders {
         // Gemini 1.5 Flash supports both text and vision in the same model
         const model = options.model || 'gemini-1.5-flash';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-        
+
         let requestBody;
 
         if (imageBase64) {
             // Vision API request format
             const [mimeType, base64Data] = imageBase64.split(',');
             const mimeTypeClean = mimeType.match(/data:(.+);base64/)[1];
-            
+
             requestBody = {
                 contents: [{
                     parts: [
@@ -69,7 +69,7 @@ class AIProviders {
                 }
             };
         }
-        
+
         const response = await fetch(`${url}?key=${apiKey}`, {
             method: 'POST',
             headers: {
@@ -84,7 +84,7 @@ class AIProviders {
         }
 
         const data = await response.json();
-        
+
         if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
             throw new Error('Invalid response structure from Gemini API');
         }
@@ -94,7 +94,7 @@ class AIProviders {
 
     async openAI(message, apiKey, options = {}) {
         const url = 'https://api.openai.com/v1/chat/completions';
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -123,7 +123,7 @@ class AIProviders {
 
     async groq(message, apiKey, options = {}) {
         const url = 'https://api.groq.com/openai/v1/chat/completions';
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -152,7 +152,7 @@ class AIProviders {
 
     async claude(message, apiKey, options = {}) {
         const url = 'https://api.anthropic.com/v1/messages';
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -181,7 +181,7 @@ class AIProviders {
 
     async localAPI(message, apiKey, options = {}) {
         const url = options.baseUrl || 'http://localhost:1234/v1/chat/completions';
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -210,7 +210,7 @@ class AIProviders {
 
     async ollama(message, apiKey, options = {}) {
         const url = options.baseUrl || 'http://localhost:11434/api/generate';
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -234,7 +234,7 @@ class AIProviders {
 
     async cohere(message, apiKey, options = {}) {
         const url = 'https://api.cohere.ai/v1/generate';
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -262,7 +262,7 @@ class AIProviders {
     async huggingface(message, apiKey, options = {}) {
         const model = options.model || 'microsoft/DialoGPT-medium';
         const url = `https://api-inference.huggingface.co/models/${model}`;
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -290,7 +290,7 @@ class AIProviders {
 
     async together(message, apiKey, options = {}) {
         const url = 'https://api.together.xyz/inference';
-        
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {

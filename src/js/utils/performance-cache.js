@@ -8,7 +8,7 @@ class PerformanceCache {
         this.cache = new Map();
         this.maxSize = 25; // Reduced for CEP environment
         this.defaultTimeout = 180000; // 3 minutes (reduced)
-        
+
         this.startCleanupTimer();
         console.log('🚀 Performance Cache initialized');
     }
@@ -28,7 +28,7 @@ class PerformanceCache {
      */
     hashString(str) {
         let hash = 0;
-        if (str.length === 0) return hash;
+        if (str.length === 0) {return hash;}
         for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
@@ -48,9 +48,9 @@ class PerformanceCache {
         }
 
         const cacheEntry = {
-            value: value,
+            value,
             timestamp: Date.now(),
-            timeout: timeout
+            timeout
         };
 
         this.cache.set(key, cacheEntry);
@@ -62,7 +62,7 @@ class PerformanceCache {
      */
     get(key) {
         const entry = this.cache.get(key);
-        
+
         if (!entry) {
             return null;
         }
@@ -93,7 +93,7 @@ class PerformanceCache {
         return {
             size: this.cache.size,
             maxSize: this.maxSize,
-            keys: Array.from(this.cache.keys()).map(k => k.substring(0, 8) + '...')
+            keys: Array.from(this.cache.keys()).map(k => `${k.substring(0, 8) }...`)
         };
     }
 
@@ -104,15 +104,15 @@ class PerformanceCache {
         setInterval(() => {
             const now = Date.now();
             const toDelete = [];
-            
+
             for (const [key, entry] of this.cache.entries()) {
                 if (now - entry.timestamp > entry.timeout) {
                     toDelete.push(key);
                 }
             }
-            
+
             toDelete.forEach(key => this.cache.delete(key));
-            
+
             if (toDelete.length > 0) {
                 console.log(`🧹 Cleaned up ${toDelete.length} expired cache entries`);
             }
@@ -122,3 +122,4 @@ class PerformanceCache {
 
 // Global performance cache instance
 window.performanceCache = window.performanceCache || new PerformanceCache();
+

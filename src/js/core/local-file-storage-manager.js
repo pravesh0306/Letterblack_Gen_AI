@@ -18,16 +18,16 @@ class LocalFileStorageManager {
             archives: ['.zip', '.rar', '.7z', '.tar', '.gz'],
             models: ['.obj', '.fbx', '.gltf', '.glb', '.stl', '.ply']
         };
-        
+
         this.files = new Map();
         this.tempFiles = new Map();
         this.uploadQueue = [];
         this.processing = false;
         this.observers = new Set();
-        
+
         this.init();
     }
-    
+
     /**
      * Initialize the file storage manager
      */
@@ -37,7 +37,7 @@ class LocalFileStorageManager {
         this.startCleanupTimer();
         console.log('✅ Local File Storage Manager initialized');
     }
-    
+
     /**
      * Load files from localStorage
      */
@@ -54,7 +54,7 @@ class LocalFileStorageManager {
                     });
                 });
             }
-            
+
             const tempStored = localStorage.getItem(this.tempStorageKey);
             if (tempStored) {
                 const tempData = JSON.parse(tempStored);
@@ -69,7 +69,7 @@ class LocalFileStorageManager {
             console.warn('Failed to load stored files:', error);
         }
     }
-    
+
     /**
      * Save files to localStorage
      */
@@ -77,7 +77,7 @@ class LocalFileStorageManager {
         try {
             const fileData = Object.fromEntries(this.files);
             localStorage.setItem(this.storageKey, JSON.stringify(fileData));
-            
+
             const tempData = Object.fromEntries(this.tempFiles);
             localStorage.setItem(this.tempStorageKey, JSON.stringify(tempData));
         } catch (error) {
@@ -85,14 +85,14 @@ class LocalFileStorageManager {
             this.cleanupOldFiles(); // Try to free space
         }
     }
-    
+
     /**
      * Add a file to storage
      */
     async addFile(file, options = {}) {
         const fileId = this.generateFileId();
         const metadata = await this.extractMetadata(file);
-        
+
         const fileRecord = {
             id: fileId,
             name: file.name,
@@ -106,28 +106,28 @@ class LocalFileStorageManager {
             modifiedAt: new Date(),
             tags: options.tags || [],
             description: options.description || '',
-            temporary: options.temporary || false
+            INTERIM: options.temporary || false
         };
-        
+
         if (fileRecord.temporary) {
             this.tempFiles.set(fileId, fileRecord);
         } else {
             this.files.set(fileId, fileRecord);
         }
-        
+
         this.saveFiles();
         this.notifyObservers('file_added', fileRecord);
-        
+
         return fileId;
     }
-    
+
     /**
      * Get a file by ID
      */
     getFile(fileId) {
         return this.files.get(fileId) || this.tempFiles.get(fileId);
     }
-    
+
     /**
      * Get all files
      */
@@ -138,48 +138,48 @@ class LocalFileStorageManager {
         }
         return allFiles;
     }
-    
+
     /**
      * Delete a file
      */
     deleteFile(fileId) {
         const file = this.getFile(fileId);
-        if (!file) return false;
-        
+        if (!file) {return false;}
+
         // Cleanup URL if exists
         if (file.url) {
             URL.revokeObjectURL(file.url);
         }
-        
+
         const deleted = this.files.delete(fileId) || this.tempFiles.delete(fileId);
         if (deleted) {
             this.saveFiles();
             this.notifyObservers('file_deleted', { id: fileId, file });
         }
-        
+
         return deleted;
     }
-    
+
     /**
      * Update file metadata
      */
     updateFile(fileId, updates) {
         const file = this.getFile(fileId);
-        if (!file) return false;
-        
+        if (!file) {return false;}
+
         Object.assign(file, updates, { modifiedAt: new Date() });
         this.saveFiles();
         this.notifyObservers('file_updated', file);
-        
+
         return true;
     }
-    
+
     /**
      * Search files
      */
     searchFiles(query, filters = {}) {
         const allFiles = this.getAllFiles(filters.includeTemp);
-        
+
         return allFiles.filter(file => {
             // Text search
             if (query) {
@@ -188,35 +188,35 @@ class LocalFileStorageManager {
                     return false;
                 }
             }
-            
+
             // Category filter
             if (filters.category && file.category !== filters.category) {
                 return false;
             }
-            
+
             // Size filter
             if (filters.maxSize && file.size > filters.maxSize) {
                 return false;
             }
-            
+
             // Date filter
             if (filters.since && file.createdAt < filters.since) {
                 return false;
             }
-            
+
             return true;
         });
     }
-    
+
     /**
      * Process file upload queue
      */
     async processUploadQueue() {
-        if (this.processing || this.uploadQueue.length === 0) return;
-        
+        if (this.processing || this.uploadQueue.length === 0) {return;}
+
         this.processing = true;
         this.notifyObservers('processing_started', { queueLength: this.uploadQueue.length });
-        
+
         try {
             while (this.uploadQueue.length > 0) {
                 const item = this.uploadQueue.shift();
@@ -229,27 +229,27 @@ class LocalFileStorageManager {
             this.notifyObservers('processing_finished');
         }
     }
-    
+
     /**
      * Process individual file upload
      */
     async processFileUpload({ file, options, resolve, reject }) {
         try {
             this.notifyObservers('file_processing', { name: file.name, size: file.size });
-            
+
             // Validate file
             if (!this.validateFile(file)) {
                 throw new Error(`Unsupported file type: ${file.type}`);
             }
-            
+
             // Check storage space
             if (!this.hasStorageSpace(file.size)) {
                 throw new Error('Insufficient storage space');
             }
-            
+
             // Add file
             const fileId = await this.addFile(file, options);
-            
+
             this.notifyObservers('file_processed', { id: fileId, name: file.name });
             resolve(fileId);
         } catch (error) {
@@ -257,7 +257,7 @@ class LocalFileStorageManager {
             reject(error);
         }
     }
-    
+
     /**
      * Queue file for processing
      */
@@ -267,7 +267,7 @@ class LocalFileStorageManager {
             this.processUploadQueue();
         });
     }
-    
+
     /**
      * Create file drag and drop handler
      */
@@ -281,7 +281,7 @@ class LocalFileStorageManager {
                 ...options
             }
         };
-        
+
         // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             element.addEventListener(eventName, (e) => {
@@ -289,24 +289,24 @@ class LocalFileStorageManager {
                 e.stopPropagation();
             });
         });
-        
+
         // Visual feedback
         ['dragenter', 'dragover'].forEach(eventName => {
             element.addEventListener(eventName, () => {
                 element.classList.add('drag-over');
             });
         });
-        
+
         ['dragleave', 'drop'].forEach(eventName => {
             element.addEventListener(eventName, () => {
                 element.classList.remove('drag-over');
             });
         });
-        
+
         // Handle file drop
         element.addEventListener('drop', async (e) => {
             const files = Array.from(e.dataTransfer.files);
-            
+
             for (const file of files) {
                 if (this.validateFile(file, dropZone.options)) {
                     try {
@@ -317,10 +317,10 @@ class LocalFileStorageManager {
                 }
             }
         });
-        
+
         return dropZone;
     }
-    
+
     /**
      * Extract file metadata
      */
@@ -329,7 +329,7 @@ class LocalFileStorageManager {
             lastModified: file.lastModified ? new Date(file.lastModified) : null,
             webkitRelativePath: file.webkitRelativePath || null
         };
-        
+
         // Image metadata
         if (file.type.startsWith('image/')) {
             try {
@@ -340,7 +340,7 @@ class LocalFileStorageManager {
                 console.warn('Failed to extract image dimensions:', error);
             }
         }
-        
+
         // Video metadata
         if (file.type.startsWith('video/')) {
             try {
@@ -352,10 +352,10 @@ class LocalFileStorageManager {
                 console.warn('Failed to extract video metadata:', error);
             }
         }
-        
+
         return metadata;
     }
-    
+
     /**
      * Get image dimensions
      */
@@ -369,7 +369,7 @@ class LocalFileStorageManager {
             img.src = URL.createObjectURL(file);
         });
     }
-    
+
     /**
      * Get video metadata
      */
@@ -387,22 +387,22 @@ class LocalFileStorageManager {
             video.src = URL.createObjectURL(file);
         });
     }
-    
+
     /**
      * Categorize file by type
      */
     categorizeFile(file) {
-        const extension = '.' + file.name.split('.').pop().toLowerCase();
-        
+        const extension = `.${ file.name.split('.').pop().toLowerCase()}`;
+
         for (const [category, extensions] of Object.entries(this.supportedFormats)) {
             if (extensions.includes(extension)) {
                 return category;
             }
         }
-        
+
         return 'unknown';
     }
-    
+
     /**
      * Validate file
      */
@@ -412,18 +412,18 @@ class LocalFileStorageManager {
         if (file.size > maxSize) {
             return false;
         }
-        
+
         // Check file type
         if (options.acceptedTypes) {
-            const extension = '.' + file.name.split('.').pop().toLowerCase();
+            const extension = `.${ file.name.split('.').pop().toLowerCase()}`;
             if (!options.acceptedTypes.includes(extension)) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Check available storage space
      */
@@ -431,49 +431,49 @@ class LocalFileStorageManager {
         const currentSize = this.getTotalStorageSize();
         return (currentSize + requiredSize) <= this.maxStorageSize;
     }
-    
+
     /**
      * Get total storage size
      */
     getTotalStorageSize() {
         let totalSize = 0;
-        
+
         this.files.forEach(file => {
             if (file.data) {
                 totalSize += file.size;
             }
         });
-        
+
         this.tempFiles.forEach(file => {
             if (file.data) {
                 totalSize += file.size;
             }
         });
-        
+
         return totalSize;
     }
-    
+
     /**
      * Clean up old temporary files
      */
     cleanupOldFiles() {
         const now = Date.now();
         const maxAge = 24 * 60 * 60 * 1000; // 24 hours
-        
+
         let cleaned = 0;
-        
+
         this.tempFiles.forEach((file, id) => {
             if (now - file.createdAt.getTime() > maxAge) {
                 this.deleteFile(id);
                 cleaned++;
             }
         });
-        
+
         if (cleaned > 0) {
             console.log(`Cleaned up ${cleaned} old temporary files`);
         }
     }
-    
+
     /**
      * Convert file to base64
      */
@@ -485,14 +485,14 @@ class LocalFileStorageManager {
             reader.readAsDataURL(file);
         });
     }
-    
+
     /**
      * Generate unique file ID
      */
     generateFileId() {
         return `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    
+
     /**
      * Subscribe to file storage events
      */
@@ -500,7 +500,7 @@ class LocalFileStorageManager {
         this.observers.add(callback);
         return () => this.observers.delete(callback);
     }
-    
+
     /**
      * Notify observers of events
      */
@@ -513,7 +513,7 @@ class LocalFileStorageManager {
             }
         });
     }
-    
+
     /**
      * Setup event listeners
      */
@@ -525,7 +525,7 @@ class LocalFileStorageManager {
             }
         });
     }
-    
+
     /**
      * Start cleanup timer
      */
@@ -534,25 +534,25 @@ class LocalFileStorageManager {
         setInterval(() => {
             this.cleanupOldFiles();
         }, 60 * 60 * 1000);
-        
+
         // Initial cleanup
         this.cleanupOldFiles();
     }
-    
+
     /**
      * Export files to ZIP
      */
     async exportFiles(fileIds = null) {
-        const filesToExport = fileIds ? 
+        const filesToExport = fileIds ?
             fileIds.map(id => this.getFile(id)).filter(Boolean) :
             this.getAllFiles();
-        
+
         // This would need a ZIP library in a real implementation
         console.log('Exporting files:', filesToExport.map(f => f.name));
-        
+
         return filesToExport;
     }
-    
+
     /**
      * Get storage statistics
      */
@@ -564,13 +564,13 @@ class LocalFileStorageManager {
             categories: {},
             averageSize: 0
         };
-        
+
         files.forEach(file => {
             stats.categories[file.category] = (stats.categories[file.category] || 0) + 1;
         });
-        
+
         stats.averageSize = stats.totalFiles > 0 ? stats.totalSize / stats.totalFiles : 0;
-        
+
         return stats;
     }
 }
@@ -583,3 +583,4 @@ if (!window.fileStorageManager) {
     window.fileStorageManager = new LocalFileStorageManager();
     console.log('✅ Local File Storage Manager initialized');
 }
+

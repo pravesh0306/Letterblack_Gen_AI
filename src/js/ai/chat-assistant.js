@@ -27,66 +27,63 @@ class ChatAssistant {
      * Process markdown text with enhanced code block rendering
      */
     processMarkdown(text) {
-        // 1) Extract fenced code blocks first: ```lang\n...```
-        const FENCE = /```(\w+)?\n([\s\S]*?)```/g;
-        const codeBlocks = [];
-        let idx = 0;
+        // 0) Fast exit
+        if (!text || typeof text !== 'string') {return '';}
 
-        const withoutBlocks = text.replace(FENCE, (_, lang, code) => {
-            const language = (lang || '').trim().toLowerCase();
-            codeBlocks.push({ language, code });
-            return `§§CODEBLOCK_${idx++}§§`;
+        // 1) Extract fenced code blocks (```lang\r?\n...``` or ~~~lang\r?\n...~~~)
+        //    - lang: anything until newline (supports "c++", "json5", "bash-session", etc.)
+        //    - newline: \r?\n (handles Windows + Unix)
+        const FENCE = /(```|~~~)([^\r\n]*)\r?\n([\s\S]*?)(?:\1)\s*/g;
+
+        const blocks = [];
+        let i = 0;
+        const SENTRY = '\u241E'; // record separator char as unique placeholder
+
+        const stripped = text.replace(FENCE, (_, fence, lang, body) => {
+            const language = String(lang || '').trim().toLowerCase();
+            blocks.push({ language, code: body });
+            return `${SENTRY}${i++}${SENTRY}`;
         });
 
+        // 2) Escape HTML safely for the remaining (non-code) text
         const escapeHtml = (s) => {
             const div = document.createElement('div');
             div.textContent = s;
             return div.innerHTML;
         };
 
-        let html = escapeHtml(withoutBlocks)
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // 3) Lightweight inline markdown (bold, italics, inline code)
+        //    NOTE: We already pulled fenced blocks out, so this won't touch them.
+        let html = escapeHtml(stripped)
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
             .replace(/`([^`]+?)`/g, (_, c) => `<code>${escapeHtml(c)}</code>`)
-            .replace(/\n/g, '<br>');
+            .replace(/\r?\n/g, '<br>');
 
-        const buildCodeBlockHTML = ({ language, code }) => {
+        // 4) Rehydrate fenced code blocks into styled HTML your CSS expects
+        const build = ({ language, code }) => {
             const safe = escapeHtml(code);
             const langClass = language ? `language-${language}` : '';
-            const blockId = `code-block-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-            const detectedType = this.detectCodeType(code, language);
-            
             return `
-                <div class="code-block-container" data-block-id="${blockId}">
-                    <div class="code-toolbar">
-                        <span class="code-lang clickable" data-current-type="${detectedType}" data-block-id="${blockId}" title="Click to toggle between Expression/JSX">
-                            ${language || detectedType} 
-                            <i class="fas fa-sync-alt" style="font-size: 10px; opacity: 0.7; margin-left: 4px;"></i>
-                        </span>
-                        <div class="code-actions">
-                            <button class="code-btn copy" data-action="copy">
-                                <i class="fas fa-copy"></i> Copy
-                            </button>
-                            <button class="code-btn save" data-action="save">
-                                <i class="fas fa-save"></i> Save
-                            </button>
-                            <button class="code-btn apply" data-action="apply">
-                                <i class="fas fa-play"></i> Apply
-                            </button>
-                        </div>
-                    </div>
-                    <pre class="code-block"><code class="${langClass}" data-raw-code="${escapeHtml(code).replace(/"/g, '&quot;')}">${safe}</code></pre>
-                    <div class="code-feedback" aria-live="polite"></div>
+              <div class="code-block-container">
+                <div class="code-toolbar">
+                  <span class="code-lang">${language || 'code'}</span>
+                  <div class="code-actions">
+                    <button class="code-btn copy" data-action="copy">Copy</button>
+                    <button class="code-btn save" data-action="save">Save</button>
+                    <button class="code-btn apply" data-action="apply">Apply</button>
+                  </div>
                 </div>
+                <pre class="code-block"><code class="${langClass}">${safe}</code></pre>
+                <div class="code-feedback" aria-live="polite"></div>
+              </div>
             `;
         };
 
-        html = html.replace(/§§CODEBLOCK_(\d+)§§/g, (_, i) => buildCodeBlockHTML(codeBlocks[Number(i)]));
+        html = html.replace(new RegExp(`${SENTRY}(\\d+)${SENTRY}`, 'g'), (_, n) => build(blocks[Number(n)]));
 
-        // Apply syntax highlighting after DOM insertion
-        setTimeout(() => {
-            this.applySyntaxHighlighting();
-        }, 100);
+        // Optional: console signal for verification
+        if (window.__md_INFO) {console.log('[MD] fenced blocks:', blocks.length);}
 
         return html;
     }
@@ -103,19 +100,19 @@ class ChatAssistant {
             }
 
             const btn = e.target.closest('.code-btn');
-            if (!btn) return;
+            if (!btn) {return;}
 
             const container = btn.closest('.code-block-container');
             const codeEl = container?.querySelector('pre.code-block > code');
             const feedback = container?.querySelector('.code-feedback');
-            if (!codeEl) return;
+            if (!codeEl) {return;}
 
             const raw = codeEl.dataset.rawCode || codeEl.textContent;
             const langClass = Array.from(codeEl.classList).find(c => c.startsWith('language-'));
             const langHint = langClass ? langClass.replace('language-', '') : '';
 
             const flash = (msg, isError = false) => {
-                if (!feedback) return;
+                if (!feedback) {return;}
                 feedback.innerHTML = msg;
                 feedback.className = `code-feedback ${isError ? 'error' : 'success'}`;
                 feedback.style.display = 'flex';
@@ -151,20 +148,20 @@ class ChatAssistant {
      */
     detectCodeType(raw, langHint = '') {
         const lang = (langHint || '').toLowerCase();
-        if (['jsx', 'extendscript', 'jsxbin'].includes(lang)) return 'jsx';
+        if (['jsx', 'extendscript', 'jsxbin'].includes(lang)) {return 'jsx';}
         if (['js', 'javascript'].includes(lang)) {
-            if (/app\./.test(raw) || /CompItem|Layer|Property/.test(raw)) return 'jsx';
+            if (/app\./.test(raw) || /CompItem|Layer|Property/.test(raw)) {return 'jsx';}
             return 'js';
         }
-        if (['expr', 'expression', 'aeexp', 'aftereffects-expression'].includes(lang)) return 'expression';
+        if (['expr', 'expression', 'aeexp', 'aftereffects-expression'].includes(lang)) {return 'expression';}
 
         const looksLikeExpression =
             !/^\s*\(function|\bfunction\b|\bapp\./m.test(raw) &&
             /(time|value|ease|linear|wiggle|seedRandom|posterizeTime)\b/.test(raw) &&
             !/;\s*\}/.test(raw);
 
-        if (looksLikeExpression) return 'expression';
-        if (/\bapp\.project\b|\bapp\.beginUndoGroup\b|\$\.writeln\b/.test(raw)) return 'jsx';
+        if (looksLikeExpression) {return 'expression';}
+        if (/\bapp\.project\b|\bapp\.beginUndoGroup\b|\$\.writeln\b/.test(raw)) {return 'jsx';}
         return 'expression';
     }
 
@@ -174,7 +171,7 @@ class ChatAssistant {
     async applyCodeToAE(raw, langHint = '') {
         const event = window.currentEvent;
         const feedback = event?.target?.closest('.code-block-container')?.querySelector('.code-feedback');
-        
+
         const showFeedback = (msg, isError = false) => {
             if (feedback) {
                 feedback.innerHTML = msg;
@@ -294,7 +291,7 @@ class ChatAssistant {
                 this.csInterface.evalScript(jsxPayload, (ret) => {
                     try {
                         console.log('[AE APPLY] Raw response:', ret);
-                        
+
                         // Try to parse JSON response
                         let result;
                         try {
@@ -307,19 +304,19 @@ class ChatAssistant {
                                 type: 'unknown'
                             };
                         }
-                        
+
                         showFeedback(result.message, !result.success);
-                        
+
                         // Auto-save successful scripts
                         if (result.success && type === 'jsx') {
                             this.autoSaveScript(raw, result);
                         }
-                        
+
                     } catch (error) {
                         console.error('Error processing AE response:', error);
                         showFeedback('❌ Error: Failed to process After Effects response.', true);
                     }
-                    
+
                     resolve();
                 });
             });
@@ -354,12 +351,12 @@ class ChatAssistant {
         const langEl = e.target.closest('.code-lang');
         const currentType = langEl.dataset.currentType;
         const newType = currentType === 'expression' ? 'jsx' : 'expression';
-        
+
         // Update display
         const displayName = newType === 'jsx' ? 'JSX Script' : 'Expression';
         langEl.innerHTML = `${displayName} <i class="fas fa-sync-alt" style="font-size: 10px; opacity: 0.7; margin-left: 4px;"></i>`;
         langEl.dataset.currentType = newType;
-        
+
         // Update code element class
         const container = langEl.closest('.code-block-container');
         const codeEl = container?.querySelector('code');
@@ -370,18 +367,18 @@ class ChatAssistant {
             codeEl.className += ` language-${newType}`;
             codeEl.className = codeEl.className.trim();
         }
-        
+
         // Re-apply syntax highlighting
         setTimeout(() => {
             this.applySyntaxHighlighting();
         }, 50);
-        
+
         // Visual feedback
         langEl.style.animation = 'none';
         setTimeout(() => {
             langEl.style.animation = 'pulse 0.3s ease';
         }, 10);
-        
+
         console.log(`🔄 Language toggled: ${currentType} → ${newType}`);
     }
 
@@ -392,29 +389,29 @@ class ChatAssistant {
         try {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const scriptName = `ai_generated_${timestamp}`;
-            
+
             const scriptData = {
                 name: scriptName,
-                code: code,
+                code,
                 type: result.type || 'jsx',
                 timestamp: new Date().toISOString(),
                 result: result.message,
                 success: result.success
             };
-            
+
             // Save to localStorage history
             const history = JSON.parse(localStorage.getItem('ae_script_history') || '[]');
             history.unshift(scriptData);
-            
+
             // Keep only last 50 scripts
             if (history.length > 50) {
                 history.splice(50);
             }
-            
+
             localStorage.setItem('ae_script_history', JSON.stringify(history));
-            
+
             console.log('📄 Auto-saved script:', scriptName);
-            
+
         } catch (err) {
             console.warn('Failed to auto-save script:', err);
         }
@@ -435,21 +432,21 @@ class ChatAssistant {
                 const type = this.detectCodeType(raw, langHint);
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
                 const scriptName = `saved_${type}_${timestamp}`;
-                
+
                 const savedScripts = JSON.parse(localStorage.getItem('ae_saved_scripts') || '[]');
                 savedScripts.unshift({
                     name: scriptName,
                     code: raw,
-                    type: type,
+                    type,
                     timestamp: new Date().toISOString(),
                     source: 'chat_assistant'
                 });
-                
+
                 // Keep only last 100 saved scripts
                 if (savedScripts.length > 100) {
                     savedScripts.splice(100);
                 }
-                
+
                 localStorage.setItem('ae_saved_scripts', JSON.stringify(savedScripts));
                 console.log('💾 Saved script:', scriptName);
             }
@@ -483,7 +480,7 @@ class ChatAssistant {
     }
 
     /**
-     * Debug method to test code block rendering
+     * INFO method to test code block rendering
      */
     testCodeBlockRendering() {
         const testMarkdown = `
@@ -504,7 +501,7 @@ Regular **bold** and *italic* text should also work.
 
         console.log('🧪 Testing code block rendering...');
         const result = this.processMarkdown(testMarkdown);
-        
+
         // Create a test container
         const testDiv = document.createElement('div');
         testDiv.innerHTML = result;
@@ -522,7 +519,7 @@ Regular **bold** and *italic* text should also work.
             z-index: 10000;
             color: #d4d4d4;
         `;
-        
+
         // Add close button
         const closeBtn = document.createElement('button');
         closeBtn.textContent = '✕ Close Test';
@@ -539,12 +536,12 @@ Regular **bold** and *italic* text should also work.
         `;
         closeBtn.onclick = () => testDiv.remove();
         testDiv.appendChild(closeBtn);
-        
+
         document.body.appendChild(testDiv);
-        
+
         // Apply highlighting
         setTimeout(() => this.applySyntaxHighlighting(), 200);
-        
+
         console.log('✅ Test container added to page');
         return testDiv;
     }
@@ -553,7 +550,7 @@ Regular **bold** and *italic* text should also work.
 // Initialize and expose globally
 if (typeof window !== 'undefined') {
     window.ChatAssistant = ChatAssistant;
-    
+
     // Auto-initialize if not already done
     if (!window.chatAssistant) {
         window.chatAssistant = new ChatAssistant();
@@ -576,3 +573,4 @@ if (typeof window !== 'undefined') {
     console.log('🤖 Chat Assistant initialized');
     console.log('💡 Test commands: testCodeBlocks(), getChatAssistantStatus()');
 }
+

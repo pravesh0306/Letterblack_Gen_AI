@@ -9,23 +9,23 @@ class FloatingMascot {
             // Position settings
             defaultPosition: options.defaultPosition || { bottom: '20px', right: '20px' },
             draggable: options.draggable !== false,
-            
+
             // Size settings
             size: options.size || 70,
             hoverScale: options.hoverScale || 1.02,
             dragScale: options.dragScale || 1.1,
-            
+
             // Animation settings
             animationDuration: options.animationDuration || 200,
             notificationDuration: options.notificationDuration || 4000,
-            
+
             // Notification settings
             showTooltips: options.showTooltips !== false,
             notificationPosition: options.notificationPosition || 'left',
-            
+
             // Storage key for position
             positionStorageKey: options.positionStorageKey || 'floating_mascot_position',
-            
+
             ...options
         };
 
@@ -34,7 +34,7 @@ class FloatingMascot {
         this.currentNotification = null;
         this.notificationQueue = [];
         this.mascotAnimator = null;
-        
+
         this.init();
     }
 
@@ -43,7 +43,7 @@ class FloatingMascot {
         this.setupEventListeners();
         this.loadPosition();
         this.initializeMascotAnimator();
-        
+
         console.log('🎭 Floating Mascot System initialized');
     }
 
@@ -59,7 +59,7 @@ class FloatingMascot {
         this.mascotElement.id = 'floating-mascot';
         this.mascotElement.className = 'floating-mascot';
         this.mascotElement.setAttribute('data-tooltip', 'Ready to help! 🚀');
-        
+
         // Create video element
         this.videoElement = document.createElement('video');
         this.videoElement.id = 'floating-mascot-video';
@@ -72,8 +72,8 @@ class FloatingMascot {
         this.videoElement.setAttribute('disablepictureinpicture', '');
         this.videoElement.setAttribute('controlslist', 'nodownload noplaybackrate');
         this.videoElement.src = 'assets/Idle.webm';
-        this.videoElement.style.width = this.config.size + 'px';
-        this.videoElement.style.height = this.config.size + 'px';
+        this.videoElement.style.width = `${this.config.size }px`;
+        this.videoElement.style.height = `${this.config.size }px`;
         this.videoElement.style.borderRadius = '50%';
         this.videoElement.style.objectFit = 'cover';
 
@@ -82,8 +82,8 @@ class FloatingMascot {
         fallbackImg.id = 'floating-mascot-fallback';
         fallbackImg.src = 'assets/ae-mascot-animated.gif';
         fallbackImg.alt = 'AI Assistant';
-        fallbackImg.style.width = this.config.size + 'px';
-        fallbackImg.style.height = this.config.size + 'px';
+        fallbackImg.style.width = `${this.config.size }px`;
+        fallbackImg.style.height = `${this.config.size }px`;
         fallbackImg.style.borderRadius = '50%';
         fallbackImg.style.display = 'none';
 
@@ -117,8 +117,8 @@ class FloatingMascot {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            minWidth: this.config.size + 'px',
-            minHeight: this.config.size + 'px',
+            minWidth: `${this.config.size }px`,
+            minHeight: `${this.config.size }px`,
             pointerEvents: 'all',
             userSelect: 'none'
         };
@@ -127,7 +127,7 @@ class FloatingMascot {
     }
 
     setupEventListeners() {
-        if (!this.mascotElement) return;
+        if (!this.mascotElement) {return;}
 
         // Hover effects
         this.mascotElement.addEventListener('mouseenter', () => {
@@ -171,56 +171,56 @@ class FloatingMascot {
     }
 
     handleMouseDown(e) {
-        if (!this.config.draggable) return;
-        
+        if (!this.config.draggable) {return;}
+
         e.preventDefault();
         this.isDragging = true;
         this.mascotElement.classList.add('dragging');
         this.mascotElement.style.transform = `scale(${this.config.dragScale})`;
         this.mascotElement.style.zIndex = '1001';
-        
+
         const rect = this.mascotElement.getBoundingClientRect();
         this.dragOffset.x = e.clientX - rect.left;
         this.dragOffset.y = e.clientY - rect.top;
-        
+
         this.hideTooltip();
     }
 
     handleMouseMove(e) {
-        if (!this.isDragging) return;
-        
+        if (!this.isDragging) {return;}
+
         e.preventDefault();
         const x = e.clientX - this.dragOffset.x;
         const y = e.clientY - this.dragOffset.y;
-        
+
         // Keep within viewport bounds
         const maxX = window.innerWidth - this.config.size;
         const maxY = window.innerHeight - this.config.size;
-        
+
         const boundedX = Math.max(0, Math.min(x, maxX));
         const boundedY = Math.max(0, Math.min(y, maxY));
-        
-        this.mascotElement.style.left = boundedX + 'px';
-        this.mascotElement.style.top = boundedY + 'px';
+
+        this.mascotElement.style.left = `${boundedX }px`;
+        this.mascotElement.style.top = `${boundedY }px`;
         this.mascotElement.style.right = 'auto';
         this.mascotElement.style.bottom = 'auto';
     }
 
     handleMouseUp(e) {
-        if (!this.isDragging) return;
-        
+        if (!this.isDragging) {return;}
+
         this.isDragging = false;
         this.mascotElement.classList.remove('dragging');
         this.mascotElement.style.transform = 'scale(1)';
         this.mascotElement.style.zIndex = '1000';
-        
+
         this.savePosition();
     }
 
     handleClick(e) {
         // Show status or toggle a feature
         this.notify('Hello! 👋 How can I help you today?', 'info');
-        
+
         // Trigger a celebration animation
         if (this.mascotAnimator) {
             this.mascotAnimator.playScenario('success');
@@ -309,17 +309,17 @@ class FloatingMascot {
             info: { borderLeft: '4px solid #2196F3', background: 'rgba(33, 150, 243, 0.1)' }
         };
 
-        Object.assign(notificationEl.style, baseStyles, typeStyles[notificationEl.className.includes('error') ? 'error' : 
-                     notificationEl.className.includes('success') ? 'success' :
-                     notificationEl.className.includes('warning') ? 'warning' : 'info']);
+        Object.assign(notificationEl.style, baseStyles, typeStyles[notificationEl.className.includes('error') ? 'error' :
+            notificationEl.className.includes('success') ? 'success' :
+                notificationEl.className.includes('warning') ? 'warning' : 'info']);
     }
 
     positionNotification(notificationEl) {
         const mascotRect = this.mascotElement.getBoundingClientRect();
         const notificationWidth = 250; // max-width from styles
-        
+
         let left, top;
-        
+
         if (this.config.notificationPosition === 'left') {
             left = Math.max(10, mascotRect.left - notificationWidth - 10);
             top = mascotRect.top + (mascotRect.height / 2) - 20;
@@ -338,14 +338,14 @@ class FloatingMascot {
         left = Math.max(10, Math.min(left, window.innerWidth - notificationWidth - 10));
         top = Math.max(10, Math.min(top, window.innerHeight - 100));
 
-        notificationEl.style.left = left + 'px';
-        notificationEl.style.top = top + 'px';
+        notificationEl.style.left = `${left }px`;
+        notificationEl.style.top = `${top }px`;
     }
 
     hideNotification(notificationEl) {
         notificationEl.style.opacity = '0';
         notificationEl.style.transform = 'translateY(-10px) scale(0.95)';
-        
+
         setTimeout(() => {
             if (notificationEl.parentNode) {
                 notificationEl.parentNode.removeChild(notificationEl);
@@ -356,11 +356,11 @@ class FloatingMascot {
     }
 
     updateMascotForNotification(type) {
-        if (!this.mascotAnimator) return;
+        if (!this.mascotAnimator) {return;}
 
         const animationMap = {
             success: 'success',
-            error: 'debug',
+            error: 'INFO',
             warning: 'thinking',
             info: 'explain'
         };
@@ -371,10 +371,10 @@ class FloatingMascot {
 
     // Tooltip System
     showTooltip() {
-        if (!this.config.showTooltips) return;
+        if (!this.config.showTooltips) {return;}
 
         const tooltip = this.mascotElement.getAttribute('data-tooltip');
-        if (!tooltip) return;
+        if (!tooltip) {return;}
 
         let tooltipEl = document.getElementById('floating-mascot-tooltip');
         if (!tooltipEl) {
@@ -422,17 +422,17 @@ class FloatingMascot {
     positionTooltip(tooltipEl) {
         const mascotRect = this.mascotElement.getBoundingClientRect();
         const tooltipRect = tooltipEl.getBoundingClientRect();
-        
+
         const left = mascotRect.left + (mascotRect.width / 2) - (tooltipRect.width / 2);
         const top = mascotRect.top - tooltipRect.height - 8;
 
-        tooltipEl.style.left = Math.max(10, Math.min(left, window.innerWidth - tooltipRect.width - 10)) + 'px';
-        tooltipEl.style.top = Math.max(10, top) + 'px';
+        tooltipEl.style.left = `${Math.max(10, Math.min(left, window.innerWidth - tooltipRect.width - 10)) }px`;
+        tooltipEl.style.top = `${Math.max(10, top) }px`;
     }
 
     // Position Management
     savePosition() {
-        if (!this.config.draggable) return;
+        if (!this.config.draggable) {return;}
 
         const rect = this.mascotElement.getBoundingClientRect();
         const position = {
@@ -453,14 +453,14 @@ class FloatingMascot {
             const saved = localStorage.getItem(this.config.positionStorageKey);
             if (saved) {
                 const position = JSON.parse(saved);
-                
+
                 // Validate position is still within viewport
-                if (position.left >= 0 && position.top >= 0 && 
-                    position.left < window.innerWidth - this.config.size && 
+                if (position.left >= 0 && position.top >= 0 &&
+                    position.left < window.innerWidth - this.config.size &&
                     position.top < window.innerHeight - this.config.size) {
-                    
-                    this.mascotElement.style.left = position.left + 'px';
-                    this.mascotElement.style.top = position.top + 'px';
+
+                    this.mascotElement.style.left = `${position.left }px`;
+                    this.mascotElement.style.top = `${position.top }px`;
                     this.mascotElement.style.right = 'auto';
                     this.mascotElement.style.bottom = 'auto';
                     return;
@@ -524,7 +524,7 @@ class FloatingMascot {
         if (this.mascotElement) {
             this.mascotElement.remove();
         }
-        
+
         const tooltip = document.getElementById('floating-mascot-tooltip');
         if (tooltip) {
             tooltip.remove();
@@ -539,7 +539,7 @@ class FloatingMascot {
 // Auto-initialize if enabled
 if (typeof window !== 'undefined') {
     window.FloatingMascot = FloatingMascot;
-    
+
     // Auto-initialize on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
@@ -553,3 +553,4 @@ if (typeof window !== 'undefined') {
         }
     }
 }
+

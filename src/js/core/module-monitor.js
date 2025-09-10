@@ -11,7 +11,7 @@ class ModuleMonitor {
         this.startTimes = new Map();
         this.isMonitoring = false;
         this.originals = {};
-        
+
         console.log('🔍 ModuleMonitor initialized');
     }
 
@@ -57,7 +57,7 @@ class ModuleMonitor {
                         self.startTimes.delete(scriptSrc);
                     }
                 }
-                
+
                 // Call original onload if it exists
                 if (self.originals.onload) {
                     self.originals.onload.call(this, event);
@@ -73,14 +73,14 @@ class ModuleMonitor {
                         const failTime = performance.now() - startTime;
                         self.loadErrors.set(scriptSrc, {
                             error: event.toString(),
-                            failTime: failTime,
+                            failTime,
                             timestamp: new Date().toISOString()
                         });
                         console.error(`❌ Module failed: ${scriptSrc.split('/').pop()} (${failTime.toFixed(2)}ms)`);
                         self.startTimes.delete(scriptSrc);
                     }
                 }
-                
+
                 // Call original onerror if it exists
                 if (self.originals.onerror) {
                     self.originals.onerror.call(this, event);
@@ -101,8 +101,8 @@ class ModuleMonitor {
      */
     monitorScriptCreation() {
         const self = this;
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
                 mutation.addedNodes.forEach(function(node) {
                     if (node.tagName === 'SCRIPT' && node.src) {
                         self.startTimes.set(node.src, performance.now());
@@ -121,7 +121,7 @@ class ModuleMonitor {
      * Stop monitoring and restore original handlers
      */
     stopMonitoring() {
-        if (!this.isMonitoring) return;
+        if (!this.isMonitoring) {return;}
 
         // Restore original handlers
         if (this.originals.onload) {
@@ -152,7 +152,7 @@ class ModuleMonitor {
             totalModules: this.loadTimes.size + this.loadErrors.size,
             successfulLoads: this.loadTimes.size,
             failedLoads: this.loadErrors.size,
-            averageLoadTime: averageLoadTime,
+            averageLoadTime,
             loadTimes: Object.fromEntries(this.loadTimes),
             errors: Object.fromEntries(this.loadErrors),
             timestamp: new Date().toISOString()
@@ -169,11 +169,11 @@ class ModuleMonitor {
         console.log(`Successful: ${report.successfulLoads}`);
         console.log(`Failed: ${report.failedLoads}`);
         console.log(`Average Load Time: ${report.averageLoadTime.toFixed(2)}ms`);
-        
+
         if (report.failedLoads > 0) {
             console.warn('Failed modules:', report.errors);
         }
-        
+
         console.groupEnd();
         return report;
     }
@@ -187,7 +187,7 @@ if (typeof module !== 'undefined' && module.exports) {
 // Global availability
 if (typeof window !== 'undefined') {
     window.ModuleMonitor = ModuleMonitor;
-    
+
     // Auto-initialize if not in production
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         window.moduleMonitor = new ModuleMonitor();
@@ -201,3 +201,4 @@ if (typeof window !== 'undefined') {
 }
 
 console.log('✅ Module Monitor loaded');
+

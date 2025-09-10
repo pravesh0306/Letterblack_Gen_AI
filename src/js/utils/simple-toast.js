@@ -33,7 +33,7 @@ class SimpleToast {
     show(message, type = 'info', duration = 3000) {
         const toast = document.createElement('div');
         toast.className = `simple-toast toast-${type}`;
-        
+
         // Toast styles
         const colors = {
             success: { bg: '#4caf50', border: '#45a049' },
@@ -41,9 +41,9 @@ class SimpleToast {
             warning: { bg: '#ff9800', border: '#f57c00' },
             info: { bg: '#2196f3', border: '#1976d2' }
         };
-        
+
         const color = colors[type] || colors.info;
-        
+
         toast.style.cssText = `
             background: ${color.bg};
             color: white;
@@ -60,20 +60,20 @@ class SimpleToast {
             transition: transform 0.3s ease;
             opacity: 0.95;
         `;
-        
+
         toast.textContent = message;
         this.container.appendChild(toast);
-        
+
         // Animate in
         setTimeout(() => {
             toast.style.transform = 'translateX(0)';
         }, 100);
-        
+
         // Auto remove
         setTimeout(() => {
             this.remove(toast);
         }, duration);
-        
+
         // Click to dismiss
         toast.addEventListener('click', () => {
             this.remove(toast);
@@ -118,3 +118,4 @@ window.showToast = (message, type = 'info') => {
 };
 
 console.log('🍞 Toast notification system ready');
+

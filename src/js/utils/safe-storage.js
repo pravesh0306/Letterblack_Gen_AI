@@ -6,7 +6,7 @@
             getItem(k){ return Object.prototype.hasOwnProperty.call(data,k) ? data[k] : null; },
             setItem(k,v){ data[k] = String(v); },
             removeItem(k){ delete data[k]; },
-            clear(){ for(const k in data) delete data[k]; }
+            clear(){ for(const k in data) {delete data[k];} }
         };
     }
 

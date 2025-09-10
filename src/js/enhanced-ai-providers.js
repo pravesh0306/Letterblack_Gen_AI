@@ -5,7 +5,7 @@
 
 (function() {
     'use strict';
-    
+
     class EnhancedAIProviders {
         constructor() {
             this.providers = {
@@ -38,14 +38,14 @@
             // Gemini 1.5 Flash supports both text and vision in the same model
             const model = options.model || 'gemini-1.5-flash';
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-            
+
             let requestBody;
 
             if (imageBase64) {
                 // Vision API request format
                 const [mimeType, base64Data] = imageBase64.split(',');
                 const mimeTypeClean = mimeType.match(/data:(.+);base64/)[1];
-                
+
                 requestBody = {
                     contents: [{
                         parts: [
@@ -77,7 +77,7 @@
                     }
                 };
             }
-            
+
             const response = await fetch(`${url}?key=${apiKey}`, {
                 method: 'POST',
                 headers: {
@@ -92,7 +92,7 @@
             }
 
             const data = await response.json();
-            
+
             if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
                 throw new Error('Invalid response structure from Gemini API');
             }
@@ -102,9 +102,9 @@
 
         async openAI(message, apiKey, options = {}, imageBase64 = null) {
             const url = 'https://api.openai.com/v1/chat/completions';
-            
+
             let messages = [];
-            
+
             if (imageBase64) {
                 // Vision API format for GPT-4 Vision
                 messages = [{
@@ -120,7 +120,7 @@
                     content: message
                 }];
             }
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -129,7 +129,7 @@
                 },
                 body: JSON.stringify({
                     model: options.model || (imageBase64 ? 'gpt-4-vision-preview' : 'gpt-3.5-turbo'),
-                    messages: messages,
+                    messages,
                     temperature: options.temperature || 0.7,
                     max_tokens: options.maxTokens || 2048
                 })
@@ -146,7 +146,7 @@
 
         async groq(message, apiKey, options = {}) {
             const url = 'https://api.groq.com/openai/v1/chat/completions';
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -175,7 +175,7 @@
 
         async claude(message, apiKey, options = {}) {
             const url = 'https://api.anthropic.com/v1/messages';
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -205,7 +205,7 @@
 
         async cohere(message, apiKey, options = {}) {
             const url = 'https://api.cohere.ai/v1/generate';
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -232,7 +232,7 @@
         async huggingface(message, apiKey, options = {}) {
             const model = options.model || 'microsoft/DialoGPT-medium';
             const url = `https://api-inference.huggingface.co/models/${model}`;
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -259,7 +259,7 @@
 
         async together(message, apiKey, options = {}) {
             const url = 'https://api.together.xyz/inference';
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -285,7 +285,7 @@
 
         async localAPI(message, apiKey, options = {}) {
             const url = options.endpoint || 'http://localhost:1234/v1/chat/completions';
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -313,7 +313,7 @@
 
         async ollama(message, apiKey, options = {}) {
             const url = options.endpoint || 'http://localhost:11434/api/generate';
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -334,14 +334,37 @@
             const data = await response.json();
             return data.response;
         }
+
+        /**
+         * Format AI response for chat display using ChatAssistant
+         */
+        formatResponseForChat(content) {
+            // Use ChatAssistant for markdown processing if available
+            if (window.chatAssistant && typeof window.chatAssistant.processMarkdown === 'function') {
+                console.log('🎨 Using ChatAssistant.processMarkdown for formatting');
+                return window.chatAssistant.processMarkdown(content);
+            }
+
+            // Fallback to basic formatting
+            console.log('⚠️ ChatAssistant not available, using fallback formatting');
+            return content
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`([^`]+?)`/g, '<code>$1</code>');
+        }
     }
 
     // Export to global scope
     window.EnhancedAIProviders = EnhancedAIProviders;
-    
+
     // Initialize if not already done
     if (!window.enhancedAIProviders) {
         window.enhancedAIProviders = new EnhancedAIProviders();
     }
 
 })();
+

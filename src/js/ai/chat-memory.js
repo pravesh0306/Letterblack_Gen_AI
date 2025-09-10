@@ -12,7 +12,7 @@
             this.contextWindowSize = 10; // Number of recent messages to include in context
             this.currentSessionId = this.generateSessionId();
             this.saveToFiles = true; // Enable file saving
-            
+
             // Initialize conversation folder if running in After Effects
             if (window.CSInterface) {
                 this.initializeConversationFolder();
@@ -32,7 +32,7 @@
                     const cs = new CSInterface();
                     const extensionPath = cs.getSystemPath('extension');
                     this.conversationFolderPath = `${extensionPath}/${CHAT_FOLDER}`;
-                    
+
                     // Create folder if it doesn't exist
                     cs.evalScript(`
                         var folder = new Folder('${this.conversationFolderPath}');
@@ -59,29 +59,29 @@
         addMessage(type, message) {
             try {
                 const history = this.getHistory();
-                const messageObj = { 
-                    type: type,
-                    text: typeof message === 'string' ? message : message.toString(), 
+                const messageObj = {
+                    type,
+                    text: typeof message === 'string' ? message : message.toString(),
                     timestamp: new Date().toISOString(),
                     id: Date.now() + Math.random(), // Simple unique ID
                     sessionId: this.currentSessionId
                 };
-                
+
                 history.push(messageObj);
-                
+
                 // Limit history to prevent localStorage overflow
                 if (history.length > this.maxHistorySize) {
                     history.splice(0, history.length - this.maxHistorySize);
                 }
-                
+
                 // Save to localStorage (immediate backup)
                 localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
-                
+
                 // Save to file if enabled
                 if (this.saveToFiles) {
                     this.saveConversationToFile(messageObj);
                 }
-                
+
             } catch (error) {
                 console.error('ChatMemory.addMessage error:', error);
             }
@@ -89,12 +89,12 @@
 
         saveConversationToFile(messageObj) {
             try {
-                if (!window.CSInterface || !this.conversationFolderPath) return;
-                
+                if (!window.CSInterface || !this.conversationFolderPath) {return;}
+
                 const cs = new CSInterface();
                 const fileName = `${this.currentSessionId}.json`;
                 const filePath = `${this.conversationFolderPath}/${fileName}`;
-                
+
                 // Read existing session data or create new
                 cs.evalScript(`
                     var file = new File('${filePath}');
@@ -129,7 +129,7 @@
                         console.warn('Failed to save message to file:', result);
                     }
                 });
-                
+
             } catch (error) {
                 console.error('Failed to save conversation to file:', error);
             }
@@ -159,7 +159,7 @@
         getContextString(limit = 6) {
             try {
                 const recentHistory = this.getRecentHistory(limit);
-                if (recentHistory.length === 0) return '';
+                if (recentHistory.length === 0) {return '';}
 
                 let contextString = '\n=== CONVERSATION CONTEXT ===\n';
                 recentHistory.forEach((msg, index) => {
@@ -168,7 +168,7 @@
                     contextString += `${speaker}: ${text}\n`;
                 });
                 contextString += '=== END CONTEXT ===\n\n';
-                
+
                 return contextString;
             } catch (error) {
                 console.error('ChatMemory.getContextString error:', error);
@@ -181,11 +181,11 @@
             try {
                 const history = this.getHistory();
                 const topicLower = topic.toLowerCase();
-                
-                const relevantMessages = history.filter(msg => 
+
+                const relevantMessages = history.filter(msg =>
                     msg.text.toLowerCase().includes(topicLower)
                 ).slice(-maxResults);
-                
+
                 return relevantMessages;
             } catch (error) {
                 console.error('ChatMemory.getTopicHistory error:', error);
@@ -219,7 +219,7 @@
                     resolve([]);
                     return;
                 }
-                
+
                 const cs = new CSInterface();
                 cs.evalScript(`
                     var folder = new Folder('${this.conversationFolderPath}');
@@ -265,11 +265,11 @@
                     resolve(null);
                     return;
                 }
-                
+
                 const cs = new CSInterface();
                 const fileName = `${sessionId}.json`;
                 const filePath = `${this.conversationFolderPath}/${fileName}`;
-                
+
                 cs.evalScript(`
                     var file = new File('${filePath}');
                     if (file.exists) {
@@ -306,17 +306,17 @@
                         totalSessions: sessions.length,
                         sessions: []
                     };
-                    
+
                     for (const session of sessions) {
                         const sessionData = await this.loadSession(session.sessionId);
                         if (sessionData) {
                             exportData.sessions.push(sessionData);
                         }
                     }
-                    
+
                     // Also include current localStorage data
                     exportData.currentLocalStorage = this.getHistory();
-                    
+
                     resolve(exportData);
                 } catch (error) {
                     console.error('Error exporting conversation history:', error);
@@ -331,7 +331,7 @@
                 try {
                     const sessions = await this.getAvailableSessions();
                     const currentHistory = this.getHistory();
-                    
+
                     const stats = {
                         totalSessions: sessions.length,
                         currentSessionMessages: currentHistory.length,
@@ -341,7 +341,7 @@
                         currentSessionId: this.currentSessionId,
                         storageLocation: this.conversationFolderPath || 'localStorage only'
                     };
-                    
+
                     resolve(stats);
                 } catch (error) {
                     console.error('Error getting conversation stats:', error);
@@ -362,3 +362,4 @@
     // Expose globally for ModuleLoader and main.js
     window.ChatMemory = ChatMemory;
 })();
+

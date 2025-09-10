@@ -7,12 +7,12 @@
     // Simple thinking indicator with mascot integration
     function showThinking(msg){
         const indicator = document.getElementById('ai-thinking');
-        if(!indicator) return;
+        if(!indicator) {return;}
         indicator.classList.remove('hidden');
         indicator.setAttribute('aria-hidden','false');
         const feedback = document.getElementById('ai-feedback');
-        if(feedback) feedback.textContent = msg || 'Thinking...';
-        
+        if(feedback) {feedback.textContent = msg || 'Thinking...';}
+
         // Trigger mascot thinking animation
         const mascotContainer = document.querySelector('.mascot-container');
         if(mascotContainer) {
@@ -23,13 +23,13 @@
             }
         }
     }
-    
+
     function hideThinking(){
         const indicator = document.getElementById('ai-thinking');
-        if(!indicator) return;
+        if(!indicator) {return;}
         indicator.classList.add('hidden');
         indicator.setAttribute('aria-hidden','true');
-        
+
         // Stop mascot thinking animation
         const mascotContainer = document.querySelector('.mascot-container');
         if(mascotContainer) {
@@ -48,7 +48,7 @@
             particles: 'Create a simple particle system using shape layers',
             transitions: 'Create a crossfade transition between two layers'
         };
-        
+
         document.querySelectorAll('[data-template]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const template = btn.getAttribute('data-template');
@@ -106,20 +106,20 @@
     function persistSettings(){
         const provider = document.getElementById('api-provider');
         const apiKey = document.getElementById('api-key-setting');
-        if(!provider || !apiKey) return;
-        
+        if(!provider || !apiKey) {return;}
+
         // Load saved settings
         try {
             const saved = localStorage.getItem('lb_settings');
             if(saved) {
                 const settings = JSON.parse(saved);
-                if(settings.provider) provider.value = settings.provider;
-                if(settings.apiKey) apiKey.value = settings.apiKey;
+                if(settings.provider) {provider.value = settings.provider;}
+                if(settings.apiKey) {apiKey.value = settings.apiKey;}
             }
         } catch(e) {
             console.warn('Could not load settings:', e);
         }
-        
+
         // Save on change
         function saveSettings() {
             try {
@@ -131,7 +131,7 @@
                 console.warn('Could not save settings:', e);
             }
         }
-        
+
         provider.addEventListener('change', saveSettings);
         apiKey.addEventListener('blur', saveSettings);
     }
@@ -141,10 +141,10 @@
         wireQuickActions();
         persistSettings();
         wireMascotInteractions();
-        
+
         // Check AI module availability
         checkAIModuleAvailability();
-        
+
         // Show welcome animation after a short delay
         setTimeout(() => {
             triggerMascotAnimation('mascot-welcome');
@@ -156,22 +156,22 @@
     function checkAIModuleAvailability() {
         const maxChecks = 10;
         let checks = 0;
-        
+
         const checkInterval = setInterval(() => {
             checks++;
-            
+
             if (window.aiModule) {
                 console.log('✅ AI Module is available');
                 updateMascotMessage('AI Module Ready!');
                 clearInterval(checkInterval);
                 return;
             }
-            
+
             if (checks >= maxChecks) {
                 console.warn('⚠️ AI Module not available after', maxChecks, 'checks');
                 updateMascotMessage('AI Module loading...');
                 clearInterval(checkInterval);
-                
+
                 // Try to trigger initialization manually
                 if (window.AIModule && !window.aiModule) {
                     console.log('🔄 Attempting to initialize AI Module manually...');
@@ -196,7 +196,7 @@
                 }
             }
         }, 500);
-        
+
         // Store interval reference for cleanup
         window._uiEnhancementsCleanup = window._uiEnhancementsCleanup || [];
         window._uiEnhancementsCleanup.push(checkInterval);
@@ -206,7 +206,7 @@
     function cleanup() {
         if (window._uiEnhancementsCleanup) {
             window._uiEnhancementsCleanup.forEach(interval => {
-                if (interval) clearInterval(interval);
+                if (interval) {clearInterval(interval);}
             });
             window._uiEnhancementsCleanup = [];
             console.log('🧹 UI Enhancements cleanup completed');
@@ -224,11 +224,12 @@
     }
 
     // Expose minimal API
-    window.UIEnhancements = { 
-        showThinking, 
-        hideThinking, 
-        triggerMascotAnimation, 
-        updateMascotMessage 
+    window.UIEnhancements = {
+        showThinking,
+        hideThinking,
+        triggerMascotAnimation,
+        updateMascotMessage
     };
 
 })();
+

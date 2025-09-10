@@ -16,12 +16,12 @@ class YouTubeTutorialHelper {
     async processYouTubeLink(userMessage) {
         const urlPattern = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
         const match = userMessage.match(urlPattern);
-        
-        if (!match) return null;
-        
+
+        if (!match) {return null;}
+
         const videoId = match[1];
         const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-        
+
         try {
             // Generate tutorial response
             const tutorialData = await this.analyzeTutorial(youtubeUrl, videoId);
@@ -43,9 +43,9 @@ class YouTubeTutorialHelper {
 
         // Basic tutorial analysis
         const tutorialData = {
-            videoId: videoId,
-            url: url,
-            title: "After Effects Tutorial",
+            videoId,
+            url,
+            title: 'After Effects Tutorial',
             category: this.detectTutorialCategory(url),
             techniques: this.extractBasicTechniques(),
             steps: this.generateBasicSteps()
@@ -90,7 +90,7 @@ class YouTubeTutorialHelper {
     extractBasicTechniques() {
         return [
             'Layer Management',
-            'Keyframe Animation', 
+            'Keyframe Animation',
             'Effects Application',
             'Composition Setup'
         ];
@@ -108,7 +108,7 @@ class YouTubeTutorialHelper {
                 action: 'setup'
             },
             {
-                id: 'step-2', 
+                id: 'step-2',
                 title: 'Import Assets',
                 description: 'Gather and import necessary media files',
                 action: 'import'
@@ -185,3 +185,4 @@ class YouTubeTutorialHelper {
 
 // Global instance
 window.youtubeTutorialHelper = window.youtubeTutorialHelper || new YouTubeTutorialHelper();
+

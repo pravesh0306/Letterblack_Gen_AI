@@ -258,30 +258,30 @@ class LayerAnalysisModule {
         }
 
         let context = `🔍 **CURRENT LAYER ANALYSIS:**\n\n`;
-        
+
         analysis.layers.forEach((layer, index) => {
             context += `**Layer ${layer.index}: "${layer.name}"** (${layer.type})\n`;
             context += `• Status: ${layer.enabled ? 'Enabled' : 'Disabled'} | Blend: ${layer.blendingMode}\n`;
-            
+
             // Transform properties
             context += `• Position: [${layer.transform.position?.value?.join(', ') || 'N/A'}]`;
             if (layer.transform.position?.hasExpression) {
                 context += ` ⚡ Has Expression`;
             }
             context += `\n`;
-            
+
             context += `• Scale: [${layer.transform.scale?.value?.join(', ') || 'N/A'}]%`;
             if (layer.transform.scale?.hasExpression) {
                 context += ` ⚡ Has Expression`;
             }
             context += `\n`;
-            
+
             context += `• Rotation: ${layer.transform.rotation?.value || 'N/A'}°`;
             if (layer.transform.rotation?.hasExpression) {
                 context += ` ⚡ Has Expression`;
             }
             context += `\n`;
-            
+
             context += `• Opacity: ${layer.transform.opacity?.value || 'N/A'}%`;
             if (layer.transform.opacity?.hasExpression) {
                 context += ` ⚡ Has Expression`;
@@ -294,7 +294,7 @@ class LayerAnalysisModule {
                 layer.effects.forEach(effect => {
                     if (!effect.error) {
                         context += `• ${effect.name} (${effect.enabled ? 'ON' : 'OFF'})\n`;
-                        
+
                         // Key properties for common effects
                         Object.keys(effect.properties).forEach(propName => {
                             const prop = effect.properties[propName];
@@ -326,27 +326,27 @@ class LayerAnalysisModule {
 
     // Generate intelligent suggestions based on analysis
     generateSmartSuggestions(analysis) {
-        if (analysis.error) return [];
+        if (analysis.error) {return [];}
 
         const suggestions = [];
-        
+
         analysis.layers.forEach(layer => {
             // Suggest based on current effects
             if (layer.effects.length === 0) {
                 suggestions.push('💡 No effects applied - try "apply glow effect" or "add drop shadow"');
             } else {
                 const effectNames = layer.effects.map(e => e.name.toLowerCase());
-                
+
                 if (effectNames.includes('glow')) {
                     suggestions.push('💡 Glow detected - try "add drop shadow" or "adjust glow color"');
                 }
-                
+
                 if (effectNames.includes('drop shadow')) {
                     suggestions.push('💡 Shadow detected - try "apply glow" or "adjust shadow softness"');
                 }
-                
+
                 if (!effectNames.includes('motion blur') && (
-                    layer.transform.position?.hasExpression || 
+                    layer.transform.position?.hasExpression ||
                     layer.transform.rotation?.hasExpression
                 )) {
                     suggestions.push('💡 Animation detected - consider "enable motion blur"');
@@ -358,7 +358,7 @@ class LayerAnalysisModule {
                 suggestions.push('💡 Layer has transparency - try "animate opacity" or "reset opacity"');
             }
 
-            if (layer.transform.scale?.value && 
+            if (layer.transform.scale?.value &&
                 (layer.transform.scale.value[0] !== 100 || layer.transform.scale.value[1] !== 100)) {
                 suggestions.push('💡 Layer is scaled - try "reset scale" or "animate scale"');
             }
@@ -384,3 +384,4 @@ window.LayerAnalysisModule = LayerAnalysisModule;
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = LayerAnalysisModule;
 }
+

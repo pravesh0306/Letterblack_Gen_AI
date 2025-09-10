@@ -1,0 +1,171 @@
+/* Image Upload Styles */
+.image-preview-container {
+    background: var(--vscode-editor-background);
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    padding: 12px;
+    max-height: 200px;
+    overflow: hidden;
+}
+
+.image-preview-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.image-preview-img {
+    max-width: 120px;
+    max-height: 80px;
+    border-radius: 4px;
+    object-fit: cover;
+    border: 1px solid var(--vscode-panel-border);
+}
+
+.image-preview-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    min-height: 24px;
+}
+
+.image-preview-info span {
+    color: var(--vscode-foreground);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.image-preview-info span:before {
+    content: "📷";
+    font-size: 14px;
+}
+
+.remove-image-btn {
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    border: none;
+    border-radius: 3px;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.remove-image-btn:hover {
+    background: var(--vscode-button-secondaryHoverBackground);
+}
+
+/* Image upload button styles */
+#image-upload-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+#image-upload-btn:hover {
+    background: var(--vscode-toolbar-hoverBackground);
+}
+
+#image-upload-btn.has-image {
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+}
+
+/* Image drag and drop for chat input */
+.composer-main.drag-over {
+    background: rgba(var(--vscode-focusBorder-rgb), 0.1);
+    border: 2px dashed var(--vscode-focusBorder);
+    border-radius: 6px;
+}
+
+/* Image in chat messages */
+.message.assistant .message-image,
+.message.user .message-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 6px;
+    margin: 8px 0;
+    border: 1px solid var(--vscode-panel-border);
+    display: block;
+}
+
+.message-image-caption {
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* Loading state for image processing */
+.image-processing {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--vscode-descriptionForeground);
+    font-size: 13px;
+}
+
+.image-processing::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--vscode-progressBar-background);
+    border-top: 2px solid var(--vscode-progressBar-foreground);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Vision API response styling */
+.vision-response {
+    background: var(--vscode-editor-background);
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 6px;
+    padding: 12px;
+    margin: 8px 0;
+}
+
+.vision-response-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    color: var(--vscode-symbolIcon-colorForeground);
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.vision-response-header::before {
+    content: "👁️";
+    font-size: 14px;
+}
+
+.vision-response-content {
+    color: var(--vscode-foreground);
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .image-preview-img {
+        max-width: 80px;
+        max-height: 60px;
+    }
+    
+    .image-preview-info span {
+        font-size: 12px;
+    }
+}
