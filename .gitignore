@@ -39,6 +39,19 @@ package-lock.json
 dist/
 build/
 
+# Reports and docs (auto-generated or non-essential)
+coverage/
+docs/
+
+# Backups and derived HTML
+*backup*.html
+*Backup*.html
+index-clean.html
+
+# Maintenance reports
+technical-debt-report.csv
+technical-debt-cleanup.log
+
 # Environment files
 .env
 .env.local
