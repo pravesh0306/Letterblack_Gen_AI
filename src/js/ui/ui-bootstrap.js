@@ -14,6 +14,22 @@
         return div.innerHTML;
     }
 
+    // Sanitize HTML: allow a small safe subset (code blocks, line breaks) or fallback to escaped text
+    function sanitizeHtml(input) {
+        if (typeof input !== 'string') return '';
+        // Quick allowlist: preserve simple <pre><code> blocks produced by the AI, but sanitize innerText
+        // Normalize CRLF
+        const normalized = input.replace(/\r\n?/g, '\n');
+        // If it appears to be a code block (```), render as escaped code
+        if (/```[\s\S]*```/.test(normalized)) {
+            return normalized.replace(/```([a-zA-Z0-9-_]*)\n([\s\S]*?)```/g, function(_, lang, code) {
+                return '<pre class="sanitized-code"><code>' + escapeHtml(code) + '</code></pre>';
+            }).replace(/\n/g, '<br/>');
+        }
+        // Otherwise escape everything and preserve newlines
+        return escapeHtml(normalized).replace(/\n/g, '<br/>');
+    }
+
     // Input validation helpers
     function validateText(input, minLength = 0, maxLength = 10000) {
         if (typeof input !== 'string') return false;
@@ -708,7 +724,7 @@
             update(); 
         }
         
-        function append(type, text) { 
+    function append(type, text) { 
             if (!chatMessages) return;
             
             // Validate input parameters
@@ -726,7 +742,8 @@
             d.className = `message ${type}`; 
             const c = document.createElement('div'); 
             c.className = 'message-content'; 
-            c.innerHTML = `<p>${escapeHtml(text)}</p>`; 
+            // Use sanitized HTML rendering
+            c.innerHTML = `<p>${sanitizeHtml(text)}</p>`; 
             d.appendChild(c); 
             const ts = document.createElement('div'); 
             ts.className = 'message-timestamp'; 
@@ -778,35 +795,26 @@
                         maxTokens: 2048,
                         chatHistory: []
                     });
-                    
+
                     // Remove typing indicator
                     const typingMsg = chatMessages.querySelector('.message:last-child');
                     if (typingMsg && typingMsg.textContent.includes('thinking')) {
                         typingMsg.remove();
                     }
-                    
+
                     // Add the response with validation
                     if (response && validateText(response, 1, 50000)) {
                         append('system', response);
-                        
+
                         // Show helpful setup message if this looks like an error
                         if (response.includes('❌') && response.includes('API Key')) {
                             setTimeout(() => {
-                                append('system', '💡 **Quick Setup Guide:**\n\n1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)\n2. Create a free API key\n3. Go to Settings tab → paste your key\n4. Click "Save & Test"\n\nThen come back and chat with me! 🚀');
+                                append('system', '💡 **Quick Setup Guide:**\n\n1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)\n2. Create a free API key\n3. Go to Settings tab → paste your key\n4. Click "Save"\n\nThen come back and chat with me! 🚀');
                             }, 1000);
                         }
                     } else {
                         append('system', '❌ Invalid or empty response received from AI provider.');
                     }
-                    
-                } else {
-                    // Remove typing indicator
-                    const typingMsg = chatMessages.querySelector('.message:last-child');
-                    if (typingMsg && typingMsg.textContent.includes('thinking')) {
-                        typingMsg.remove();
-                    }
-                    
-                    append('system', '❌ AI Module not loaded. Please refresh the page.');
                 }
             } catch (error) {
                 // Remove typing indicator
@@ -814,7 +822,7 @@
                 if (typingMsg && typingMsg.textContent.includes('thinking')) {
                     typingMsg.remove();
                 }
-                
+
                 console.error('AI Error:', error);
                 const errorMessage = error.message && validateText(error.message, 0, 1000) ? 
                     error.message : 'Unknown error occurred';
@@ -904,6 +912,119 @@
             ]);
             
             console.log('✅ UI Bootstrap initialization complete');
+
+            // --- Additional wiring: command palette keyboard and button handlers ---
+            try {
+                const commandTrigger = document.getElementById('command-menu-trigger');
+                const commandPanel = document.getElementById('command-menu-panel');
+                const commandSearch = document.getElementById('command-search');
+
+                function openCommandPalette() {
+                    if (!commandPanel) return;
+                    commandPanel.classList.remove('hidden');
+                    commandPanel.setAttribute('aria-hidden', 'false');
+                    if (commandSearch) {
+                        commandSearch.focus();
+                        commandSearch.select();
+                    }
+                }
+
+                function closeCommandPalette() {
+                    if (!commandPanel) return;
+                    commandPanel.classList.add('hidden');
+                    commandPanel.setAttribute('aria-hidden', 'true');
+                    if (commandTrigger) commandTrigger.focus();
+                }
+
+                // Toggle via button
+                if (commandTrigger) {
+                    commandTrigger.addEventListener('click', () => {
+                        if (commandPanel && commandPanel.classList.contains('hidden')) openCommandPalette();
+                        else closeCommandPalette();
+                    });
+                }
+
+                // Keyboard: Ctrl+K to open, Escape to close, arrow navigation
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                        e.preventDefault();
+                        if (commandPanel && commandPanel.classList.contains('hidden')) openCommandPalette();
+                        else closeCommandPalette();
+                    }
+                    if (e.key === 'Escape' && commandPanel && !commandPanel.classList.contains('hidden')) {
+                        closeCommandPalette();
+                    }
+                });
+
+                // Simple up/down nav inside command palette
+                if (commandSearch) {
+                    commandSearch.addEventListener('keydown', (e) => {
+                        const items = Array.from(document.querySelectorAll('.command-item'));
+                        if (!items.length) return;
+                        const current = document.activeElement;
+                        const idx = items.indexOf(current);
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            const next = items[Math.max(0, idx + 1)];
+                            next?.focus();
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            const prev = items[Math.max(0, idx - 1)];
+                            prev?.focus();
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn('Command palette wiring failed', err);
+            }
+
+            // Wire new header buttons (delete cache, mascot debug, auto-detect)
+            try {
+                const deleteBtn = document.getElementById('delete-cache-btn');
+                const mascotDebugBtn = document.getElementById('mascot-debug-btn');
+                const autoDetectBtn = document.getElementById('auto-detect-btn');
+
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', () => {
+                        if (typeof window.deleteCacheAndReload === 'function') window.deleteCacheAndReload();
+                        else showError('Cache delete handler not available.');
+                    });
+                }
+
+                if (mascotDebugBtn) {
+                    mascotDebugBtn.addEventListener('click', () => {
+                        if (typeof window.forceMascotVisibility === 'function') window.forceMascotVisibility();
+                        if (typeof window.testFloatingMascot === 'function') window.testFloatingMascot();
+                    });
+                }
+
+                if (autoDetectBtn) {
+                    autoDetectBtn.addEventListener('click', () => {
+                        if (window.smartAPIManager && typeof window.smartAPIManager.manualDetect === 'function') {
+                            window.smartAPIManager.manualDetect();
+                        } else {
+                            showError('API auto-detect not available.');
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn('Header button wiring failed', err);
+            }
+
+            // Disable API key saving if secure storage not initialized
+            try {
+                const saveAndTestBtn = document.getElementById('save-and-test-btn');
+                const apiInput = document.getElementById('api-key-setting');
+                if (saveAndTestBtn) {
+                    if (!secureStorage) {
+                        saveAndTestBtn.disabled = true;
+                        saveAndTestBtn.title = 'Secure storage unavailable - cannot save API key locally';
+                        if (apiInput) apiInput.setAttribute('placeholder', 'Secure storage required to save API key');
+                    }
+                }
+            } catch (err) {
+                console.warn('API key save guard wiring failed', err);
+            }
         } catch (error) {
             console.error('❌ UI Bootstrap initialization failed:', error);
             showError('Some UI components failed to initialize. Please refresh the page.');

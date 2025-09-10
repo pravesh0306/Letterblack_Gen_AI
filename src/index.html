@@ -55,11 +55,11 @@
                 <button id="ai-status-btn" class="header-btn" title="AI Status Dashboard">
                     <i class="fa-solid fa-robot status-indicator"></i>
                 </button>
-                <button id="mascot-debug-btn" class="header-btn mascot-debug-btn" title="Test Mascot Visibility" onclick="forceMascotVisibility(); testFloatingMascot();">
+                <button id="mascot-debug-btn" class="header-btn mascot-debug-btn" title="Test Mascot Visibility">
                     🎭 TEST
                 </button>
                 <!-- CRITICAL CACHE DELETION BUTTON -->
-                <button type="button" onclick="deleteCacheAndReload()" class="delete-cache-btn" title="Delete Cache & Force Reload">🗑️ DELETE CACHE</button>
+                <button id="delete-cache-btn" type="button" class="delete-cache-btn" title="Delete Cache & Force Reload">🗑️ DELETE CACHE</button>
                 <button id="command-menu-trigger" class="header-btn" title="Command Palette (Ctrl+K)">
                     <i class="fa-solid fa-search"></i>
                 </button>
@@ -260,7 +260,7 @@
                                 
                                 <!-- Quick Actions next to API Settings -->
                                 <div class="api-quick-actions">
-                                    <button id="auto-detect-btn" class="toolbar-btn compact" type="button" onclick="window.smartAPIManager?.manualDetect()">
+                                    <button id="auto-detect-btn" class="toolbar-btn compact" type="button">
                                         <i class="fa-solid fa-magic-wand-sparkles"></i> Auto-Detect
                                     </button>
                                     <button id="save-and-test-btn" class="toolbar-btn primary compact" type="button">Save</button>
