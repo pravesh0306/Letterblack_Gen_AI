@@ -216,13 +216,19 @@ class SimpleFileUpload {
                 audioIndicator = document.createElement('div');
                 audioIndicator.id = 'current-audio-indicator';
                 audioIndicator.className = 'audio-file-indicator';
-                audioIndicator.innerHTML = `
-                    <div class="audio-icon">🎵</div>
-                    <div class="audio-info">
-                        <div class="audio-name"></div>
-                        <div class="audio-details"></div>
-                    </div>
-                `;
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'audio-icon';
+                iconDiv.textContent = '🎵';
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'audio-info';
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'audio-name';
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'audio-details';
+                infoDiv.appendChild(nameDiv);
+                infoDiv.appendChild(detailsDiv);
+                audioIndicator.appendChild(iconDiv);
+                audioIndicator.appendChild(infoDiv);
                 
                 if (imagePreview && imagePreview.parentNode) {
                     imagePreview.parentNode.insertBefore(audioIndicator, imagePreview);

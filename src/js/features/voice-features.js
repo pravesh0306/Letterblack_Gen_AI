@@ -42,6 +42,7 @@ class VoiceFeatureManager {
     testButtonVisibility() {
         const voiceBtn = document.getElementById('voice-input-btn');
         if (voiceBtn) {
+            voiceBtn.setAttribute('aria-label', 'Toggle voice input');
             console.log('✅ Voice button found and accessible');
             console.log('Button styles:', {
                 display: window.getComputedStyle(voiceBtn).display,
@@ -303,14 +304,24 @@ class VoiceFeatureManager {
         const muteBtn = document.getElementById('mascot-mute-btn');
         
         if (muteBtn) {
+            muteBtn.setAttribute('aria-label', this.isMuted ? 'Unmute Assistant' : 'Mute Assistant');
+            // Replace icon safely
+            const ensureIcon = (cls) => {
+                let icon = muteBtn.querySelector('i');
+                if (!icon) {
+                    icon = document.createElement('i');
+                    muteBtn.appendChild(icon);
+                }
+                icon.className = cls;
+            };
             if (this.isMuted) {
                 muteBtn.classList.add('muted');
-                muteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+                ensureIcon('fa-solid fa-volume-xmark');
                 muteBtn.title = 'Unmute Assistant';
                 this.stopSpeaking();
             } else {
                 muteBtn.classList.remove('muted');
-                muteBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                ensureIcon('fa-solid fa-volume-high');
                 muteBtn.title = 'Mute Assistant';
             }
         }
@@ -326,7 +337,11 @@ class VoiceFeatureManager {
 
         const updateVoices = () => {
             const voices = this.speechSynthesis.getVoices();
-            voiceSelect.innerHTML = '<option value="default">Default Voice</option>';
+            while (voiceSelect.firstChild) voiceSelect.removeChild(voiceSelect.firstChild);
+            const def = document.createElement('option');
+            def.value = 'default';
+            def.textContent = 'Default Voice';
+            voiceSelect.appendChild(def);
             
             voices.forEach(voice => {
                 const option = document.createElement('option');

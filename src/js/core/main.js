@@ -5,25 +5,57 @@
                 const lib = JSON.parse(localStorage.getItem('ae_expression_library') || '[]');
                 const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 if (Array.isArray(lib) && lib.length) {
-                    effectsList.innerHTML = lib.map((e, idx) => `\n                        <div class="effect-item">\n                            <strong>${esc(e.name || ('Expression ' + (idx+1)))}</strong><br>\n                            <code>${esc(e.code || '')}</code><br>\n                            <button class="apply-effect-btn" data-idx="${idx}">Apply</button>\n                        </div>`).join('\n');
-                    effectsList.querySelectorAll('.apply-effect-btn').forEach(btn => btn.addEventListener('click', (ev) => {
-                        const i = parseInt(btn.getAttribute('data-idx'), 10);
-                        const item = lib[i];
-                        if (item) console.log('Apply expression (simulated): ' + (item.name || 'Unnamed'));
-                    }));
+                    while (effectsList.firstChild) effectsList.removeChild(effectsList.firstChild);
+                    lib.forEach((e, idx) => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'effect-item';
+
+                        const strong = document.createElement('strong');
+                        strong.textContent = e.name || ('Expression ' + (idx + 1));
+
+                        const br1 = document.createElement('br');
+                        const codeEl = document.createElement('code');
+                        codeEl.textContent = e.code || '';
+                        const br2 = document.createElement('br');
+
+                        const btn = document.createElement('button');
+                        btn.className = 'apply-effect-btn';
+                        btn.dataset.idx = String(idx);
+                        btn.textContent = 'Apply';
+                        btn.addEventListener('click', () => {
+                            const item = lib[idx];
+                            if (item) console.log('Apply expression (simulated): ' + (item.name || 'Unnamed'));
+                        });
+
+                        itemDiv.appendChild(strong);
+                        itemDiv.appendChild(br1);
+                        itemDiv.appendChild(codeEl);
+                        itemDiv.appendChild(br2);
+                        itemDiv.appendChild(btn);
+                        effectsList.appendChild(itemDiv);
+                    });
                 } else {
-                    effectsList.innerHTML = '<p>No saved expressions. Save expressions in the Saved Scripts tab to populate this list.</p>';
+                    while (effectsList.firstChild) effectsList.removeChild(effectsList.firstChild);
+                    const p = document.createElement('p');
+                    p.textContent = 'No saved expressions. Save expressions in the Saved Scripts tab to populate this list.';
+                    effectsList.appendChild(p);
                 }
             } catch (err) {
                 console.warn('Failed to load expression library', err);
-                effectsList.innerHTML = '<p>Error loading expressions.</p>';
+                while (effectsList.firstChild) effectsList.removeChild(effectsList.firstChild);
+                const p = document.createElement('p');
+                p.textContent = 'Error loading expressions.';
+                effectsList.appendChild(p);
             }
         }
 
         // Tutorials placeholder (no built-in tutorial steps)
         const tutorialsList = document.getElementById('tutorials-list');
         if (tutorialsList) {
-            tutorialsList.innerHTML = '<p>No tutorials bundled. Add tutorials via the docs or Saved Scripts.</p>';
+            while (tutorialsList.firstChild) tutorialsList.removeChild(tutorialsList.firstChild);
+            const p = document.createElement('p');
+            p.textContent = 'No tutorials bundled. Add tutorials via the docs or Saved Scripts.';
+            tutorialsList.appendChild(p);
         }
         // Script Health Check, Explain, Debug
         const healthCheckScriptBtn = document.getElementById('health-check-script-btn');
@@ -150,7 +182,8 @@
     if (batchLayerList) {
             // Populate with layers from active comp
             function refreshBatchLayerList() {
-                batchLayerList.innerHTML = 'Loading...';
+                while (batchLayerList.firstChild) batchLayerList.removeChild(batchLayerList.firstChild);
+                batchLayerList.appendChild(document.createTextNode('Loading...'));
                 if (!window.CSInterface) return;
                 const cs = new CSInterface();
                 const script = `
@@ -169,21 +202,54 @@
                         if (res === 'EvalScript error.' || (typeof res === 'string' && res.indexOf('EvalScript error') === 0)) {
                             console.warn('ExtendScript layer fetch failed (not in AE environment):', res);
                             // Show demo layers when not in After Effects
-                            batchLayerList.innerHTML = `
-                                <label><input type="checkbox" class="batch-layer-checkbox" value="1"> 🎬 Demo Layer 1</label><br>
-                                <label><input type="checkbox" class="batch-layer-checkbox" value="2"> 🎨 Demo Layer 2</label><br>
-                                <label><input type="checkbox" class="batch-layer-checkbox" value="3"> ✨ Demo Layer 3</label><br>
-                                <small class="demo-indicator">Demo layers shown - run in After Effects for real layers</small>
-                            `;
+                            while (batchLayerList.firstChild) batchLayerList.removeChild(batchLayerList.firstChild);
+                            const demo = [
+                                { v: '1', t: '🎬 Demo Layer 1' },
+                                { v: '2', t: '🎨 Demo Layer 2' },
+                                { v: '3', t: '✨ Demo Layer 3' }
+                            ];
+                            demo.forEach(d => {
+                                const label = document.createElement('label');
+                                const input = document.createElement('input');
+                                input.type = 'checkbox';
+                                input.className = 'batch-layer-checkbox';
+                                input.value = d.v;
+                                label.appendChild(input);
+                                label.appendChild(document.createTextNode(' ' + d.t));
+                                batchLayerList.appendChild(label);
+                                batchLayerList.appendChild(document.createElement('br'));
+                            });
+                            const small = document.createElement('small');
+                            small.className = 'demo-indicator';
+                            small.textContent = 'Demo layers shown - run in After Effects for real layers';
+                            batchLayerList.appendChild(small);
                             return;
                         }
                         const layers = Array.isArray(res) ? res : [];
-                        batchLayerList.innerHTML = (layers && layers.length) ? layers.map(l =>
-                            `<label><input type="checkbox" class="batch-layer-checkbox" value="${HtmlSanitizer.escape(l.index)}"> ${HtmlSanitizer.escape(l.name)}</label>`
-                        ).join('<br>') : '<em>No layers found</em>';
+                        while (batchLayerList.firstChild) batchLayerList.removeChild(batchLayerList.firstChild);
+                        if (layers && layers.length) {
+                            layers.forEach(l => {
+                                const label = document.createElement('label');
+                                const input = document.createElement('input');
+                                input.type = 'checkbox';
+                                input.className = 'batch-layer-checkbox';
+                                input.value = String(l.index);
+                                label.appendChild(input);
+                                label.appendChild(document.createTextNode(' ' + String(l.name)));
+                                batchLayerList.appendChild(label);
+                                batchLayerList.appendChild(document.createElement('br'));
+                            });
+                        } else {
+                            const em = document.createElement('em');
+                            em.textContent = 'No layers found';
+                            batchLayerList.appendChild(em);
+                        }
                     } catch (e) {
                         console.warn('Failed processing layer list', e, res);
-                        batchLayerList.innerHTML = '<em>Error loading layers</em>';
+                        while (batchLayerList.firstChild) batchLayerList.removeChild(batchLayerList.firstChild);
+                        const em = document.createElement('em');
+                        em.textContent = 'Error loading layers';
+                        batchLayerList.appendChild(em);
                     }
                 }, { parseJSON: true });
             }
@@ -596,10 +662,14 @@ let projectOrganizer = null;
             setupEventListeners();
             initializeTabs();
             
-            // Add a development mode indicator
+            // Add a development mode indicator (avoid innerHTML)
             const header = document.querySelector('.header-content h1');
             if (header) {
-                header.innerHTML += ' <span class="browser-preview-badge">(BROWSER PREVIEW)</span>';
+                const badge = document.createElement('span');
+                badge.className = 'browser-preview-badge';
+                badge.textContent = '(BROWSER PREVIEW)';
+                header.appendChild(document.createTextNode(' '));
+                header.appendChild(badge);
             }
             
             // Remove debug panel after showing dev mode status
@@ -905,13 +975,22 @@ let projectOrganizer = null;
                             const ul = document.createElement('ul');
 
                             const liUnused = document.createElement('li');
-                            liUnused.innerHTML = `<strong>Unused Assets:</strong> ${HtmlSanitizer.escape(unusedRes.unused.length ? unusedRes.unused.join(', ') : 'None')}`;
+                            const su1 = document.createElement('strong');
+                            su1.textContent = 'Unused Assets:';
+                            liUnused.appendChild(su1);
+                            liUnused.appendChild(document.createTextNode(' ' + (unusedRes.unused.length ? unusedRes.unused.join(', ') : 'None')));
 
                             const liTypes = document.createElement('li');
-                            liTypes.innerHTML = `<strong>Layer Types:</strong> ${HtmlSanitizer.escape(Object.entries(typeRes.types).map(([k,v])=>k+': '+v).join(', '))}`;
+                            const su2 = document.createElement('strong');
+                            su2.textContent = 'Layer Types:';
+                            liTypes.appendChild(su2);
+                            liTypes.appendChild(document.createTextNode(' ' + Object.entries(typeRes.types).map(([k,v])=>k+': '+v).join(', ')));
 
                             const liNaming = document.createElement('li');
-                            liNaming.innerHTML = `<strong>Naming Issues:</strong> ${HtmlSanitizer.escape(nameRes.issues.length ? nameRes.issues.join(', ') : 'None')}`;
+                            const su3 = document.createElement('strong');
+                            su3.textContent = 'Naming Issues:';
+                            liNaming.appendChild(su3);
+                            liNaming.appendChild(document.createTextNode(' ' + (nameRes.issues.length ? nameRes.issues.join(', ') : 'None')));
 
                             ul.appendChild(liUnused);
                             ul.appendChild(liTypes);
@@ -951,13 +1030,22 @@ let projectOrganizer = null;
                     const ul = document.createElement('ul');
 
                     const liMissing = document.createElement('li');
-                    liMissing.innerHTML = `<strong>Missing Files:</strong> ${HtmlSanitizer.escape(r.missing.length ? r.missing.join(', ') : 'None')}`;
+                    const sm1 = document.createElement('strong');
+                    sm1.textContent = 'Missing Files:';
+                    liMissing.appendChild(sm1);
+                    liMissing.appendChild(document.createTextNode(' ' + (r.missing.length ? r.missing.join(', ') : 'None')));
 
                     const liUnused = document.createElement('li');
-                    liUnused.innerHTML = `<strong>Unused Assets:</strong> ${HtmlSanitizer.escape(r.unused.length ? r.unused.join(', ') : 'None')}`;
+                    const sm2 = document.createElement('strong');
+                    sm2.textContent = 'Unused Assets:';
+                    liUnused.appendChild(sm2);
+                    liUnused.appendChild(document.createTextNode(' ' + (r.unused.length ? r.unused.join(', ') : 'None')));
 
                     const liBroken = document.createElement('li');
-                    liBroken.innerHTML = `<strong>Broken Expressions:</strong> ${HtmlSanitizer.escape(r.brokenExpressions.length ? r.brokenExpressions.join(', ') : 'None')}`;
+                    const sm3 = document.createElement('strong');
+                    sm3.textContent = 'Broken Expressions:';
+                    liBroken.appendChild(sm3);
+                    liBroken.appendChild(document.createTextNode(' ' + (r.brokenExpressions.length ? r.brokenExpressions.join(', ') : 'None')));
 
                     ul.appendChild(liMissing);
                     ul.appendChild(liUnused);
@@ -1150,7 +1238,10 @@ let projectOrganizer = null;
         const emptyState = document.getElementById('saved-scripts-empty-state');
         const savedScripts = settingsManager.getSetting('savedScripts') || [];
 
-        listContainer.innerHTML = ''; // Clear existing list
+        // Clear existing list safely without innerHTML
+        while (listContainer.firstChild) {
+            listContainer.removeChild(listContainer.firstChild);
+        }
 
         if (savedScripts.length === 0) {
             emptyState.classList.remove('hidden');
@@ -1162,31 +1253,45 @@ let projectOrganizer = null;
             savedScripts.forEach(script => {
                 const scriptItem = document.createElement('div');
                 scriptItem.className = 'saved-script-item';
-                scriptItem.innerHTML = `
-                    <span class="script-name">${script.name}</span>
-                    <div class="script-actions">
-                        <button class="action-btn load-btn" title="Load into Editor">Load</button>
-                        <button class="action-btn delete-btn" title="Delete Script">Delete</button>
-                    </div>
-                `;
 
-                scriptItem.querySelector('.load-btn').addEventListener('click', () => {
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'script-name';
+                nameSpan.textContent = script.name;
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'script-actions';
+
+                const loadBtn = document.createElement('button');
+                loadBtn.className = 'action-btn load-btn';
+                loadBtn.title = 'Load into Editor';
+                loadBtn.textContent = 'Load';
+                loadBtn.addEventListener('click', () => {
                     const scriptEditor = document.getElementById('script-editor');
-                    scriptEditor.value = script.content;
+                    if (scriptEditor) scriptEditor.value = script.content;
                     notify.info(`Script "${script.name}" loaded into editor.`);
-                    // Optional: switch to the script editor tab
-                    document.querySelector('.tab-btn[data-tab="script-library"]').click();
+                    const tabBtn = document.querySelector('.tab-btn[data-tab="script-library"]');
+                    if (tabBtn) tabBtn.click();
                 });
 
-                scriptItem.querySelector('.delete-btn').addEventListener('click', () => {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'action-btn delete-btn';
+                deleteBtn.title = 'Delete Script';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.addEventListener('click', () => {
                     if (confirm(`Are you sure you want to delete "${script.name}"?`)) {
                         const updatedScripts = savedScripts.filter(s => s.id !== script.id);
                         settingsManager.setSetting('savedScripts', updatedScripts);
                         settingsManager.save();
-                        renderSavedScripts(); // Re-render the list
+                        renderSavedScripts();
                         notify.success(`Script "${script.name}" deleted.`);
                     }
                 });
+
+                actionsDiv.appendChild(loadBtn);
+                actionsDiv.appendChild(deleteBtn);
+
+                scriptItem.appendChild(nameSpan);
+                scriptItem.appendChild(actionsDiv);
 
                 listContainer.appendChild(scriptItem);
             });
@@ -1649,7 +1754,8 @@ ${randomFact}`;
         // Add text content
         if (content) {
             const textDiv = document.createElement('div');
-            textDiv.innerHTML = formatMessage(content);
+            const formatted = buildFormattedContent(content);
+            textDiv.appendChild(formatted);
             contentDiv.appendChild(textDiv);
         }
         
@@ -1672,54 +1778,134 @@ ${randomFact}`;
     /**
      * Format message content (markdown, code blocks, and dynamic UI)
      */
-    function formatMessage(content) {
-        // If the content already contains rendered HTML blocks, preserve them
-        if (typeof content === 'string' && /<\w+[^>]*>/.test(content)) {
-            return content;
+    function buildFormattedContent(content) {
+        const fragment = document.createDocumentFragment();
+        if (content == null) return fragment;
+
+        const text = String(content);
+
+        // Helper to escape HTML
+        const escapeHtml = (s) => String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Extract and replace Dynamic UI directives with placeholders
+        // We'll build DOM nodes for these and insert them in order
+        const parts = [];
+        const regex = /\[UI:(SLIDER|BUTTON)\|([^\]]+)\]/g;
+        let lastIndex = 0;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            if (match.index > lastIndex) {
+                parts.push({ type: 'text', value: text.slice(lastIndex, match.index) });
+            }
+            parts.push({ type: 'ui', value: match[0] });
+            lastIndex = regex.lastIndex;
+        }
+        if (lastIndex < text.length) {
+            parts.push({ type: 'text', value: text.slice(lastIndex) });
         }
 
-        let formattedContent = content;
+        const sliderRe = /^\[UI:SLIDER\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^\]]+)\]$/;
+        const buttonRe = /^\[UI:BUTTON\|([^|]+)\|([^\]]+)\]$/;
 
-        // 1. Dynamic UI Controls: [UI:TYPE|...params]
-        const uiSliderRegex = /\[UI:SLIDER\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^\]]+)\]/g;
-        const uiButtonRegex = /\[UI:BUTTON\|([^|]+)\|([^\]]+)\]/g;
-
-        formattedContent = formattedContent.replace(uiSliderRegex, (match, label, min, max, value, propertyPath) => {
-            const id = `slider-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            return `
-                <div class="dynamic-ui-control">
-                    <label for="${id}">${label}</label>
-                    <input type="range" id="${id}" min="${min}" max="${max}" value="${value}"
-                           oninput="this.nextElementSibling.textContent = this.value"
-                           onchange="window.handleDynamicUIChange('setProperty', '${propertyPath}', this.value)">
-                    <span>${value}</span>
-                </div>
-            `;
-        });
-
-        formattedContent = formattedContent.replace(uiButtonRegex, (match, label, actionValue) => {
-            return `
-                <div class="dynamic-ui-control">
-                    <button class="dynamic-btn" onclick="window.handleDynamicUIChange('applyEffect', '${actionValue}')">${label}</button>
-                </div>
-            `;
-        });
-
-        // 2. Standard formatting for the rest
-        return formattedContent
-            .replace(/\n\s*\n\s*\n+/g, '\n\n') // Clean excessive line breaks
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/```(.*?)```/gs, (match, code) => {
-                // Use existing interactive code block formatter if available
-                if (aiModule && aiModule.formatResponseForChat) {
-                    return aiModule.formatResponseForChat(match);
+        // Process code blocks inside text using triple backticks
+        function appendFormattedText(t) {
+            if (!t) return;
+            // Split by ``` blocks
+            const codeSplit = t.split(/```/);
+            for (let i = 0; i < codeSplit.length; i++) {
+                const segment = codeSplit[i];
+                if (i % 2 === 1) {
+                    // Code block
+                    const pre = document.createElement('pre');
+                    const code = document.createElement('code');
+                    code.textContent = segment.replace(/^\n|\n$/g, '');
+                    pre.appendChild(code);
+                    fragment.appendChild(pre);
+                } else {
+                    // Regular text with minimal markdown (**bold**, *italic*, `code`)
+                    // Escape first
+                    let safe = escapeHtml(segment)
+                        .replace(/\n\s*\n\s*\n+/g, '\n\n');
+                    // Inline code
+                    safe = safe.replace(/`([^`]+)`/g, '<code>$1</code>');
+                    // Bold then italic
+                    safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    safe = safe.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    // Line breaks
+                    safe = safe.replace(/\n/g, '<br>');
+                    if (safe) {
+                        const span = document.createElement('span');
+                        span.innerHTML = safe; // innerHTML is safe here because we constructed it from escaped text
+                        fragment.appendChild(span);
+                    }
                 }
-                return `<pre><code>${code}</code></pre>`;
-            })
-            .replace(/`(.*?)`/g, '<code>$1</code>')
-            .replace(/\n/g, '<br>')
-            .trim();
+            }
+        }
+
+        for (const p of parts) {
+            if (p.type === 'text') {
+                appendFormattedText(p.value);
+            } else if (p.type === 'ui') {
+                // Build dynamic UI controls without inline handlers
+                const s = p.value;
+                let m;
+                if ((m = s.match(sliderRe))) {
+                    const [, label, min, max, value, propertyPath] = m;
+                    const wrap = document.createElement('div');
+                    wrap.className = 'dynamic-ui-control';
+                    const id = `slider-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+                    const lbl = document.createElement('label');
+                    lbl.setAttribute('for', id);
+                    lbl.textContent = label;
+
+                    const input = document.createElement('input');
+                    input.type = 'range';
+                    input.id = id;
+                    input.min = min;
+                    input.max = max;
+                    input.value = value;
+
+                    const span = document.createElement('span');
+                    span.textContent = value;
+
+                    input.addEventListener('input', () => {
+                        span.textContent = input.value;
+                    });
+                    input.addEventListener('change', () => {
+                        if (typeof window.handleDynamicUIChange === 'function') {
+                            window.handleDynamicUIChange('setProperty', propertyPath, input.value);
+                        }
+                    });
+
+                    wrap.appendChild(lbl);
+                    wrap.appendChild(input);
+                    wrap.appendChild(span);
+                    fragment.appendChild(wrap);
+                } else if ((m = s.match(buttonRe))) {
+                    const [, label, actionValue] = m;
+                    const wrap = document.createElement('div');
+                    wrap.className = 'dynamic-ui-control';
+                    const btn = document.createElement('button');
+                    btn.className = 'dynamic-btn';
+                    btn.textContent = label;
+                    btn.addEventListener('click', () => {
+                        if (typeof window.handleDynamicUIChange === 'function') {
+                            window.handleDynamicUIChange('applyEffect', actionValue);
+                        }
+                    });
+                    wrap.appendChild(btn);
+                    fragment.appendChild(wrap);
+                } else {
+                    appendFormattedText(p.value); // Fallback if pattern didn't match
+                }
+            }
+        }
+
+        return fragment;
     }
 
     /**
@@ -1777,17 +1963,28 @@ ${randomFact}`;
                 message: message
             });
         } else {
-            // Fallback to legacy indicator
+            // Fallback to legacy indicator without innerHTML
             const indicator = document.createElement('div');
             indicator.id = 'typing-indicator';
             indicator.className = 'message system typing';
             const mascotSrc = 'assets/ae-mascot-animated.gif';
-            indicator.innerHTML = `
-                <div class="message-content">
-                    <img src="${mascotSrc}" class="typing-mascot" alt="AI thinking" />
-                    <div class="typing-text">${message}</div>
-                </div>
-            `;
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+
+            const img = document.createElement('img');
+            img.src = mascotSrc;
+            img.className = 'typing-mascot';
+            img.alt = 'AI thinking';
+
+            const textDiv = document.createElement('div');
+            textDiv.className = 'typing-text';
+            textDiv.textContent = message;
+
+            messageContent.appendChild(img);
+            messageContent.appendChild(textDiv);
+            indicator.appendChild(messageContent);
+
             const chatMessages = document.getElementById('chat-messages');
             if (chatMessages) {
                 chatMessages.appendChild(indicator);

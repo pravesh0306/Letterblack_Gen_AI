@@ -70,10 +70,10 @@ class SecureAPISettingsUI {
    */
   renderUI(settings) {
     // Render static markup first (no user-controlled values)
-    this.container.innerHTML = `
+  this.container.innerHTML = `
       <div class="secure-api-settings">
         <div class="api-settings-header">
-          <h3>🔒 Secure API Configuration</h3>
+      <h3>🔒 Secure API Configuration</h3>
           <div class="security-badge">Encrypted Storage</div>
         </div>
 
@@ -105,7 +105,7 @@ class SecureAPISettingsUI {
                 placeholder="Enter your API key (will be encrypted)"
                 autocomplete="new-password"
               >
-              <button type="button" id="toggle-key-visibility" class="toggle-password">👁️</button>
+              <button type="button" id="toggle-key-visibility" class="toggle-password" aria-label="Toggle API key visibility" aria-pressed="false" title="Show API key">👁️</button>
             </div>
             <div class="input-help">
               Your API key is encrypted before storage and never saved in plain text.
@@ -175,15 +175,15 @@ class SecureAPISettingsUI {
           </div>
         </div>
 
-        <div class="api-actions">
-          <button id="test-api-connection" class="api-button secondary">🔍 Test Connection</button>
-          <button id="save-api-settings" class="api-button primary">💾 Save Settings</button>
-          <button id="clear-api-settings" class="api-button danger">🗑️ Clear All</button>
+        <div class="api-actions" role="group" aria-label="API settings actions">
+          <button id="test-api-connection" class="api-button secondary" aria-label="Test API connection">🔍 Test Connection</button>
+          <button id="save-api-settings" class="api-button primary" aria-label="Save API settings">💾 Save Settings</button>
+          <button id="clear-api-settings" class="api-button danger" aria-label="Clear all API settings">🗑️ Clear All</button>
         </div>
 
         <div class="api-status">
-          <div id="api-status-message" class="status-message"></div>
-          <div id="api-validation-errors" class="validation-errors"></div>
+          <div id="api-status-message" class="status-message" role="status" aria-live="polite"></div>
+          <div id="api-validation-errors" class="validation-errors" role="alert" aria-live="assertive"></div>
         </div>
 
         <div class="api-security-info">
@@ -198,6 +198,15 @@ class SecureAPISettingsUI {
         </div>
 
         <div class="last-updated" style="display:none;"></div>
+
+        <div class="api-logs" style="margin-top:12px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <h4 style="margin:0;font-size:13px;">📜 Recent Actions</h4>
+            <button id="api-log-clear" class="api-button secondary" aria-label="Clear log">Clear</button>
+            <button id="api-log-copy" class="api-button secondary" aria-label="Copy log to clipboard">Copy</button>
+          </div>
+          <pre id="api-log-output" aria-live="polite" style="max-height:130px;overflow:auto;background:#111;color:#ddd;padding:8px;border-radius:6px;font-size:11px;"></pre>
+        </div>
       </div>
     `;
 
@@ -212,6 +221,9 @@ class SecureAPISettingsUI {
     const tempValue = this.container.querySelector('.temperature-value');
     const advancedGroup = this.container.querySelector('.advanced-group');
     const lastUpdatedDiv = this.container.querySelector('.last-updated');
+  const logEl = this.container.querySelector('#api-log-output');
+  const logClearBtn = this.container.querySelector('#api-log-clear');
+  const logCopyBtn = this.container.querySelector('#api-log-copy');
 
     // Set provider
     providerSelect.value = settings.provider || 'gemini';
@@ -241,6 +253,22 @@ class SecureAPISettingsUI {
       lastUpdatedDiv.textContent = `Last updated: ${new Date(settings.lastUpdated).toLocaleString()}`;
       lastUpdatedDiv.style.display = 'block';
     }
+
+    // Initialize logs
+    if (logEl) {
+      logEl.textContent = '';
+    }
+    logClearBtn?.addEventListener('click', () => {
+      if (logEl) logEl.textContent = '';
+    });
+    logCopyBtn?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(logEl?.textContent || '');
+        this.showNotification('Log copied to clipboard', 'success');
+      } catch {
+        this.showNotification('Failed to copy log', 'error');
+      }
+    });
   }
 
   /**
@@ -328,9 +356,13 @@ class SecureAPISettingsUI {
     if (input.type === 'password') {
       input.type = 'text';
       button.textContent = '🙈';
+  button.setAttribute('aria-pressed', 'true');
+  button.setAttribute('title', 'Hide API key');
     } else {
       input.type = 'password';
       button.textContent = '👁️';
+  button.setAttribute('aria-pressed', 'false');
+  button.setAttribute('title', 'Show API key');
     }
   }
 
@@ -509,6 +541,15 @@ class SecureAPISettingsUI {
     msg.className = cls;
     msg.textContent = message;
     container.appendChild(msg);
+
+    // Also append to log output (redacting secrets)
+    const logEl = this.container?.querySelector?.('#api-log-output');
+    if (logEl) {
+      const redacted = String(message).replace(/[A-Za-z0-9_\-]{16,}/g, '•••');
+      const line = `${new Date().toLocaleTimeString()} ${type.toUpperCase()}: ${redacted}\n`;
+      logEl.textContent += line;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
   }
 
   /**
