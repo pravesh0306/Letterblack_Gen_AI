@@ -556,16 +556,34 @@ class ModuleInitializer {
    * Initialize basic UI for fallback mode
    */
   initializeBasicUI() {
+    // Build fallback UI using DOM APIs to avoid injecting raw HTML
     const errorContainer = document.createElement('div');
     errorContainer.id = 'fallback-ui';
-    errorContainer.innerHTML = `
-      <div style="padding: 20px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;">
-        <h3>⚠️ Extension Initialization Warning</h3>
-        <p>Some features may not be available due to initialization issues.</p>
-        <button onclick="location.reload()">Reload Extension</button>
-      </div>
-    `;
-    
+
+    const panel = document.createElement('div');
+    panel.style.padding = '20px';
+    panel.style.background = '#fff3cd';
+    panel.style.border = '1px solid #ffeaa7';
+    panel.style.borderRadius = '4px';
+
+    const title = document.createElement('h3');
+    title.textContent = '⚠️ Extension Initialization Warning';
+
+    const msg = document.createElement('p');
+    msg.textContent = 'Some features may not be available due to initialization issues.';
+
+    const reloadBtn = document.createElement('button');
+    reloadBtn.type = 'button';
+    reloadBtn.textContent = 'Reload Extension';
+    reloadBtn.addEventListener('click', () => {
+      try { location.reload(); } catch (e) { window.location.href = window.location.href; }
+    });
+
+    panel.appendChild(title);
+    panel.appendChild(msg);
+    panel.appendChild(reloadBtn);
+    errorContainer.appendChild(panel);
+
     document.body.insertBefore(errorContainer, document.body.firstChild);
   }
 
@@ -588,14 +606,36 @@ class ModuleInitializer {
    * Show critical error
    */
   showCriticalError(originalError, fallbackError) {
+    // Create a non-intrusive critical error banner using safe DOM methods
     const errorDiv = document.createElement('div');
-    errorDiv.innerHTML = `
-      <div style="position: fixed; top: 0; left: 0; right: 0; background: #dc3545; color: white; padding: 10px; z-index: 9999;">
-        <strong>Critical Error:</strong> Extension failed to initialize. Please reload the page.
-        <button onclick="location.reload()" style="margin-left: 10px; background: white; color: #dc3545; border: none; padding: 5px 10px;">Reload</button>
-      </div>
-    `;
-    
+    Object.assign(errorDiv.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      right: '0',
+      background: '#dc3545',
+      color: 'white',
+      padding: '10px',
+      zIndex: 9999
+    });
+
+    const strong = document.createElement('strong');
+    strong.textContent = 'Critical Error:';
+
+    const text = document.createTextNode(' Extension failed to initialize. Please reload the page.');
+
+    const reloadBtn = document.createElement('button');
+    reloadBtn.type = 'button';
+    reloadBtn.textContent = 'Reload';
+    Object.assign(reloadBtn.style, { marginLeft: '10px', background: 'white', color: '#dc3545', border: 'none', padding: '5px 10px' });
+    reloadBtn.addEventListener('click', () => {
+      try { location.reload(); } catch (e) { window.location.href = window.location.href; }
+    });
+
+    errorDiv.appendChild(strong);
+    errorDiv.appendChild(text);
+    errorDiv.appendChild(reloadBtn);
+
     document.body.appendChild(errorDiv);
   }
 

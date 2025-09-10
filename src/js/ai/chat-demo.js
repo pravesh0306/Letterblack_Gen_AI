@@ -130,58 +130,127 @@ class ChatDemo {
     applyExpression(property, code) { this.addMessage('system', 'Apply expression requested (simulated). In a real extension this would send the code to After Effects.'); }
     saveAsPreset(name) { this.addMessage('system', 'Saving presets is disabled by default. Use the Saved Scripts tab to persist snippets.'); }
     showVariations(name) { this.addMessage('assistant', 'No variations available. Create variations in your library.'); }
-}
 
-// instantiate
-new ChatDemo();
+// instantiate is done on DOMContentLoaded below
 
-                <div class="suggestion-chips">
-                    ${expr.related.map(rel => `<button class="suggestion-chip" onclick="chatDemo.askExample('${rel}')">${rel}</button>`).join('')}
-                </div>
-            </div>
-        `;
-    }
+    // Create a DOM fragment for a script card with safe event wiring
+    createScriptElement(script) {
+        const frag = document.createDocumentFragment();
 
-    createScriptHTML(script) {
-        return `
-            <h4>${script.title}</h4>
-            <p>${script.description}</p>
-            
-            <div class="code-block">
-                <div class="code-header">
-                    <span class="code-title">${script.filename}</span>
-                    <button class="copy-btn" onclick="chatDemo.copyToClipboard(this)">📋 Copy Script</button>
-                </div>
-                <pre class="code-content"><code>${this.highlightSyntax(script.code)}</code></pre>
-            </div>
+        const h4 = document.createElement('h4');
+        h4.textContent = script.title || '';
+        frag.appendChild(h4);
 
-            <div class="suggestion-panel">
-                <h5>🛠️ Script Features:</h5>
-                <ul>
-                    ${script.features.map(feature => `<li>${feature}</li>`).join('')}
-                </ul>
-                
-                <div class="tip-callout">
-                    <div class="tip-icon">💡</div>
-                    <div class="tip-content">
-                        <strong>Usage:</strong> ${script.usage}
-                    </div>
-                </div>
+        const p = document.createElement('p');
+        p.textContent = script.description || '';
+        frag.appendChild(p);
 
-                <div class="quick-actions">
-                    <button class="action-btn primary" onclick="chatDemo.runScript(\`${script.code.replace(/`/g, '\\`')}\`)">Run Script</button>
-                    <button class="action-btn secondary" onclick="chatDemo.saveScript('${script.filename}', \`${script.code.replace(/`/g, '\\`')}\`)">Save to File</button>
-                    <button class="action-btn secondary" onclick="chatDemo.scheduleScript()">Schedule Run</button>
-                </div>
-            </div>
+        const codeBlock = document.createElement('div');
+        codeBlock.className = 'code-block';
 
-            <div class="related-suggestions">
-                <h5>🔗 Related Scripts:</h5>
-                <div class="suggestion-chips">
-                    ${script.related.map(rel => `<button class="suggestion-chip" onclick="chatDemo.askExample('${rel}')">${rel}</button>`).join('')}
-                </div>
-            </div>
-        `;
+        const codeHeader = document.createElement('div');
+        codeHeader.className = 'code-header';
+
+        const codeTitle = document.createElement('span');
+        codeTitle.className = 'code-title';
+        codeTitle.textContent = script.filename || '';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.type = 'button';
+        copyBtn.textContent = '📋 Copy Script';
+        copyBtn.addEventListener('click', (ev) => this.copyToClipboard(ev.currentTarget));
+
+        codeHeader.appendChild(codeTitle);
+        codeHeader.appendChild(copyBtn);
+
+        const pre = document.createElement('pre');
+        pre.className = 'code-content';
+        const codeEl = document.createElement('code');
+        // Insert highlighted syntax as text to avoid HTML injection
+        codeEl.textContent = script.code || '';
+        pre.appendChild(codeEl);
+
+        codeBlock.appendChild(codeHeader);
+        codeBlock.appendChild(pre);
+        frag.appendChild(codeBlock);
+
+        const suggestionPanel = document.createElement('div');
+        suggestionPanel.className = 'suggestion-panel';
+        const h5 = document.createElement('h5');
+        h5.textContent = '🛠️ Script Features:';
+        suggestionPanel.appendChild(h5);
+
+        const ul = document.createElement('ul');
+        (script.features || []).forEach(f => {
+            const li = document.createElement('li');
+            li.textContent = f;
+            ul.appendChild(li);
+        });
+        suggestionPanel.appendChild(ul);
+
+        const tipCallout = document.createElement('div');
+        tipCallout.className = 'tip-callout';
+        const tipIcon = document.createElement('div');
+        tipIcon.className = 'tip-icon';
+        tipIcon.textContent = '💡';
+        const tipContent = document.createElement('div');
+        tipContent.className = 'tip-content';
+        tipContent.innerHTML = `<strong>Usage:</strong> ${HtmlSanitizer ? HtmlSanitizer.escape(script.usage || '') : (script.usage || '')}`;
+        tipCallout.appendChild(tipIcon);
+        tipCallout.appendChild(tipContent);
+        suggestionPanel.appendChild(tipCallout);
+
+        const quickActions = document.createElement('div');
+        quickActions.className = 'quick-actions';
+
+        const runBtn = document.createElement('button');
+        runBtn.className = 'action-btn primary';
+        runBtn.type = 'button';
+        runBtn.textContent = 'Run Script';
+        runBtn.addEventListener('click', () => this.runScript(script.code || ''));
+
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'action-btn secondary';
+        saveBtn.type = 'button';
+        saveBtn.textContent = 'Save to File';
+        saveBtn.addEventListener('click', () => this.saveScript(script.filename || 'script.js', script.code || ''));
+
+        const scheduleBtn = document.createElement('button');
+        scheduleBtn.className = 'action-btn secondary';
+        scheduleBtn.type = 'button';
+        scheduleBtn.textContent = 'Schedule Run';
+        scheduleBtn.addEventListener('click', () => this.scheduleScript());
+
+        quickActions.appendChild(runBtn);
+        quickActions.appendChild(saveBtn);
+        quickActions.appendChild(scheduleBtn);
+        suggestionPanel.appendChild(quickActions);
+
+        frag.appendChild(suggestionPanel);
+
+        if (Array.isArray(script.related) && script.related.length) {
+            const related = document.createElement('div');
+            related.className = 'related-suggestions';
+            const h5r = document.createElement('h5');
+            h5r.textContent = '🔗 Related Scripts:';
+            related.appendChild(h5r);
+
+            const chips = document.createElement('div');
+            chips.className = 'suggestion-chips';
+            script.related.forEach(rel => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion-chip';
+                btn.type = 'button';
+                btn.textContent = rel;
+                btn.addEventListener('click', () => this.askExample(rel));
+                chips.appendChild(btn);
+            });
+            related.appendChild(chips);
+            frag.appendChild(related);
+        }
+
+        return frag;
     }
 
     highlightSyntax(code) {

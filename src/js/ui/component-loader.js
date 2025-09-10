@@ -59,15 +59,25 @@ class ComponentLoader {
         } catch (error) {
             console.error(`❌ Failed to load component '${componentName}':`, error);
             
-            // Show fallback content
+            // Show fallback content using DOM APIs to avoid HTML injection
             const target = document.querySelector(targetSelector);
             if (target) {
-                target.innerHTML = `
-                    <div class="component-error">
-                        <p>⚠️ Failed to load ${componentName}</p>
-                        <small>${error.message}</small>
-                    </div>
-                `;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'component-error';
+
+                const p = document.createElement('p');
+                p.textContent = `⚠️ Failed to load ${componentName}`;
+
+                const small = document.createElement('small');
+                // Use textContent for the error message to avoid injecting HTML
+                small.textContent = error && error.message ? String(error.message) : 'Unknown error';
+
+                wrapper.appendChild(p);
+                wrapper.appendChild(small);
+
+                // Clear target and append wrapper
+                target.textContent = '';
+                target.appendChild(wrapper);
             }
         }
     }

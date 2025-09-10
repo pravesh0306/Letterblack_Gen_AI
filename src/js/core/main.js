@@ -127,6 +127,21 @@
                 a.click();
             });
         }
+            // Delegate data-action buttons to avoid inline onclick attributes
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const action = btn.getAttribute('data-action');
+                if (!action) return;
+                if (action === 'refresh-ai-status' && window.AppModules && typeof window.AppModules.refreshAIStatus === 'function') {
+                    window.AppModules.refreshAIStatus();
+                    return;
+                }
+                if (action === 'run-ai-diagnostics' && window.AppModules && typeof window.AppModules.runAIDiagnostics === 'function') {
+                    window.AppModules.runAIDiagnostics();
+                    return;
+                }
+            });
         // Batch Processing UI logic
         const batchLayerList = document.getElementById('batch-layer-list');
         const batchRenameBtn = document.getElementById('batch-rename-btn');
@@ -488,11 +503,22 @@ let projectOrganizer = null;
             border-bottom: 1px solid #333; text-align: center;
             transition: all 0.3s ease;
         `;
-        panel.innerHTML = `
-            <span id="debug-status">🔍 Initializing CEP detection...</span>
-            <button onclick="document.getElementById('cep-debug-panel').style.display='none'" 
-                    class="close-button">×</button>
-        `;
+        // Create content using DOM APIs to avoid injecting event handlers via HTML
+        const statusSpan = document.createElement('span');
+        statusSpan.id = 'debug-status';
+        statusSpan.textContent = '🔍 Initializing CEP detection...';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'close-button';
+        closeBtn.textContent = '×';
+        closeBtn.addEventListener('click', () => {
+            const p = document.getElementById('cep-debug-panel');
+            if (p) p.style.display = 'none';
+        });
+
+        panel.appendChild(statusSpan);
+        panel.appendChild(closeBtn);
         document.body.insertBefore(panel, document.body.firstChild);
         
         // Adjust main content to accommodate debug panel
@@ -594,14 +620,28 @@ let projectOrganizer = null;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                         max-width: 300px; line-height: 1.4;
                     `;
-                    notice.innerHTML = `
-                        <strong>🎨 Design System Preview</strong><br>
-                        <small>All UI components functional! Install in After Effects for CEP features.</small>
-                        <button onclick="this.parentElement.remove()" 
-                                class="close-button-white">×</button>
-                    `;
+
+                    const strong = document.createElement('strong');
+                    strong.textContent = '🎨 Design System Preview';
+
+                    const small = document.createElement('small');
+                    small.style.display = 'block';
+                    small.textContent = 'All UI components functional! Install in After Effects for CEP features.';
+
+                    const close = document.createElement('button');
+                    close.type = 'button';
+                    close.className = 'close-button-white';
+                    close.textContent = '×';
+                    close.addEventListener('click', () => {
+                        if (notice.parentElement) notice.remove();
+                    });
+
+                    notice.appendChild(strong);
+                    notice.appendChild(document.createElement('br'));
+                    notice.appendChild(small);
+                    notice.appendChild(close);
                     document.body.appendChild(notice);
-                    
+
                     // Auto-remove after 8 seconds
                     setTimeout(() => {
                         if (notice.parentElement) notice.remove();
@@ -829,24 +869,60 @@ let projectOrganizer = null;
                     console.error('ProjectOrganizer is not initialized.');
                     return;
                 }
-                projectSummary.innerHTML = '<p>Scanning project...</p>';
+                projectSummary.textContent = '';
+                const scanningP = document.createElement('p');
+                scanningP.textContent = 'Scanning project...';
+                projectSummary.appendChild(scanningP);
                 projectOrganizer.scanUnusedAssets((err, unusedRes) => {
-                    if (err) return projectSummary.innerHTML = `<p>Error: ${err}</p>`;
+                    if (err) {
+                        projectSummary.textContent = '';
+                        const p = document.createElement('p');
+                        p.textContent = `Error: ${String(err)}`;
+                        projectSummary.appendChild(p);
+                        return;
+                    }
                     projectOrganizer.scanLayerTypes((err2, typeRes) => {
-                        if (err2) return projectSummary.innerHTML = `<p>Error: ${err2}</p>`;
+                        if (err2) {
+                            projectSummary.textContent = '';
+                            const p2 = document.createElement('p');
+                            p2.textContent = `Error: ${String(err2)}`;
+                            projectSummary.appendChild(p2);
+                            return;
+                        }
                         projectOrganizer.scanNamingIssues((err3, nameRes) => {
-                            if (err3) return projectSummary.innerHTML = `<p>Error: ${err3}</p>`;
-                projectSummary.innerHTML =
-                    `<h4>Project Scan Results</h4>` +
-                    `<ul>` +
-                    `<li><strong>Unused Assets:</strong> ${HtmlSanitizer.escape(unusedRes.unused.length ? unusedRes.unused.join(', ') : 'None')}</li>` +
-                    `<li><strong>Layer Types:</strong> ${HtmlSanitizer.escape(Object.entries(typeRes.types).map(([k,v])=>k+': '+v).join(', '))}</li>` +
-                    `<li><strong>Naming Issues:</strong> ${HtmlSanitizer.escape(nameRes.issues.length ? nameRes.issues.join(', ') : 'None')}</li>` +
-                    `</ul>`;
-                        });
-                    });
-                });
-            });
+                            if (err3) {
+                                projectSummary.textContent = '';
+                                const p3 = document.createElement('p');
+                                p3.textContent = `Error: ${String(err3)}`;
+                                projectSummary.appendChild(p3);
+                                return;
+                            }
+
+                            // Build results safely
+                            projectSummary.textContent = '';
+                            const h4 = document.createElement('h4');
+                            h4.textContent = 'Project Scan Results';
+                            const ul = document.createElement('ul');
+
+                            const liUnused = document.createElement('li');
+                            liUnused.innerHTML = `<strong>Unused Assets:</strong> ${HtmlSanitizer.escape(unusedRes.unused.length ? unusedRes.unused.join(', ') : 'None')}`;
+
+                            const liTypes = document.createElement('li');
+                            liTypes.innerHTML = `<strong>Layer Types:</strong> ${HtmlSanitizer.escape(Object.entries(typeRes.types).map(([k,v])=>k+': '+v).join(', '))}`;
+
+                            const liNaming = document.createElement('li');
+                            liNaming.innerHTML = `<strong>Naming Issues:</strong> ${HtmlSanitizer.escape(nameRes.issues.length ? nameRes.issues.join(', ') : 'None')}`;
+
+                            ul.appendChild(liUnused);
+                            ul.appendChild(liTypes);
+                            ul.appendChild(liNaming);
+
+                            projectSummary.appendChild(h4);
+                            projectSummary.appendChild(ul);
+                        }); // scanNamingIssues
+                    }); // scanLayerTypes
+                }); // scanUnusedAssets
+            }); // organizeProjectBtn click
         }
 
         if (projectHealthBtn) {
@@ -855,17 +931,40 @@ let projectOrganizer = null;
                     console.error('ProjectOrganizer is not initialized.');
                     return;
                 }
-                projectSummary.innerHTML = '<p>Running health check...</p>';
+                projectSummary.textContent = '';
+                const runningP = document.createElement('p');
+                runningP.textContent = 'Running health check...';
+                projectSummary.appendChild(runningP);
                 projectOrganizer.runHealthCheck((err, res) => {
-                    if (err) return projectSummary.innerHTML = `<p>Error: ${HtmlSanitizer.escape(err)}</p>`;
+                    if (err) {
+                        projectSummary.textContent = '';
+                        const errP = document.createElement('p');
+                        errP.textContent = `Error: ${String(HtmlSanitizer ? HtmlSanitizer.escape(err) : err)}`;
+                        projectSummary.appendChild(errP);
+                        return;
+                    }
                     const r = res.report;
-                    projectSummary.innerHTML =
-                        `<h4>Project Health Check</h4>` +
-                        `<ul>` +
-                        `<li><strong>Missing Files:</strong> ${HtmlSanitizer.escape(r.missing.length ? r.missing.join(', ') : 'None')}</li>` +
-                        `<li><strong>Unused Assets:</strong> ${HtmlSanitizer.escape(r.unused.length ? r.unused.join(', ') : 'None')}</li>` +
-                        `<li><strong>Broken Expressions:</strong> ${HtmlSanitizer.escape(r.brokenExpressions.length ? r.brokenExpressions.join(', ') : 'None')}</li>` +
-                        `</ul>`;
+
+                    projectSummary.textContent = '';
+                    const h4 = document.createElement('h4');
+                    h4.textContent = 'Project Health Check';
+                    const ul = document.createElement('ul');
+
+                    const liMissing = document.createElement('li');
+                    liMissing.innerHTML = `<strong>Missing Files:</strong> ${HtmlSanitizer.escape(r.missing.length ? r.missing.join(', ') : 'None')}`;
+
+                    const liUnused = document.createElement('li');
+                    liUnused.innerHTML = `<strong>Unused Assets:</strong> ${HtmlSanitizer.escape(r.unused.length ? r.unused.join(', ') : 'None')}`;
+
+                    const liBroken = document.createElement('li');
+                    liBroken.innerHTML = `<strong>Broken Expressions:</strong> ${HtmlSanitizer.escape(r.brokenExpressions.length ? r.brokenExpressions.join(', ') : 'None')}`;
+
+                    ul.appendChild(liMissing);
+                    ul.appendChild(liUnused);
+                    ul.appendChild(liBroken);
+
+                    projectSummary.appendChild(h4);
+                    projectSummary.appendChild(ul);
                 });
             });
         }

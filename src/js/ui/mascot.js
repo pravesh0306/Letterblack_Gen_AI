@@ -170,16 +170,33 @@ class MascotComponent {
     }
     
     notify(message, type = 'info', duration = 5000) {
-        // Create notification element
+        // Create notification element safely (avoid inline onclick)
         const notification = document.createElement('div');
         notification.className = `mascot-notification ${type}`;
-        notification.innerHTML = `
-            <div class="mascot-notification-content">
-                <img src="${this.options.image}" alt="Notification" class="mascot-image notification">
-                <div class="mascot-notification-text">${message}</div>
-                <button class="mascot-notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
-            </div>
-        `;
+        const content = document.createElement('div');
+        content.className = 'mascot-notification-content';
+
+        const img = document.createElement('img');
+        img.src = this.options.image;
+        img.alt = 'Notification';
+        img.className = 'mascot-image notification';
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'mascot-notification-text';
+        textDiv.textContent = message;
+
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'mascot-notification-close';
+        closeBtn.type = 'button';
+        closeBtn.textContent = '×';
+        closeBtn.addEventListener('click', () => {
+            if (notification.parentElement) notification.parentElement.removeChild(notification);
+        });
+
+        content.appendChild(img);
+        content.appendChild(textDiv);
+        content.appendChild(closeBtn);
+        notification.appendChild(content);
         
         // Position notification
         notification.style.cssText = `
