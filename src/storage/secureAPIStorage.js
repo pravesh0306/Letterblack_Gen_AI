@@ -84,7 +84,7 @@ class SecureAPIStorage {
     /**
      * Initialize storage with environment-specific setup
      */
-    async init() {
+  async init() {
         try {
             if (this.isNode) {
                 this.ensureDirs();
@@ -101,7 +101,7 @@ class SecureAPIStorage {
             }
             this.initialized = true;
         } catch (error) {
-            console.error('❌ Failed to initialize SecureAPIStorage:', error);
+            console.error('Failed to initialize SecureAPIStorage:', error);
             this.initialized = false;
         }
     }
@@ -143,7 +143,7 @@ class SecureAPIStorage {
                     authTag: authTag.toString('hex')
                 };
             } catch (error) {
-                console.error('🔒 Encryption failed:', error);
+                console.error('Encryption failed:', error);
                 return text; // Return unencrypted as fallback
             }
         } else {
@@ -178,7 +178,7 @@ class SecureAPIStorage {
 
                 return decrypted;
             } catch (error) {
-                console.error('🔒 Decryption failed:', error);
+                console.error('Decryption failed:', error);
                 return null;
             }
         } else {
@@ -226,11 +226,11 @@ class SecureAPIStorage {
         sessionStorage.setItem(this.storageKey, encryptedSettings);
       }
 
-      console.log('✅ API settings saved securely');
-      return true;
+  console.log('API settings saved securely');
+      return { success: true };
     } catch (error) {
-      console.error('❌ Failed to save API settings:', error);
-      return false;
+  console.error('Failed to save API settings:', error);
+      return { success: false, error: error?.message || String(error) };
     }
   }
 
@@ -247,14 +247,25 @@ class SecureAPIStorage {
 
       if (this.useFileStorage && this.storage) {
         // Load from chat storage system
-        const conversations = await this.storage.getConversations();
+        const conversations = await (this.storage.getConversations
+          ? this.storage.getConversations()
+          : (async () => {
+              // Fallback for browser chatStore which doesn't support listing messages
+              const list = this.storage.getConversationList ? this.storage.getConversationList() : [];
+              return list.map(c => ({ id: c.id, title: c.title }));
+            })());
         const settingsConv = conversations.find(conv => conv.title === 'api_settings');
         
         if (settingsConv) {
-          const messages = await this.storage.getMessages(settingsConv.id);
-          const settingsMessage = messages.find(msg => msg.meta?.type === 'api_settings');
-          if (settingsMessage) {
-            encryptedData = settingsMessage.meta.data;
+          if (this.storage.getMessages) {
+            const messages = await this.storage.getMessages(settingsConv.id);
+            const settingsMessage = messages.find(msg => msg.meta?.type === 'api_settings');
+            if (settingsMessage) {
+              encryptedData = settingsMessage.meta.data;
+            }
+          } else {
+            // No way to read meta in the browser fallback – use sessionStorage instead
+            encryptedData = sessionStorage.getItem(this.storageKey);
           }
         }
       } else {
@@ -263,14 +274,14 @@ class SecureAPIStorage {
       }
 
       if (!encryptedData) {
-        return this.getDefaultSettings();
+        return { success: true, settings: this.getDefaultSettings() };
       }
 
       const settings = this.decrypt(encryptedData);
-      return settings || this.getDefaultSettings();
+      return { success: true, settings: settings || this.getDefaultSettings() };
     } catch (error) {
-      console.error('❌ Failed to load API settings:', error);
-      return this.getDefaultSettings();
+  console.error('Failed to load API settings:', error);
+      return { success: false, settings: this.getDefaultSettings(), error: error?.message || String(error) };
     }
   }
 
@@ -296,15 +307,15 @@ class SecureAPIStorage {
       const legacyData = localStorage.getItem('ae_api_settings');
       if (legacyData) {
         const settings = JSON.parse(legacyData);
-        await this.saveSettings(settings);
+        const res = await this.saveSettings(settings);
         localStorage.removeItem('ae_api_settings');
-        console.log('✅ Migrated API settings from localStorage');
-        return true;
+  console.log('Migrated API settings from localStorage');
+        return { success: true, migrated: true };
       }
     } catch (error) {
-      console.error('❌ Failed to migrate from localStorage:', error);
+  console.error('Failed to migrate from localStorage:', error);
     }
-    return false;
+    return { success: true, migrated: false };
   }
 
   /**
@@ -313,19 +324,21 @@ class SecureAPIStorage {
   async clearSettings() {
     try {
       if (this.useFileStorage && this.storage) {
-        const conversations = await this.storage.getConversations();
-        const settingsConv = conversations.find(conv => conv.title === 'api_settings');
-        if (settingsConv) {
-          await this.storage.deleteConversation(settingsConv.id);
+        if (this.storage.getConversations && this.storage.deleteConversation) {
+          const conversations = await this.storage.getConversations();
+          const settingsConv = conversations.find(conv => conv.title === 'api_settings');
+          if (settingsConv) {
+            await this.storage.deleteConversation(settingsConv.id);
+          }
         }
       } else {
         sessionStorage.removeItem(this.storageKey);
       }
-      console.log('✅ API settings cleared');
-      return true;
+  console.log('API settings cleared');
+      return { success: true };
     } catch (error) {
-      console.error('❌ Failed to clear API settings:', error);
-      return false;
+  console.error('Failed to clear API settings:', error);
+      return { success: false, error: error?.message || String(error) };
     }
   }
 
@@ -334,19 +347,21 @@ class SecureAPIStorage {
    */
   validateApiKey(key, provider = 'gemini') {
     if (!key || typeof key !== 'string') {
-      return false;
+      return { valid: false, reason: 'API key is required' };
     }
 
-    switch (provider) {
-      case 'gemini':
-        return key.startsWith('AIza') && key.length > 20;
-      case 'openai':
-        return key.startsWith('sk-') && key.length > 20;
-      case 'claude':
-        return key.startsWith('sk-ant-') && key.length > 20;
-      default:
-        return key.length > 10; // Basic validation
-    }
+    const tests = {
+      gemini: (k) => k.startsWith('AIza') && k.length > 20,
+      openai: (k) => k.startsWith('sk-') && k.length > 20,
+      anthropic: (k) => /^(sk-ant-)/.test(k) && k.length > 20,
+      claude: (k) => /^(sk-ant-)/.test(k) && k.length > 20
+    };
+
+    const fn = tests[provider] || ((k) => k.length > 10);
+    const ok = fn(key);
+    return ok
+      ? { valid: true }
+      : { valid: false, reason: `Key format doesn't look like ${provider}` };
   }
 
   /**

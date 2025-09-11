@@ -16,7 +16,7 @@ class AdvancedSDKIntegration {
 
     async init() {
         if (!this.csInterface) {
-            console.error('❌ CSInterface not available - Advanced SDK features disabled');
+            console.error('CSInterface not available - Advanced SDK features disabled');
             return;
         }
 
@@ -26,7 +26,7 @@ class AdvancedSDKIntegration {
             this.hostCapabilities = this.csInterface.getHostCapabilities();
             this.isConnected = true;
             
-            console.log('🚀 Advanced SDK Integration initialized:', {
+            console.log('Advanced SDK Integration initialized:', {
                 hostApp: this.csInterface.hostEnvironment?.appName,
                 version: this.csInterface.hostEnvironment?.appVersion,
                 capabilities: this.hostCapabilities
@@ -51,7 +51,7 @@ class AdvancedSDKIntegration {
         if (this.pollInterval) {
             clearInterval(this.pollInterval);
             this.pollInterval = null;
-            console.log('🧹 Advanced SDK cleanup completed');
+            console.log('Advanced SDK cleanup completed');
         }
         
         // Remove event listeners
@@ -77,19 +77,19 @@ class AdvancedSDKIntegration {
 
         // Listen for composition changes
         this.csInterface.addEventListener('com.adobe.csxs.events.ApplicationActivate', (event) => {
-            console.log('🎬 After Effects activated - refreshing AI context');
+            console.log('After Effects activated - refreshing AI context');
             this.broadcastProjectChange('application_activated');
         });
 
         // Listen for selection changes (requires custom events from ExtendScript)
         this.registerCustomEvent('layerSelectionChanged', (data) => {
-            console.log('🎯 Layer selection changed:', data);
+            console.log('Layer selection changed:', data);
             this.broadcastProjectChange('selection_changed', data);
         });
 
         // Listen for composition changes
         this.registerCustomEvent('compositionChanged', (data) => {
-            console.log('🎨 Composition changed:', data);
+            console.log('Composition changed:', data);
             this.broadcastProjectChange('composition_changed', data);
         });
     }

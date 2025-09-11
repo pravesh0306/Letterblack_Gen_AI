@@ -156,7 +156,7 @@
     }
 
     function performCleanup() {
-        console.log('🧹 Performing UI component cleanup...');
+    console.log('Performing UI component cleanup...');
         componentCleanups.forEach(cleanup => {
             try {
                 cleanup();
@@ -658,7 +658,7 @@
                 const url = prompt('Paste YouTube tutorial URL to analyze:'); 
                 if(url && url.trim()){ 
                     append('user', `Analyze YouTube Tutorial: ${url}`); 
-                    append('system', '🔎 Analyzing YouTube tutorial...');
+                    append('system', 'Analyzing YouTube tutorial...');
                     
                     try {
                         // Use YouTube Helper if available
@@ -680,7 +680,7 @@
                                 loadingMsg.remove();
                             }
                             
-                            append('system', '❌ YouTube Helper module not loaded. Please refresh the page.');
+                            append('system', 'YouTube Helper module not loaded. Please refresh the page.');
                         }
                     } catch (error) {
                         // Remove loading message
@@ -690,7 +690,7 @@
                         }
                         
                         console.error('YouTube Analysis Error:', error);
-                        append('system', `❌ YouTube analysis failed: ${error.message}`);
+                        append('system', `YouTube analysis failed: ${error.message}`);
                     }
                 } 
             }); 
@@ -786,12 +786,12 @@
                 
                 // Validate settings
                 if (!validateText(apiKey, 10, 200)) {
-                    append('system', '❌ **API Key Missing or Invalid**\n\nPlease configure your API key in the Settings tab before sending messages.');
+                    append('system', '**API Key Missing or Invalid**\n\nPlease configure your API key in the Settings tab before sending messages.');
                     return;
                 }
                 
                 // Show typing indicator first
-                append('system', '🤖 AI is thinking...');
+                append('system', 'AI is thinking...');
                 
                 // Use AI Module if available
                 if (window.AIModule) {
@@ -801,7 +801,7 @@
                     let contextualMessage = message;
                     if (contextMemory && validateText(contextMemory, 0, 5000)) {
                         contextualMessage = `Context: ${contextMemory}\n\nUser: ${message}`;
-                        console.log('📋 Added context memory to message');
+                        console.log('Added context memory to message');
                     }
                     
                     const response = await aiModule.generateResponse(contextualMessage, {
@@ -824,13 +824,13 @@
                         append('system', response);
 
                         // Show helpful setup message if this looks like an error
-                        if (response.includes('❌') && response.includes('API Key')) {
+                        if (response.includes('API Key')) {
                             setTimeout(() => {
-                                append('system', '💡 **Quick Setup Guide:**\n\n1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)\n2. Create a free API key\n3. Go to Settings tab → paste your key\n4. Click "Save"\n\nThen come back and chat with me! 🚀');
+                                append('system', '**Quick Setup Guide:**\n\n1. Visit Google AI Studio: https://aistudio.google.com/app/apikey\n2. Create a free API key\n3. Go to Settings tab → paste your key\n4. Click "Save"\n\nThen come back and chat with me.');
                             }, 1000);
                         }
                     } else {
-                        append('system', '❌ Invalid or empty response received from AI provider.');
+                        append('system', 'Invalid or empty response received from AI provider.');
                     }
                 }
             } catch (error) {
@@ -844,7 +844,7 @@
                 const errorMessage = error.message && validateText(error.message, 0, 1000) ? 
                     error.message : 'Unknown error occurred';
                 // append() sanitizes the text, so no need to escape here
-                append('system', `❌ **Unexpected Error**: ${errorMessage}\n\n📍 Try refreshing the page or check your internet connection.`);
+                append('system', `Unexpected Error: ${errorMessage}\n\nTry refreshing the page or check your internet connection.`);
             }
         }, ErrorMessages.NETWORK_ERROR);
         

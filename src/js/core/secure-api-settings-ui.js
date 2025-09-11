@@ -27,8 +27,8 @@ class SecureAPISettingsUI {
       this.storage = new window.SecureAPIStorage();
       
       // Load existing settings
-      const result = await this.storage.loadSettings();
-      const settings = result.settings || this.storage.getDefaultSettings();
+  const result = await this.storage.loadSettings();
+  const settings = (result && result.settings) || this.storage.getDefaultSettings();
       
       // Check for migration from old localStorage
       await this.handleMigration();
@@ -57,8 +57,8 @@ class SecureAPISettingsUI {
     try {
       const migrationResult = await this.storage.migrateFromLocalStorage();
       
-      if (migrationResult.migrated) {
-        this.showNotification('🔒 API settings migrated to secure storage!', 'success');
+        if (migrationResult && migrationResult.migrated) {
+          this.showNotification('API settings migrated to secure storage', 'success');
       }
     } catch (error) {
       console.error('❌ Migration failed:', error);
@@ -73,7 +73,7 @@ class SecureAPISettingsUI {
   this.container.innerHTML = `
       <div class="secure-api-settings">
         <div class="api-settings-header">
-      <h3>🔒 Secure API Configuration</h3>
+      <h3>Secure API Configuration</h3>
           <div class="security-badge">Encrypted Storage</div>
         </div>
 
@@ -95,7 +95,7 @@ class SecureAPISettingsUI {
             <label for="api-key" class="api-label">
               <span class="label-text">API Key</span>
               <span class="label-required">*</span>
-              <span class="security-info">🔒 Encrypted</span>
+              <span class="security-info">Encrypted</span>
             </label>
             <div class="password-input-group">
               <input 
@@ -105,7 +105,7 @@ class SecureAPISettingsUI {
                 placeholder="Enter your API key (will be encrypted)"
                 autocomplete="new-password"
               >
-              <button type="button" id="toggle-key-visibility" class="toggle-password" aria-label="Toggle API key visibility" aria-pressed="false" title="Show API key">👁️</button>
+              <button type="button" id="toggle-key-visibility" class="toggle-password" aria-label="Toggle API key visibility" aria-pressed="false" title="Show API key">Show</button>
             </div>
             <div class="input-help">
               Your API key is encrypted before storage and never saved in plain text.
@@ -176,9 +176,9 @@ class SecureAPISettingsUI {
         </div>
 
         <div class="api-actions" role="group" aria-label="API settings actions">
-          <button id="test-api-connection" class="api-button secondary" aria-label="Test API connection">🔍 Test Connection</button>
-          <button id="save-api-settings" class="api-button primary" aria-label="Save API settings">💾 Save Settings</button>
-          <button id="clear-api-settings" class="api-button danger" aria-label="Clear all API settings">🗑️ Clear All</button>
+          <button id="test-api-connection" class="api-button secondary" aria-label="Test API connection">Test Connection</button>
+          <button id="save-api-settings" class="api-button primary" aria-label="Save API settings">Save Settings</button>
+          <button id="clear-api-settings" class="api-button danger" aria-label="Clear all API settings">Clear All</button>
         </div>
 
         <div class="api-status">
@@ -187,13 +187,13 @@ class SecureAPISettingsUI {
         </div>
 
         <div class="api-security-info">
-          <h4>🔒 Security Features</h4>
+          <h4>Security Features</h4>
           <ul>
-            <li>✅ API keys encrypted with AES-256</li>
-            <li>✅ Stored in OS-secure directories</li>
-            <li>✅ Never saved in browser localStorage</li>
-            <li>✅ Automatic secret redaction in logs</li>
-            <li>✅ Secure key validation</li>
+            <li>API keys encrypted with AES-256</li>
+            <li>Stored in OS-secure directories</li>
+            <li>Never saved in browser localStorage</li>
+            <li>Automatic secret redaction in logs</li>
+            <li>Secure key validation</li>
           </ul>
         </div>
 
@@ -201,7 +201,7 @@ class SecureAPISettingsUI {
 
         <div class="api-logs" style="margin-top:12px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <h4 style="margin:0;font-size:13px;">📜 Recent Actions</h4>
+            <h4 style="margin:0;font-size:13px;">Recent Actions</h4>
             <button id="api-log-clear" class="api-button secondary" aria-label="Clear log">Clear</button>
             <button id="api-log-copy" class="api-button secondary" aria-label="Copy log to clipboard">Copy</button>
           </div>
@@ -291,13 +291,45 @@ class SecureAPISettingsUI {
       tempValue.textContent = e.target.value;
     });
 
-    // API key validation
-    keyInput?.addEventListener('blur', () => this.validateApiKey());
+    // API key validation + provider auto-detect on blur and paste
+  keyInput?.addEventListener('blur', () => {
+      this.autoDetectProviderFromKey();
+      this.validateApiKey();
+    });
+    keyInput?.addEventListener('paste', () => {
+      setTimeout(() => {
+        this.autoDetectProviderFromKey();
+        this.validateApiKey();
+      }, 0);
+    });
 
     // Action buttons
     this.container.querySelector('#test-api-connection')?.addEventListener('click', () => this.testConnection());
     this.container.querySelector('#save-api-settings')?.addEventListener('click', () => this.saveSettings());
     this.container.querySelector('#clear-api-settings')?.addEventListener('click', () => this.clearSettings());
+  }
+
+  /**
+   * Auto-detect provider from API key prefix and update model list
+   */
+  autoDetectProviderFromKey() {
+    const keyInput = this.container.querySelector('#api-key');
+    const providerSelect = this.container.querySelector('#api-provider');
+    const modelSelect = this.container.querySelector('#api-model');
+    if (!keyInput || !providerSelect) return;
+
+    const k = keyInput.value.trim();
+    if (!k) return;
+
+    let detected = null;
+    if (k.startsWith('AIza')) detected = 'gemini';
+    else if (k.startsWith('sk-')) detected = 'openai';
+    else if (/^sk-ant-/.test(k)) detected = 'anthropic';
+
+    if (detected && providerSelect.value !== detected) {
+      providerSelect.value = detected;
+      this.populateModelOptions(detected, modelSelect);
+    }
   }
 
   /**
@@ -355,12 +387,12 @@ class SecureAPISettingsUI {
   togglePasswordVisibility(input, button) {
     if (input.type === 'password') {
       input.type = 'text';
-      button.textContent = '🙈';
+  button.textContent = 'Hide';
   button.setAttribute('aria-pressed', 'true');
   button.setAttribute('title', 'Hide API key');
     } else {
       input.type = 'password';
-      button.textContent = '👁️';
+  button.textContent = 'Show';
   button.setAttribute('aria-pressed', 'false');
   button.setAttribute('title', 'Show API key');
     }
@@ -387,7 +419,7 @@ class SecureAPISettingsUI {
   errorsDiv.textContent = '';
   const ok = document.createElement('div');
   ok.className = 'validation-success';
-  ok.textContent = '✅ API key format looks valid';
+  ok.textContent = 'API key format looks valid';
   errorsDiv.appendChild(ok);
       keyInput.classList.remove('error');
       keyInput.classList.add('success');
@@ -397,7 +429,7 @@ class SecureAPISettingsUI {
   errorsDiv.textContent = '';
   const bad = document.createElement('div');
   bad.className = 'validation-error';
-  bad.textContent = `❌ ${escapedReason}`;
+  bad.textContent = `${escapedReason}`;
   errorsDiv.appendChild(bad);
       keyInput.classList.remove('success');
       keyInput.classList.add('error');
@@ -415,7 +447,7 @@ class SecureAPISettingsUI {
     
     try {
       testBtn.disabled = true;
-      testBtn.textContent = '🔄 Testing...';
+  testBtn.textContent = 'Testing...';
   this.setStatus(statusDiv, 'info', 'Testing API connection...');
       
       const settings = this.collectFormData();
@@ -432,16 +464,16 @@ class SecureAPISettingsUI {
       // Note: Actual API testing would happen here
       // For now, we simulate a successful test
       setTimeout(() => {
-        this.setStatus(statusDiv, 'success', '✅ API connection test successful!');
+  this.setStatus(statusDiv, 'success', 'API connection test successful');
         testBtn.disabled = false;
-        testBtn.textContent = '🔍 Test Connection';
+          testBtn.textContent = 'Test Connection';
       }, 1500);
       
     } catch (error) {
       const escapedMessage = this.escapeHtml(error.message);
-  this.setStatus(statusDiv, 'error', `❌ Connection test failed: ${escapedMessage}`);
+  this.setStatus(statusDiv, 'error', `Connection test failed: ${escapedMessage}`);
       testBtn.disabled = false;
-      testBtn.textContent = '🔍 Test Connection';
+        testBtn.textContent = 'Test Connection';
     }
   }
 
@@ -454,7 +486,7 @@ class SecureAPISettingsUI {
     
     try {
       saveBtn.disabled = true;
-      saveBtn.textContent = '💾 Saving...';
+  saveBtn.textContent = 'Saving...';
   this.setStatus(statusDiv, 'info', 'Encrypting and saving settings...');
       
       const settings = this.collectFormData();
@@ -472,8 +504,8 @@ class SecureAPISettingsUI {
       const result = await this.storage.saveSettings(settings);
       
       if (result.success) {
-        this.setStatus(statusDiv, 'success', '✅ Settings saved securely!');
-        this.showNotification('🔒 API settings encrypted and saved!', 'success');
+        this.setStatus(statusDiv, 'success', 'Settings saved securely');
+          this.showNotification('API settings encrypted and saved', 'success');
         
         // Update last updated time
         const lastUpdatedDiv = this.container.querySelector('.last-updated');
@@ -486,11 +518,11 @@ class SecureAPISettingsUI {
       
     } catch (error) {
       const escapedMessage = this.escapeHtml(error.message);
-      this.setStatus(statusDiv, 'error', `❌ Save failed: ${escapedMessage}`);
+  this.setStatus(statusDiv, 'error', `Save failed: ${escapedMessage}`);
       this.showNotification(`Failed to save: ${escapedMessage}`, 'error');
     } finally {
       saveBtn.disabled = false;
-      saveBtn.textContent = '💾 Save Settings';
+        saveBtn.textContent = 'Save Settings';
     }
   }
 
@@ -498,7 +530,7 @@ class SecureAPISettingsUI {
    * Clear all API settings
    */
   async clearSettings() {
-    if (!confirm('🚨 Are you sure you want to clear all API settings? This cannot be undone.')) {
+  if (!confirm('Are you sure you want to clear all API settings? This cannot be undone.')) {
       return;
     }
     
@@ -510,21 +542,21 @@ class SecureAPISettingsUI {
       const result = await this.storage.clearSettings();
       
       if (result.success) {
-        this.setStatus(statusDiv, 'success', '✅ All settings cleared');
+  this.setStatus(statusDiv, 'success', 'All settings cleared');
         
         // Reset form
         const defaultSettings = this.storage.getDefaultSettings();
         this.renderUI(defaultSettings);
         this.bindEvents();
         
-        this.showNotification('🗑️ All API settings cleared', 'info');
+          this.showNotification('All API settings cleared', 'info');
       } else {
         throw new Error(result.error || 'Failed to clear settings');
       }
       
     } catch (error) {
       const escapedMessage = this.escapeHtml(error.message);
-      this.setStatus(statusDiv, 'error', `❌ Clear failed: ${escapedMessage}`);
+  this.setStatus(statusDiv, 'error', `Clear failed: ${escapedMessage}`);
       this.showNotification(`Failed to clear: ${escapedMessage}`, 'error');
     }
   }
@@ -593,11 +625,11 @@ class SecureAPISettingsUI {
   wrapper.className = 'api-settings-error';
 
   const h3 = document.createElement('h3');
-  h3.textContent = '❌ Error';
+  h3.textContent = 'Error';
   const p = document.createElement('p');
   p.textContent = message;
   const btn = document.createElement('button');
-  btn.textContent = '🔄 Retry';
+  btn.textContent = 'Retry';
   btn.addEventListener('click', () => location.reload());
 
   wrapper.appendChild(h3);

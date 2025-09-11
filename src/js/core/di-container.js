@@ -300,7 +300,13 @@ globalContainer.register('secureStorage', async (deps, container) => {
 
 globalContainer.register('chatStore', (deps) => {
   try {
-    return require('../storage/chatStore');
+    if (typeof require !== 'undefined') {
+      return require('../storage/chatStore');
+    }
+    if (typeof window !== 'undefined' && window.chatStore) {
+      return window.chatStore;
+    }
+    throw new Error('chatStore not available');
   } catch (error) {
     deps.errorHandler.handle(error, { context: 'chatStore initialization' });
     return null;

@@ -12,43 +12,43 @@ class MascotAnimator {
         // Animation scenarios mapping with WebM files
         this.scenarios = {
             idle: {
-                file: 'src/assets/Idle.webm',
+                file: 'assets/Idle.webm',
                 loop: true,
-                tooltip: 'Ready to help! 🚀'
+                tooltip: 'Ready to help'
             },
             thinking: {
-                file: 'src/assets/problem-solving.webm', // normalized filename (thinking pose)
+                file: 'assets/problem-solving.webm', // normalized filename (thinking pose)
                 loop: true,
-                tooltip: 'Processing your request... 🤔'
+                tooltip: 'Processing your request...'
             },
             success: {
-                file: 'src/assets/completion.webm',
+                file: 'assets/completion.webm',
                 loop: false,
                 duration: 3000,
-                tooltip: 'Task completed successfully! 🎉'
+                tooltip: 'Task completed successfully'
             },
             solution: {
-                file: 'src/assets/solution.webm',
+                file: 'assets/solution.webm',
                 loop: false,
                 duration: 3000,
-                tooltip: 'Found a solution! 💡'
+                tooltip: 'Found a solution'
             },
             explain: {
-                file: 'src/assets/explain.webm',
+                file: 'assets/explain.webm',
                 loop: false,
                 duration: 3000,
-                tooltip: 'Let me explain... 📖'
+                tooltip: 'Let me explain...'
             },
             debug: {
-                file: 'src/assets/debug.webm',
+                file: 'assets/debug.webm',
                 loop: true,
-                tooltip: 'Debugging in progress... 🔍'
+                tooltip: 'Debugging in progress...'
             },
             settings: {
-                file: 'src/assets/settings.webm',
+                file: 'assets/settings.webm',
                 loop: false,
                 duration: 2500,
-                tooltip: 'Configuring settings... ⚙️'
+                tooltip: 'Configuring settings...'
             }
         };
         
@@ -77,7 +77,7 @@ class MascotAnimator {
             this.playScenario('idle');
         });
         
-        console.log('🎭 WebM Mascot Animation System initialized');
+    console.log('WebM Mascot Animation System initialized');
     }
 
     /**
@@ -96,7 +96,7 @@ class MascotAnimator {
                     if (!res.ok) throw new Error('HTTP '+res.status);
                 } else {
                     // In file:// environment (CEP), assume assets exist
-                    console.log(`🎭 Assuming asset exists in CEP: ${data.file}`);
+                    console.log(`Assuming asset exists in CEP: ${data.file}`);
                     return;
                 }
                 // If manifest present, mark integrity status
@@ -120,18 +120,18 @@ class MascotAnimator {
         try {
             // Skip fetch if running from file:// protocol (CEP environment)
             if (location.protocol === 'file:') {
-                console.log('🎭 Skipping manifest fetch in file:// environment');
+                console.log('Skipping manifest fetch in file:// environment');
                 return;
             }
             
             const res = await fetch('src/assets/mascot-assets.json', { cache: 'no-store' });
             if (res.ok) {
                 this.manifest = await res.json();
-                console.log('Mascot manifest loaded', this.manifest.generated);
+                console.log('Mascot manifest loaded', this.manifest?.generated);
             }
         } catch (e) {
             // Silent if manifest absent or CORS blocked
-            console.log('🎭 Manifest loading skipped (expected in CEP environment)');
+            console.log('Manifest loading skipped (expected in CEP environment)');
         }
     }
     
@@ -176,7 +176,7 @@ class MascotAnimator {
         
         // Handle video loading events
         this.mascotVideo.addEventListener('loadeddata', () => {
-            console.log('✅ WebM mascot video loaded successfully');
+            console.log('WebM mascot video loaded successfully');
         });
         
         // Handle video loading errors
@@ -199,7 +199,7 @@ class MascotAnimator {
         if (fallback) {
             this.mascotVideo.style.display = 'none';
             fallback.style.display = 'block';
-            console.log('🎭 Switched to fallback GIF animation');
+            console.log('Switched to fallback GIF animation');
         }
     }
     
@@ -289,7 +289,7 @@ class MascotAnimator {
                 // Now try to play
                 await this.mascotVideo.play();
                 this.isPlaying = true;
-                console.log(`🎭 Playing WebM mascot scenario: ${scenario}`);
+                console.log(`Playing WebM mascot scenario: ${scenario}`);
                 
             } catch (error) {
                 console.warn('Failed to play mascot animation:', error.message);
@@ -438,7 +438,7 @@ class MascotAnimator {
             this.showNotification({ text, message, duration });
         } else {
             // Fallback: just log the welcome message
-            console.log(`🎭 ${text}: ${message}`);
+            console.log(`${text}: ${message}`);
         }
         
         return this;
@@ -451,7 +451,7 @@ class MascotAnimator {
         const { text = 'Notification', message = '', duration = 3000 } = options;
         
         // Simple console notification as fallback
-        console.log(`🎭 ${text}: ${message}`);
+    console.log(`${text}: ${message}`);
         
         // If there's a toast system available, use it
         if (window.showToast && typeof window.showToast === 'function') {
@@ -472,14 +472,14 @@ document.addEventListener('DOMContentLoaded', () => {
         mascotAnimator = new MascotAnimator();
         // Make globally available
         window.mascotAnimator = mascotAnimator;
-        console.log('🎭 Global WebM mascot animator initialized');
+    console.log('Global WebM mascot animator initialized');
         
         // Make test and debug functions available in console
         window.testMascotAnimations = () => mascotAnimator.testAllAnimations();
         window.checkMascotHealth = () => mascotAnimator.checkVideoHealth();
-        console.log('🎬 Debug commands available:');
-        console.log('  - testMascotAnimations() - Test all animations');
-        console.log('  - checkMascotHealth() - Check video system status');
+    console.log('Debug commands available:');
+    console.log(' - testMascotAnimations() - Test all animations');
+    console.log(' - checkMascotHealth() - Check video system status');
     } catch (error) {
         console.error('Failed to initialize mascot animator:', error);
     }

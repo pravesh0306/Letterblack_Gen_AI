@@ -44,7 +44,7 @@ class UIInitializer {
      */
     async _performInitialization(config) {
         try {
-            console.log('🚀 Starting UI initialization...');
+            console.log('Starting UI initialization...');
             
             // Merge configuration
             this.config = { ...this.config, ...config };
@@ -74,6 +74,9 @@ class UIInitializer {
             if (this.config.features.performance) {
                 this.setupPerformanceMonitoring();
             }
+
+            // Install DevTools access helpers when running in CEP
+            this.addDevToolsAccess();
             
             // Mark as initialized
             this.initialized = true;
@@ -84,11 +87,11 @@ class UIInitializer {
                 modules: Array.from(this.modules.keys())
             });
             
-            console.log('✅ UI initialization complete');
+            console.log('UI initialization complete');
             
             return true;
         } catch (error) {
-            console.error('❌ UI initialization failed:', error);
+            console.error('UI initialization failed:', error);
             this.notifyObservers('initialization_failed', { error });
             throw error;
         }
@@ -101,7 +104,7 @@ class UIInitializer {
         // Set debug mode
         if (this.config.debug) {
             window.DEBUG = true;
-            console.log('🔧 Debug mode enabled');
+            console.log('Debug mode enabled');
         }
         
         // Setup error handling
@@ -124,7 +127,7 @@ class UIInitializer {
      * Initialize core systems
      */
     async initializeCoreSystems() {
-        console.log('📦 Initializing core systems...');
+    console.log('Initializing core systems...');
         
         // Initialize settings manager
         if (window.SimpleSettingsManager) {
@@ -132,7 +135,7 @@ class UIInitializer {
                 window.settingsManager = new window.SimpleSettingsManager();
             }
             this.modules.set('settings', window.settingsManager);
-            console.log('  ✓ Settings Manager');
+            console.log('  Settings Manager');
         }
         
         // Initialize file storage
@@ -141,7 +144,7 @@ class UIInitializer {
                 window.fileStorageManager = new window.LocalFileStorageManager();
             }
             this.modules.set('fileStorage', window.fileStorageManager);
-            console.log('  ✓ File Storage Manager');
+            console.log('  File Storage Manager');
         }
         
         // Initialize performance monitor
@@ -150,7 +153,7 @@ class UIInitializer {
                 window.performanceMonitor = new window.PerformanceMonitor();
             }
             this.modules.set('performance', window.performanceMonitor);
-            console.log('  ✓ Performance Monitor');
+            console.log('  Performance Monitor');
         }
         
         // Initialize mascot system
@@ -159,7 +162,7 @@ class UIInitializer {
                 window.mascotSystem = new window.MascotSystem();
             }
             this.modules.set('mascot', window.mascotSystem);
-            console.log('  ✓ Mascot System');
+            console.log('  Mascot System');
         }
     }
     
@@ -167,7 +170,7 @@ class UIInitializer {
      * Initialize UI components
      */
     async initializeUIComponents() {
-        console.log('🎨 Initializing UI components...');
+    console.log('Initializing UI components...');
         
         // Initialize script editor
         if (window.ScriptEditor) {
@@ -175,7 +178,7 @@ class UIInitializer {
                 window.scriptEditor = new window.ScriptEditor();
             }
             this.modules.set('scriptEditor', window.scriptEditor);
-            console.log('  ✓ Script Editor');
+            console.log('  Script Editor');
         }
         
         // Initialize AI integration
@@ -184,7 +187,7 @@ class UIInitializer {
                 window.aiIntegration = new window.AIIntegration();
             }
             this.modules.set('aiIntegration', window.aiIntegration);
-            console.log('  ✓ AI Integration');
+            console.log('  AI Integration');
         }
         
         // Initialize theme manager
@@ -193,7 +196,7 @@ class UIInitializer {
                 window.themeManager = new window.ThemeManager();
             }
             this.modules.set('theme', window.themeManager);
-            console.log('  ✓ Theme Manager');
+            console.log('  Theme Manager');
         }
         
         // Initialize workflow system
@@ -202,7 +205,7 @@ class UIInitializer {
                 window.workflowSystem = new window.WorkflowSystem();
             }
             this.modules.set('workflow', window.workflowSystem);
-            console.log('  ✓ Workflow System');
+            console.log('  Workflow System');
         }
     }
     
@@ -210,7 +213,7 @@ class UIInitializer {
      * Initialize layout system
      */
     async initializeLayoutSystem() {
-        console.log('📐 Initializing layout system...');
+    console.log('Initializing layout system...');
         
         // Initialize panel layout manager
         if (window.PanelLayoutManager) {
@@ -218,7 +221,7 @@ class UIInitializer {
                 window.panelLayoutManager = new window.PanelLayoutManager();
             }
             this.modules.set('panelLayout', window.panelLayoutManager);
-            console.log('  ✓ Panel Layout Manager');
+            console.log('  Panel Layout Manager');
         }
         
         // Initialize preset layout manager
@@ -227,7 +230,7 @@ class UIInitializer {
                 window.presetLayoutManager = new window.PresetLayoutManager();
             }
             this.modules.set('presetLayout', window.presetLayoutManager);
-            console.log('  ✓ Preset Layout Manager');
+            console.log('  Preset Layout Manager');
         }
         
         // Setup main layout
@@ -245,7 +248,7 @@ class UIInitializer {
             const defaultLayout = window.panelLayoutManager.layouts.get('default');
             if (defaultLayout) {
                 window.panelLayoutManager.applyLayout('default', container);
-                console.log('  ✓ Default layout applied');
+                console.log('  Default layout applied');
             }
         }
         
@@ -253,7 +256,7 @@ class UIInitializer {
         if (window.panelLayoutManager) {
             const savedState = window.panelLayoutManager.loadLayoutState();
             if (savedState) {
-                console.log('  ✓ Layout state restored');
+                console.log('  Layout state restored');
             }
         }
     }
@@ -262,7 +265,7 @@ class UIInitializer {
      * Initialize services
      */
     async initializeServices() {
-        console.log('🔌 Initializing services...');
+    console.log('Initializing services...');
         
         // Initialize socket connection
         if (window.SocketManager) {
@@ -270,7 +273,7 @@ class UIInitializer {
                 window.socketManager = new window.SocketManager();
             }
             this.modules.set('socket', window.socketManager);
-            console.log('  ✓ Socket Manager');
+            console.log('  Socket Manager');
         }
         
         // Initialize project management
@@ -279,7 +282,7 @@ class UIInitializer {
                 window.projectManager = new window.ProjectManager();
             }
             this.modules.set('project', window.projectManager);
-            console.log('  ✓ Project Manager');
+            console.log('  Project Manager');
         }
         
         // Initialize keyboard shortcuts
@@ -288,7 +291,7 @@ class UIInitializer {
                 window.keyboardShortcuts = new window.KeyboardShortcuts();
             }
             this.modules.set('shortcuts', window.keyboardShortcuts);
-            console.log('  ✓ Keyboard Shortcuts');
+            console.log('  Keyboard Shortcuts');
         }
     }
     
@@ -304,6 +307,23 @@ class UIInitializer {
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             this.handleGlobalKeydown(e);
+
+            // DevTools shortcut for CEP panels: Ctrl+Alt+I
+            try {
+                if ((e.ctrlKey || e.metaKey) && e.altKey && (e.key?.toLowerCase?.() === 'i')) {
+                    e.preventDefault();
+                    this.openDevTools();
+                }
+                // Reveal DevTools bug button: Alt+Shift+B (toggle)
+                if (e.altKey && e.shiftKey && (e.key?.toLowerCase?.() === 'b')) {
+                    e.preventDefault();
+                    const cur = localStorage.getItem('devtoolsButton') === '1';
+                    localStorage.setItem('devtoolsButton', cur ? '0' : '1');
+                    console.log(`[DevTools] Dev button ${cur ? 'hidden' : 'shown'}`);
+                    // Re-run access installer to reflect change
+                    this.addDevToolsAccess();
+                }
+            } catch {}
         });
         
         // Prevent default context menu in production
@@ -322,6 +342,95 @@ class UIInitializer {
         window.addEventListener('beforeunload', (e) => {
             this.handleBeforeUnload(e);
         });
+    }
+
+    /**
+     * Open Chrome DevTools for CEP panel if available
+     */
+    openDevTools() {
+        try {
+            const cep = (typeof window !== 'undefined') && (window.__adobe_cep__ || (window.CSInterface && new window.CSInterface()));
+            if (cep && typeof cep.showDevTools === 'function') {
+                // Some CEP hosts accept (isOn, title)
+                try { cep.showDevTools(true, 'LetterBlack Gen AI DevTools'); }
+                catch { cep.showDevTools(); }
+                console.log('[DevTools] Requested CEP DevTools window');
+            } else {
+                console.warn('[DevTools] CEP interface not available in this environment');
+            }
+        } catch (err) {
+            console.warn('[DevTools] Failed to open DevTools:', err);
+        }
+    }
+
+    /**
+     * Provide multiple, non-conflicting ways to open DevTools inside AE
+     * - Alt + Double-click mascot or app title
+     * - Optional header button if enabled via ?devtools=1 or localStorage.devtoolsButton
+     */
+    addDevToolsAccess() {
+        try {
+            const inCEP = (typeof window !== 'undefined') && (window.__adobe_cep__ || window.CSInterface);
+            if (!inCEP) return;
+
+            // Secret gesture: Alt + double-click on mascot or title
+            const mascot = document.getElementById('app-mascot-img');
+            if (mascot && !mascot.__devtoolsHooked) {
+                mascot.addEventListener('dblclick', (e) => {
+                    if (e.altKey) {
+                        e.preventDefault();
+                        this.openDevTools();
+                    }
+                });
+                mascot.__devtoolsHooked = true;
+            }
+
+            const titleEl = document.querySelector('.app-title');
+            if (titleEl && !titleEl.__devtoolsHooked) {
+                titleEl.addEventListener('dblclick', (e) => {
+                    if (e.altKey) {
+                        e.preventDefault();
+                        this.openDevTools();
+                    }
+                });
+                titleEl.__devtoolsHooked = true;
+            }
+
+            // Alt-click the existing mascot debug button to open DevTools
+            const debugBtn = document.getElementById('mascot-debug-btn');
+            if (debugBtn && !debugBtn.__devtoolsHooked) {
+                debugBtn.addEventListener('click', (e) => {
+                    if (e.altKey) {
+                        e.preventDefault();
+                        this.openDevTools();
+                    }
+                });
+                debugBtn.__devtoolsHooked = true;
+            }
+
+            // Optional visible button for debugging sessions
+            const enableBtn = (window.location.search.includes('devtools=1') || localStorage.getItem('devtoolsButton') === '1');
+            if (enableBtn) {
+                const headerRight = document.querySelector('.header-right');
+                if (headerRight && !document.getElementById('open-devtools-btn')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'open-devtools-btn';
+                    btn.className = 'header-btn';
+                    btn.title = 'Open DevTools (CEP)';
+                    btn.setAttribute('aria-label', 'Open DevTools');
+                    const icon = document.createElement('i');
+                    icon.className = 'fa-solid fa-bug';
+                    btn.appendChild(icon);
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.openDevTools();
+                    });
+                    headerRight.appendChild(btn);
+                }
+            }
+        } catch (err) {
+            console.warn('[DevTools] addDevToolsAccess failed:', err);
+        }
     }
     
     /**
@@ -677,14 +786,14 @@ class UIInitializer {
      * Cleanup and shutdown
      */
     async shutdown() {
-        console.log('🛑 Shutting down UI...');
+    console.log('Shutting down UI...');
         
         // Cleanup modules
         this.modules.forEach((module, name) => {
             if (typeof module.shutdown === 'function') {
                 try {
                     module.shutdown();
-                    console.log(`  ✓ ${name} shutdown`);
+                    console.log(`  ${name} shutdown`);
                 } catch (error) {
                     console.warn(`Error shutting down ${name}:`, error);
                 }
@@ -698,7 +807,7 @@ class UIInitializer {
         this.initialized = false;
         this.initPromise = null;
         
-        console.log('✅ UI shutdown complete');
+    console.log('UI shutdown complete');
     }
 }
 
@@ -725,4 +834,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-console.log('✅ UI Initializer loaded and ready');
+console.log('UI Initializer loaded and ready');

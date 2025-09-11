@@ -7,7 +7,7 @@ class SimpleToast {
     constructor() {
         this.container = null;
         this.createContainer();
-        console.log('🍞 Simple Toast system initialized');
+    console.log('Simple Toast system initialized');
     }
 
     createContainer() {
@@ -117,4 +117,4 @@ window.showToast = (message, type = 'info') => {
     window.simpleToast.show(message, type);
 };
 
-console.log('🍞 Toast notification system ready');
+console.log('Toast notification system ready');

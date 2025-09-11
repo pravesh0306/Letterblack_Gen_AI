@@ -161,20 +161,20 @@
             checks++;
             
             if (window.aiModule) {
-                console.log('✅ AI Module is available');
+                console.log('AI Module is available');
                 updateMascotMessage('AI Module Ready!');
                 clearInterval(checkInterval);
                 return;
             }
             
             if (checks >= maxChecks) {
-                console.warn('⚠️ AI Module not available after', maxChecks, 'checks');
+                console.warn('AI Module not available after', maxChecks, 'checks');
                 updateMascotMessage('AI Module loading...');
                 clearInterval(checkInterval);
                 
                 // Try to trigger initialization manually
                 if (window.AIModule && !window.aiModule) {
-                    console.log('🔄 Attempting to initialize AI Module manually...');
+                    console.log('Attempting to initialize AI Module manually...');
                     try {
                         window.aiModule = new window.AIModule();
                         if (window.aiModule.init) {
@@ -189,7 +189,7 @@
                             });
                         }
                     } catch (error) {
-                        console.error('❌ Manual AI Module initialization failed:', error);
+                        console.error('Manual AI Module initialization failed:', error);
                         updateMascotMessage('AI Module Error');
                         triggerMascotAnimation('mascot-error');
                     }
@@ -209,7 +209,7 @@
                 if (interval) clearInterval(interval);
             });
             window._uiEnhancementsCleanup = [];
-            console.log('🧹 UI Enhancements cleanup completed');
+            console.log('UI Enhancements cleanup completed');
         }
     }
 

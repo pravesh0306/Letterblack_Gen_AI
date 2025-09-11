@@ -1,0 +1,76 @@
+name: Local Assistant
+version: 1.0.0
+schema: v1
+
+models:
+  - name: Llama 3.1 8B
+    provider: ollama
+    model: llama3.1:8b
+    roles:
+      - agent
+      - system
+      - user
+      - tool
+      - assistant
+      - chat
+      - edit
+      - apply
+
+  - name: Qwen2.5-Coder 1.5B
+    provider: ollama
+    model: qwen2.5-coder:1.5b-base
+    roles:
+      - autocomplete
+
+  - name: Nomic Embed
+    provider: ollama
+    model: nomic-embed-text:latest
+    roles:
+      - embed
+
+  - name: LM Studio - AutoDetect
+    provider: lmstudio
+    model: AUTODETECT
+    apiBase: http://localhost:1234/v1/
+    roles:
+      - chat
+      - edit
+      - apply
+      - agent
+
+  - name: LM Studio - OSS 20B
+    provider: lmstudio
+    model: openai/gpt-oss-20b
+    apiBase: http://192.168.1.240:1234
+    roles:
+      - chat
+      - edit
+      - apply
+
+  - name: LM Studio - Remote Agent
+    provider: lmstudio
+    model: AUTODETECT
+    apiBase: http://192.168.1.240:1234
+    roles:
+      - agent
+
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+
+mcpServers:
+  - name: MCP_DOCKER
+    command: docker
+    args:
+      - mcp
+      - gateway
+      - run
+    env:
+      LOCALAPPDATA: C:\Users\prave\AppData\Local
+      ProgramData: C:\ProgramData
+      ProgramFiles: C:\Program Files

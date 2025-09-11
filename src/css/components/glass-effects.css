@@ -1,0 +1,60 @@
+:root{
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-shadow: rgba(0,0,0,0.25);
+  --glass-blur: 10px;
+}
+
+/* Generic glass panel */
+.glass{
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: saturate(120%) blur(var(--glass-blur));
+  backdrop-filter: saturate(120%) blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px var(--glass-shadow);
+  border-radius: 10px;
+}
+
+/* Apply to chat bubbles */
+.chat-messages .message .message-content{
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+}
+
+/* Selection highlight animation */
+@keyframes selectionPulse{
+  0% { box-shadow: 0 0 0 0 rgba(0,153,255,0.0) }
+  40% { box-shadow: 0 0 0 6px rgba(0,153,255,0.15) }
+  100% { box-shadow: 0 0 0 0 rgba(0,153,255,0.0) }
+}
+
+.selection-highlight{
+  animation: selectionPulse 900ms ease-out;
+}
+
+/* Buttons hover subtle glass */
+.header-btn, .toolbar-btn, .composer-btn{
+  transition: background 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+}
+.header-btn:hover, .toolbar-btn:hover, .composer-btn:hover{
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.header-btn:active, .toolbar-btn:active, .composer-btn:active{
+  transform: translateY(1px);
+}
+
+/* Bottom panel tabs */
+.bottom-panel .tab-btn.active{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--glass-border);
+}
+
+/* Context/status chips */
+.context-chip, .model-status-overlay .model-indicator{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 2px 8px;
+}

@@ -61,10 +61,8 @@ npm run install-extension
 # Or step by step
 npm run build
 npm run deploy-to-cep
-npm run build
-.\deploy-to-aep.bat
 
-# Or manual steps:
+# Or manual steps (Windows):
 npm run build
 xcopy build\* "%APPDATA%\Adobe\CEP\extensions\com.letterblack.genai\" /E /I /Y
 ```

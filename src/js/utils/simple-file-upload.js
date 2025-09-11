@@ -82,7 +82,7 @@ class SimpleFileUpload {
     }
 
     async handleFileUpload(file) {
-        console.log('📁 Handling file upload:', file.name, file.type);
+    console.log('Handling file upload:', file.name, file.type);
         
         try {
             // Validate file
@@ -125,7 +125,7 @@ class SimpleFileUpload {
 
         this.uploadedFiles = [fileData]; // Replace previous file
         this.updateUI(fileData);
-        console.log('✅ Image uploaded successfully:', file.name);
+    console.log('Image uploaded successfully:', file.name);
     }
 
     async processAudioFile(file) {
@@ -144,7 +144,7 @@ class SimpleFileUpload {
 
         this.uploadedFiles = [fileData]; // Replace previous file
         this.updateUI(fileData);
-        console.log('✅ Audio uploaded successfully:', file.name);
+    console.log('Audio uploaded successfully:', file.name);
     }
 
     validateFile(file) {
@@ -218,7 +218,7 @@ class SimpleFileUpload {
                 audioIndicator.className = 'audio-file-indicator';
                 const iconDiv = document.createElement('div');
                 iconDiv.className = 'audio-icon';
-                iconDiv.textContent = '🎵';
+                iconDiv.textContent = '';
                 const infoDiv = document.createElement('div');
                 infoDiv.className = 'audio-info';
                 const nameDiv = document.createElement('div');
@@ -302,7 +302,7 @@ class SimpleFileUpload {
         if (fileName) fileName.style.display = 'none';
         if (removeBtn) removeBtn.style.display = 'none';
 
-        console.log('🗑️ File removed');
+    console.log('File removed');
     }
 
     showError(message) {

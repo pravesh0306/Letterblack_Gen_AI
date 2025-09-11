@@ -1,7 +1,19 @@
 // js/storage-integration.js
 // UI integration for persistent chat storage
 
-const chatStore = require("../storage/chatStore");
+// Prefer the OS-backed chatStore when available, otherwise fall back to browser storage shim
+let chatStore;
+try {
+  if (typeof require !== 'undefined') {
+    chatStore = require("../storage/chatStore");
+  }
+} catch {}
+if (!chatStore && typeof window !== 'undefined' && window.chatStore) {
+  chatStore = window.chatStore;
+}
+if (!chatStore) {
+  console.error("chatStore not available in this environment");
+}
 
 class ChatStorageManager {
   constructor() {
@@ -22,10 +34,18 @@ class ChatStorageManager {
    */
   async initSecureStorage() {
     try {
-      if (typeof require !== 'undefined') {
+      if (typeof window !== 'undefined' && window.SecureAPIStorage) {
+        this.secureStorage = new window.SecureAPIStorage();
+        // In browser mode ensureDirs is a no-op; guard call
+        if (typeof this.secureStorage.ensureDirs === 'function') {
+          await this.secureStorage.ensureDirs();
+        }
+      } else if (typeof require !== 'undefined') {
         const SecureAPIStorage = require('../storage/secureAPIStorage');
         this.secureStorage = new SecureAPIStorage();
-        await this.secureStorage.ensureDirs();
+        if (typeof this.secureStorage.ensureDirs === 'function') {
+          await this.secureStorage.ensureDirs();
+        }
       }
     } catch (error) {
       console.warn('SecureAPIStorage not available:', error);
@@ -42,7 +62,7 @@ class ChatStorageManager {
         return settings[key] ?? defaultValue;
       } else {
         // Fallback to localStorage with warning
-        console.warn(`🚫 Using insecure localStorage for ${key} - SecureAPIStorage unavailable`);
+  console.warn(`Using insecure localStorage for ${key} - SecureAPIStorage unavailable`);
         return localStorage.getItem(key) || defaultValue;
       }
     } catch (error) {
@@ -56,26 +76,28 @@ class ChatStorageManager {
    */
   async initialize() {
     try {
-      console.log("🚀 Initializing Chat Storage Manager...");
+  console.log("Initializing Chat Storage Manager...");
       
       // Initialize secure storage first
       await this.initSecureStorage();
       
       // Ensure storage directories exist
-      chatStore.ensureDirs();
+      if (chatStore && typeof chatStore.ensureDirs === 'function') {
+        chatStore.ensureDirs();
+      }
 
       // Handle migration from old localStorage system
       if (window.chatMigrationHelper) {
         const migrationResult = await window.chatMigrationHelper.performMigration();
-        console.log("🔄 Migration result:", migrationResult);
+  console.log("Migration result:", migrationResult);
       }
       
       // Load existing data
-      const data = chatStore.loadChat();
+  const data = chatStore && typeof chatStore.loadChat === 'function' ? chatStore.loadChat() : { conversations: [] };
       
       // Get or create active conversation
       if (data.conversations.length === 0) {
-        this.activeConversationId = chatStore.createConversation("Default Thread");
+  this.activeConversationId = chatStore?.createConversation ? chatStore.createConversation("Default Thread") : (window.chatStore?.createConversation ? window.chatStore.createConversation("Default Thread") : null);
       } else {
         // Use most recently updated conversation
         const sorted = data.conversations.sort((a, b) => 
@@ -97,12 +119,12 @@ class ChatStorageManager {
       this.isInitialized = true;
       this.updateStatus("Chat storage ready");
       
-      console.log("✅ Chat Storage Manager initialized");
-      console.log(`📁 Active conversation: ${this.activeConversationId}`);
+  console.log("Chat Storage Manager initialized");
+  console.log(`Active conversation: ${this.activeConversationId}`);
       
       return true;
     } catch (error) {
-      console.error("❌ Failed to initialize Chat Storage Manager:", error);
+  console.error("Failed to initialize Chat Storage Manager:", error);
       this.updateStatus("Storage initialization failed");
       throw error;
     }
@@ -156,7 +178,7 @@ class ChatStorageManager {
       });
     }
 
-    console.log("🔗 UI elements wired up");
+  console.log("UI elements wired up");
   }
 
   /**
@@ -182,7 +204,13 @@ class ChatStorageManager {
       };
 
       // Append to storage
-      await chatStore.appendMessage(this.activeConversationId, userMessage);
+      if (chatStore?.appendMessage) {
+        await chatStore.appendMessage(this.activeConversationId, userMessage);
+      } else if (window.chatStore?.appendMessage) {
+        await window.chatStore.appendMessage(this.activeConversationId, userMessage);
+      } else {
+        throw new Error('No chatStore available to append message');
+      }
 
       // Add to UI immediately
       this.addMessageToUI(userMessage);
@@ -202,7 +230,7 @@ class ChatStorageManager {
       }
 
     } catch (error) {
-      console.error("❌ Failed to send message:", error);
+  console.error("Failed to send message:", error);
       this.updateStatus("Failed to send message");
       this.showErrorToast("Failed to send message: " + error.message);
     }
@@ -285,10 +313,10 @@ class ChatStorageManager {
       });
 
       this.scrollToBottom();
-      console.log(`📖 Loaded ${conversation.messages.length} messages into UI`);
+  console.log(`Loaded ${conversation.messages.length} messages into UI`);
 
     } catch (error) {
-      console.error("❌ Failed to load messages:", error);
+  console.error("Failed to load messages:", error);
     }
   }
 
@@ -318,7 +346,7 @@ class ChatStorageManager {
       this.showSuccessToast("Chat history cleared successfully");
       
     } catch (error) {
-      console.error("❌ Failed to clear history:", error);
+  console.error("Failed to clear history:", error);
       this.updateStatus("Failed to clear history");
       this.showErrorToast("Failed to clear history: " + error.message);
     }
@@ -340,10 +368,10 @@ class ChatStorageManager {
 
       // This is a simplified sync - in a real implementation you'd want
       // more sophisticated change detection
-      console.log("🔄 UI sync detected changes, but storage is authoritative");
+  console.log("UI sync detected changes, but storage is authoritative");
       
     } catch (error) {
-      console.warn("⚠️ UI sync failed:", error);
+  console.warn("UI sync failed:", error);
     }
   }
 
@@ -373,7 +401,7 @@ class ChatStorageManager {
         }
       }
     } catch (error) {
-      console.error("❌ AI response failed:", error);
+  console.error("AI response failed:", error);
       this.showErrorToast("AI response failed: " + error.message);
     }
   }
@@ -395,7 +423,7 @@ class ChatStorageManager {
     if (this.ui.statusText) {
       this.ui.statusText.textContent = text;
     }
-    console.log(`📊 Status: ${text}`);
+  console.log(`Status: ${text}`);
   }
 
   /**
@@ -450,7 +478,7 @@ class ChatStorageManager {
     }
 
     // Fallback to console
-    console.log(`🍞 Toast (${type}): ${message}`);
+  console.log(`Toast (${type}): ${message}`);
   }
 
   /**
@@ -482,7 +510,7 @@ class ChatStorageManager {
       this.showSuccessToast(`Conversation exported as ${filename}`);
       
     } catch (error) {
-      console.error("❌ Export failed:", error);
+  console.error("Export failed:", error);
       this.showErrorToast("Export failed: " + error.message);
     }
   }
@@ -502,7 +530,7 @@ class ChatStorageManager {
         paths: chatStore.getPaths()
       };
     } catch (error) {
-      console.error("❌ Failed to get storage info:", error);
+  console.error("Failed to get storage info:", error);
       return null;
     }
   }
@@ -511,7 +539,7 @@ class ChatStorageManager {
    * Clean up event listeners and observers to prevent memory leaks
    */
   cleanup() {
-    console.log("🧹 Cleaning up ChatStorageManager...");
+  console.log("Cleaning up ChatStorageManager...");
     
     // Clean up timeout
     if (this.saveTimeout) {
@@ -545,7 +573,7 @@ class ChatStorageManager {
       this.boundCleanup = null;
     }
     
-    console.log("✅ ChatStorageManager cleanup complete");
+  console.log("ChatStorageManager cleanup complete");
   }
 }
 

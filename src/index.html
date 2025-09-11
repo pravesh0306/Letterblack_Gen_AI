@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/components/consolidated-components.css">
     <link rel="stylesheet" href="css/components/ai-status.css">
     <link rel="stylesheet" href="css/components/ae-panel-overrides.css">
+    <link rel="stylesheet" href="css/components/glass-effects.css">
     
     <!-- External Dependencies -->
     <link rel="stylesheet" href="js/libs/fontawesome/css/all.min.css">
@@ -55,11 +56,9 @@
                 <button id="ai-status-btn" class="header-btn" title="AI Status Dashboard">
                     <i class="fa-solid fa-robot status-indicator"></i>
                 </button>
-                <button id="mascot-debug-btn" class="header-btn mascot-debug-btn" title="Test Mascot Visibility">
-                    🎭 TEST
-                </button>
+                <button id="mascot-debug-btn" class="header-btn mascot-debug-btn" title="Test Mascot Visibility">TEST</button>
                 <!-- CRITICAL CACHE DELETION BUTTON -->
-                <button id="delete-cache-btn" type="button" class="delete-cache-btn" title="Delete Cache & Force Reload">🗑️ DELETE CACHE</button>
+                <button id="delete-cache-btn" type="button" class="delete-cache-btn" title="Delete Cache & Force Reload">DELETE CACHE</button>
                 <button id="command-menu-trigger" class="header-btn" title="Command Palette (Ctrl+K)">
                     <i class="fa-solid fa-search"></i>
                 </button>
@@ -153,9 +152,7 @@
                                 <i class="fa-solid fa-microphone"></i>
                                 <div class="recording-indicator"></div>
                             </button>
-                            <button id="attach-file-btn" class="composer-btn" title="Attach Image/File">
-                                <i class="fa-solid fa-paperclip"></i>
-                            </button>
+                            <!-- Removed non-functional attach button to avoid dead UI -->
                             <button id="analyze-youtube" class="composer-btn" title="Analyze YouTube Tutorial">
                                 <i class="fa-brands fa-youtube"></i>
                             </button>
@@ -398,20 +395,20 @@
                                 <div class="status-card">
                                     <div class="status-header">
                                         <h4><i class="fa-solid fa-plug"></i> AI Providers</h4>
-                                        <span class="status-indicator" id="ai-providers-status">⚡</span>
+                                        <span class="status-indicator" id="ai-providers-status"><i class="fa-solid fa-bolt"></i></span>
                                     </div>
                                     <div class="status-details" id="ai-providers-details">
                                         <div class="provider-status">
                                             <span class="provider-name">OpenAI GPT-4</span>
-                                            <span class="provider-indicator" id="openai-status">🟡</span>
+                                            <span class="provider-indicator" id="openai-status"><i class="fa-regular fa-circle"></i></span>
                                         </div>
                                         <div class="provider-status">
                                             <span class="provider-name">Google Gemini</span>
-                                            <span class="provider-indicator" id="gemini-status">🟡</span>
+                                            <span class="provider-indicator" id="gemini-status"><i class="fa-regular fa-circle"></i></span>
                                         </div>
                                         <div class="provider-status">
                                             <span class="provider-name">Claude</span>
-                                            <span class="provider-indicator" id="claude-status">🟡</span>
+                                            <span class="provider-indicator" id="claude-status"><i class="fa-regular fa-circle"></i></span>
                                         </div>
                                     </div>
                                 </div>
@@ -419,20 +416,20 @@
                                 <div class="status-card">
                                     <div class="status-header">
                                         <h4><i class="fa-solid fa-cogs"></i> Core Modules</h4>
-                                        <span class="status-indicator" id="modules-status">⚡</span>
+                                        <span class="status-indicator" id="modules-status"><i class="fa-solid fa-bolt"></i></span>
                                     </div>
                                     <div class="status-details" id="modules-details">
                                         <div class="module-status">
                                             <span class="module-name">AI Learning System</span>
-                                            <span class="module-indicator" id="learning-status">🔄</span>
+                                            <span class="module-indicator" id="learning-status"><i class="fa-solid fa-rotate"></i></span>
                                         </div>
                                         <div class="module-status">
                                             <span class="module-name">Smart Suggestions</span>
-                                            <span class="module-indicator" id="suggestions-status">🔄</span>
+                                            <span class="module-indicator" id="suggestions-status"><i class="fa-solid fa-rotate"></i></span>
                                         </div>
                                         <div class="module-status">
                                             <span class="module-name">Template Engine</span>
-                                            <span class="module-indicator" id="template-status">🔄</span>
+                                            <span class="module-indicator" id="template-status"><i class="fa-solid fa-rotate"></i></span>
                                         </div>
                                     </div>
                                 </div>
@@ -440,7 +437,7 @@
                                 <div class="status-card">
                                     <div class="status-header">
                                         <h4><i class="fa-solid fa-chart-line"></i> Performance</h4>
-                                        <span class="status-indicator" id="performance-status">📊</span>
+                                        <span class="status-indicator" id="performance-status"><i class="fa-solid fa-chart-line"></i></span>
                                     </div>
                                     <div class="status-details" id="performance-details">
                                         <div class="performance-metric">
@@ -461,7 +458,7 @@
                                 <div class="status-card">
                                     <div class="status-header">
                                         <h4><i class="fa-solid fa-lightbulb"></i> AI Suggestions</h4>
-                                        <span class="status-indicator" id="suggestions-indicator">💡</span>
+                                        <span class="status-indicator" id="suggestions-indicator"><i class="fa-solid fa-lightbulb"></i></span>
                                     </div>
                                     <div class="status-details" id="ai-suggestions-list">
                                         <div class="suggestion-item">
@@ -594,8 +591,7 @@
                 <!-- Fallback for browsers that don't support WebM -->
             </video>
             <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback">
-            <!-- Ultimate fallback: simple colored circle with emoji - SHOW BY DEFAULT -->
-            <div id="floating-mascot-simple">🎭</div>
+            <!-- Ultimate fallback removed (emoji not allowed). Keep visual only. -->
             
             <!-- Audio Visualizer -->
             <div class="audio-visualizer" id="audio-visualizer">
@@ -661,19 +657,7 @@
             display: none !important;
         }
         
-        /* Simple emoji fallback - FIXED SIZE */
-        #floating-mascot-simple {
-            width: 70px !important;
-            height: 70px !important;
-            background: linear-gradient(135deg, #007acc, #005a9f) !important;
-            border-radius: 50% !important;
-            display: none !important;
-            align-items: center !important;
-            justify-content: center !important;
-            font-size: 28px !important;
-            color: white !important;
-            font-weight: bold !important;
-        }
+    /* Emoji fallback removed */
         
         /* Remove debug info */
         .floating-mascot::before {

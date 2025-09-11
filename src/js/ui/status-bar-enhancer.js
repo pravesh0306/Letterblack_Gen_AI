@@ -4,9 +4,9 @@ class StatusBarEnhancer {
         this.statusStates = {
             idle: { color: '#4CAF50', text: 'Ready', icon: '●' },
             working: { color: '#FF9800', text: 'Processing', icon: '⟳' },
-            thinking: { color: '#2196F3', text: 'Thinking', icon: '💭' },
-            error: { color: '#f44336', text: 'Error', icon: '⚠' },
-            success: { color: '#4CAF50', text: 'Success', icon: '✓' }
+            thinking: { color: '#2196F3', text: 'Thinking', icon: '' },
+            error: { color: '#f44336', text: 'Error', icon: '' },
+            success: { color: '#4CAF50', text: 'Success', icon: '' }
         };
         
         this.currentState = 'idle';
@@ -75,13 +75,13 @@ class StatusBarEnhancer {
 
         // Actions
         const actionsSection = makeEl('div', 'status-section status-actions');
-        const clearBtn = makeEl('button', 'status-action-btn', '🗑️');
+    const clearBtn = makeEl('button', 'status-action-btn', 'Clear');
         clearBtn.id = 'clear-cache-btn';
         clearBtn.title = 'Clear Cache';
-        const refreshBtn = makeEl('button', 'status-action-btn', '🔄');
+    const refreshBtn = makeEl('button', 'status-action-btn', 'Refresh');
         refreshBtn.id = 'refresh-status-btn';
         refreshBtn.title = 'Refresh Status';
-        const debugBtn = makeEl('button', 'status-action-btn', '🐛');
+    const debugBtn = makeEl('button', 'status-action-btn', 'Debug');
         debugBtn.id = 'toggle-debug-btn';
         debugBtn.title = 'Toggle Debug Mode';
         actionsSection.appendChild(clearBtn);
