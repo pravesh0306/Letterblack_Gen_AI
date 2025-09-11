@@ -132,17 +132,9 @@
                     </div>
                 </div>
                 
-                <!-- Context Indicator -->
-                <div id="context-indicator" class="context-indicator">
-                    <i class="fa-solid fa-eye"></i>
-                    <span class="context-text">Watching your project...</span>
-                </div>
-
-                <!-- Effects Indicator -->
-                <div id="effects-indicator" class="effects-indicator">
-                    <i class="fa-solid fa-magic"></i>
-                    <span class="effects-text">Analyzing effects...</span>
-                </div>
+                <!-- Context and Effects indicators hidden per UX feedback; keep in DOM for future use -->
+                <div id="context-indicator" class="context-indicator" aria-hidden="true"></div>
+                <div id="effects-indicator" class="effects-indicator" aria-hidden="true"></div>
                 
                 <div class="composer">
                     <div class="composer-main">
@@ -196,10 +188,11 @@
                             AI Status
                         </button>
                     </div>
-                    <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Collapse Panel">
-                        <i class="fa-solid fa-chevron-down"></i>
+                    <button id="bottom-panel-toggle" class="bottom-panel-toggle" title="Collapse Panel" aria-expanded="true">
+                        <img src="assets/icon.svg" alt="Toggle" width="16" height="16" />
                     </button>
                 </div>
+                <div class="bottom-resizer" title="Drag to resize panel" role="separator" aria-orientation="vertical" aria-label="Resize bottom panel"></div>
                 
                 <div class="bottom-panel-content">
                     <div id="script-library-tab" class="tab-pane active" role="tabpanel" aria-labelledby="tab-btn-script-library" tabindex="0">
@@ -252,7 +245,7 @@
                                 </div>
                                 <div class="config-field">
                                     <label for="api-key-setting">API Key</label>
-                                    <input type="password" id="api-key-setting" class="setting-input" placeholder="Paste your API key">
+                                    <input type="password" id="api-key-setting" class="setting-input" placeholder="Paste your API key" autocomplete="off">
                                 </div>
                                 
                                 <!-- Quick Actions next to API Settings -->
@@ -321,15 +314,15 @@
                             <div class="info-grid">
                                 <div class="info-item">
                                     <span class="info-label">Active File:</span>
-                                    <span class="info-value" id="active-file-size">Loading...</span>
+                                    <span class="info-value" id="active-file-size" aria-live="polite">Loading...</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Archives:</span>
-                                    <span class="info-value" id="archive-count">Loading...</span>
+                                    <span class="info-value" id="archive-count" aria-live="polite">Loading...</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Conversations:</span>
-                                    <span class="info-value" id="conversation-count">Loading...</span>
+                                    <span class="info-value" id="conversation-count" aria-live="polite">Loading...</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Storage Path:</span>
@@ -532,10 +525,10 @@
     <script src="js/features/voice-features.js"></script>
     <script src="js/features/youtube-analysis-cascade.js"></script>
     
-    <!-- Storage Integration -->
+    <!-- Storage Integration (disable legacy FIRST) -->
     <script src="js/legacy-chat-disabler.js"></script>
-    <script src="js/storage-integration.js"></script>
     <script src="js/migration-helper.js"></script>
+    <script src="js/storage-integration.js"></script>
     
     <!-- AI System -->
     <script src="js/ai/ai-providers.js"></script>
@@ -582,17 +575,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+    <script src="js/utils/prism-stub.js"></script>
     
-    <!-- Floating Mascot with WebM Animation -->
+    <!-- Floating Mascot with GIF Animation -->
     <div class="floating-mascot" id="floating-mascot" data-tooltip="Let's create something amazing!">
         <div class="mascot-avatar">
-            <video muted autoplay loop preload="auto" webkit-playsinline id="floating-mascot-video" class="hidden">
-                <source src="assets/Idle.webm" type="video/webm">
-                <!-- Fallback for browsers that don't support WebM -->
-            </video>
             <img src="assets/ae-mascot-animated.gif" alt="AI Assistant" id="floating-mascot-fallback">
-            <!-- Ultimate fallback removed (emoji not allowed). Keep visual only. -->
-            
             <!-- Audio Visualizer -->
             <div class="audio-visualizer" id="audio-visualizer">
                 <div class="wave-ring ring-1"></div>
@@ -654,7 +642,7 @@
             height: 70px !important;
             border-radius: 50% !important;
             object-fit: cover !important;
-            display: none !important;
+            display: block !important;
         }
         
     /* Emoji fallback removed */
@@ -663,6 +651,23 @@
         .floating-mascot::before {
             display: none !important;
         }
-    </style>
+        </style>
+        <script>
+            // Show video when loaded; otherwise keep GIF fallback visible
+            (function(){
+                try{
+                    var v = document.getElementById('floating-mascot-video');
+                    var img = document.getElementById('floating-mascot-fallback');
+                    if(!v || !img) return;
+                    v.addEventListener('loadeddata', function(){
+                        v.classList.remove('hidden');
+                        img.style.display = 'none';
+                    });
+                    v.addEventListener('error', function(){
+                        img.style.display = 'block';
+                    });
+                }catch(e){}
+            })();
+        </script>
 </body>
 </html>

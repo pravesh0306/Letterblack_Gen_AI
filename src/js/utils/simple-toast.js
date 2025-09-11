@@ -112,6 +112,9 @@ class SimpleToast {
 // Create global instance
 window.simpleToast = new SimpleToast();
 
+// Alias for compatibility with existing code paths
+window.SimpleToast = window.simpleToast;
+
 // Also provide legacy compatibility
 window.showToast = (message, type = 'info') => {
     window.simpleToast.show(message, type);

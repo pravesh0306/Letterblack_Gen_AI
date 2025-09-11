@@ -116,24 +116,42 @@
         }
     }
 
-    async function secureGet(key, defaultValue = null) {
+    // Unified storage accessor - prefers cepStorage, falls back to secureStorage, then localStorage
+    async function unifiedGet(key, defaultValue = null) {
         try {
+            // First priority: window.cepStorage (consistent with Settings UI)
+            if (window.cepStorage && typeof window.cepStorage.getItem === 'function') {
+                const value = window.cepStorage.getItem(key, undefined);
+                if (value !== undefined && value !== null) {
+                    return value;
+                }
+            }
+            
+            // Second priority: secureStorage (for auto-detect and legacy values)
             if (secureStorage) {
                 const settings = await secureStorage.loadSettings();
-                return settings[key] ?? defaultValue;
-            } else {
-                // Fallback to localStorage with validation
-                const value = localStorage.getItem(key);
-                return value ? JSON.parse(value) : defaultValue;
+                if (settings[key] !== undefined) {
+                    return settings[key];
+                }
             }
+            
+            // Final fallback: localStorage with validation
+            const value = localStorage.getItem(key);
+            return value ? JSON.parse(value) : defaultValue;
         } catch (error) {
-            console.error('Failed to get secure value:', error);
+            console.error('Failed to get unified value:', error);
             return defaultValue;
         }
     }
 
-    async function secureSet(key, value) {
+    async function unifiedSet(key, value) {
         try {
+            // Save to cepStorage if available (for Settings UI consistency)
+            if (window.cepStorage && typeof window.cepStorage.setItem === 'function') {
+                window.cepStorage.setItem(key, value);
+            }
+            
+            // Also save to secureStorage for auto-detect feature persistence
             if (secureStorage) {
                 const settings = await secureStorage.loadSettings();
                 settings[key] = value;
@@ -143,9 +161,18 @@
                 localStorage.setItem(key, JSON.stringify(value));
             }
         } catch (error) {
-            console.error('Failed to set secure value:', error);
+            console.error('Failed to set unified value:', error);
             throw new Error(ErrorMessages.STORAGE_ERROR);
         }
+    }
+
+    // Legacy compatibility - redirect to unified storage
+    async function secureGet(key, defaultValue = null) {
+        return await unifiedGet(key, defaultValue);
+    }
+
+    async function secureSet(key, value) {
+        return await unifiedSet(key, value);
     }
 
     // Component cleanup registry
@@ -466,6 +493,12 @@
         const startNewBtn = $('#start-new-session-btn');
         let mutationObserver = null;
         
+        // Configure chat messages for accessibility
+        if (chatMessages) {
+            chatMessages.setAttribute('aria-live', 'polite');
+            chatMessages.setAttribute('aria-label', 'Chat conversation');
+        }
+        
         // Validation for chat messages
         function validateMessage(msg) {
             if (!msg || typeof msg !== 'object') return false;
@@ -497,7 +530,7 @@
                     return {
                         type: m.classList.contains('user') ? 'user' : 'system',
                         text: contentEl?.innerText || '',
-                        timestamp: timestampEl?.innerText || ''
+                        timestamp: timestampEl?.innerText || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     };
                 }).filter(validateMessage);
                 
@@ -664,7 +697,7 @@
                         // Use YouTube Helper if available
                         if (window.SimpleYouTubeHelper) {
                             const youtubeHelper = new window.SimpleYouTubeHelper();
-                            const analysis = await youtubeHelper.analyzeVideo(url);
+                            const analysis = await youtubeHelper.analyzeYouTubeURL(url);
                             
                             // Remove loading message
                             const loadingMsg = chatMessages.querySelector('.message:last-child');
@@ -672,7 +705,7 @@
                                 loadingMsg.remove();
                             }
                             
-                            append('system', `� **Video Analysis:**\n\n${analysis}`);
+                            append('system', `Video Analysis:\n\n${analysis}`);
                         } else {
                             // Remove loading message
                             const loadingMsg = chatMessages.querySelector('.message:last-child');
@@ -756,16 +789,23 @@
             }
             
             const d = document.createElement('div'); 
-            d.className = `message ${type}`; 
+            d.className = `message ${type}`;
+            // Add ARIA role for screen readers
+            d.setAttribute('role', 'article');
+            d.setAttribute('aria-label', `${type === 'user' ? 'User' : 'AI Assistant'} message`);
+            
             const c = document.createElement('div'); 
             c.className = 'message-content'; 
             // Use sanitized HTML rendering
             c.innerHTML = `<p>${sanitizeHtml(text)}</p>`; 
             d.appendChild(c); 
+            
             const ts = document.createElement('div'); 
             ts.className = 'message-timestamp'; 
             ts.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); 
+            ts.setAttribute('aria-label', `Sent at ${ts.textContent}`);
             d.appendChild(ts); 
+            
             chatMessages.appendChild(d); 
             chatMessages.scrollTop = chatMessages.scrollHeight; 
         }
@@ -778,11 +818,11 @@
             }
             
             try {
-                // Get settings from secure storage
-                const apiKey = await secureGet('ai_api_key', '');
-                const provider = await secureGet('ai_provider', 'google');
-                const model = await secureGet('ai_model', 'gemini-1.5-flash');
-                const contextMemory = await secureGet('ai_context_memory', '');
+                // Use unified storage for consistent access across Settings UI and Chat
+                const apiKey = await unifiedGet('apiKey', '');
+                const provider = await unifiedGet('apiProvider', 'google');
+                const model = await unifiedGet('apiModel', 'gemini-2.5-flash-preview-05-20');
+                const contextMemory = await unifiedGet('ai_context_memory', '');
                 
                 // Validate settings
                 if (!validateText(apiKey, 10, 200)) {
@@ -901,13 +941,107 @@
     function initMascot(){ try { if(typeof MascotAnimator !== 'undefined'){ const mascot = new MascotAnimator({ mascotGif:'Reusable_Mascot_System/assets/ae-mascot-animated.gif', mascotPng:'Reusable_Mascot_System/assets/ae-mascot.png', mascotVideo:'Reusable_Mascot_System/assets/ae-mascot-animated.mp4', mascotSize:'56px', bubbleStyle:'dark', welcomeDuration:3800, zIndex:9999 }); mascot.showWelcome({ text:'Welcome', message:'LetterBlack_Gen_AI — ready to assist' }); window.__mascot = mascot; } } catch(e){ console.warn('MascotAnimator init failed', e); } }
 
     // Floating mascot
-    function initFloatingMascot(){ const floating = document.getElementById('floating-mascot'); if(!floating) return; let clickCount=0; const animations=['animate-bounce','animate-pulse','animate-spin','animate-bubble']; const tooltips=[ 'Click me for help! 🎯','I\'m here to assist! ✨','Need help with After Effects? 🎬','Let\'s create something amazing! 🚀','Ready to help you code! 💻','Your AI companion! 🤖','Always here to help! 💫' ]; function trigger(){ animations.forEach(a=>floating.classList.remove(a)); const anim = clickCount % 4 === 0 ? 'animate-bubble' : animations[Math.floor(Math.random()*animations.length)]; floating.classList.add(anim); setTimeout(()=>floating.classList.remove(anim),1000); }
-        function updateTooltip(){ const t = tooltips[Math.floor(Math.random()*tooltips.length)]; floating.setAttribute('data-tooltip', t); }
-        function onClick(){ clickCount++; trigger(); updateTooltip(); if(window.__mascot && typeof window.__mascot.showNotification === 'function'){ const msgs=[ 'Hello! I\'m your AI assistant! 🎉','Ready to help with your After Effects project! 🎬','Click the chat area to start a conversation! 💬','Try the command palette for quick actions! ⚡','Need help? Just ask me anything! 🤔','Let\'s make something awesome together! ✨','Your creative coding companion! 🚀' ]; const msg = msgs[Math.floor(Math.random()*msgs.length)]; window.__mascot.showNotification({ text:'AI Assistant', message:msg, duration:3500 }); } else { console.log(`Floating mascot clicked ${clickCount} times`); } if(clickCount>=5 && clickCount % 5 ===0){ for(let i=0;i<3;i++){ setTimeout(()=>{ floating.classList.add('animate-pulse'); setTimeout(()=>floating.classList.remove('animate-pulse'),300); }, i*200); } } }
-        floating.addEventListener('click', onClick); floating.addEventListener('mouseenter', ()=> floating.style.transform='translateY(-5px) scale(1.08)'); floating.addEventListener('mouseleave', ()=> floating.style.transform=''); function randomGentle(){ if(Math.random()<0.4){ const ga=['animate-pulse','animate-bounce']; const a=ga[Math.floor(Math.random()*ga.length)]; floating.classList.add(a); setTimeout(()=>floating.classList.remove(a),1000); } }
-        function scheduleNext(){ const delay=8000+Math.random()*4000; setTimeout(()=>{ randomGentle(); scheduleNext(); }, delay); }
-        function scheduleTooltip(){ const delay=6000+Math.random()*4000; setTimeout(()=>{ updateTooltip(); scheduleTooltip(); }, delay); }
-        scheduleNext(); scheduleTooltip();
+    function initFloatingMascot(){ 
+        const floating = document.getElementById('floating-mascot'); 
+        if(!floating) return; 
+        
+        let clickCount=0; 
+        const animations=['animate-bounce','animate-pulse','animate-spin','animate-bubble']; 
+        const tooltips=[ 
+            'Click me for help! 🎯','I\'m here to assist! ✨','Need help with After Effects? 🎬','Let\'s create something amazing! 🚀','Ready to help you code! 💻','Your AI companion! 🤖','Always here to help! 💫' 
+        ]; 
+        
+        // Track timeouts for cleanup
+        let nextTimeoutId = null;
+        let tooltipTimeoutId = null;
+        
+        function trigger(){ 
+            animations.forEach(a=>floating.classList.remove(a)); 
+            const anim = clickCount % 4 === 0 ? 'animate-bubble' : animations[Math.floor(Math.random()*animations.length)]; 
+            floating.classList.add(anim); 
+            setTimeout(()=>floating.classList.remove(anim),1000); 
+        }
+        
+        function updateTooltip(){ 
+            const t = tooltips[Math.floor(Math.random()*tooltips.length)]; 
+            floating.setAttribute('data-tooltip', t); 
+        }
+        
+        function onClick(){ 
+            clickCount++; 
+            trigger(); 
+            updateTooltip(); 
+            if(window.__mascot && typeof window.__mascot.showNotification === 'function'){ 
+                const msgs=[ 
+                    'Hello! I\'m your AI assistant! 🎉','Ready to help with your After Effects project! 🎬','Click the chat area to start a conversation! 💬','Try the command palette for quick actions! ⚡','Need help? Just ask me anything! 🤔','Let\'s make something awesome together! ✨','Your creative coding companion! 🚀' 
+                ]; 
+                const msg = msgs[Math.floor(Math.random()*msgs.length)]; 
+                window.__mascot.showNotification({ text:'AI Assistant', message:msg, duration:3500 }); 
+            } else { 
+                console.log(`Floating mascot clicked ${clickCount} times`); 
+            } 
+            if(clickCount>=5 && clickCount % 5 ===0){ 
+                for(let i=0;i<3;i++){ 
+                    setTimeout(()=>{ 
+                        floating.classList.add('animate-pulse'); 
+                        setTimeout(()=>floating.classList.remove('animate-pulse'),300); 
+                    }, i*200); 
+                } 
+            } 
+        }
+        
+        function onMouseEnter() {
+            floating.style.transform='translateY(-5px) scale(1.08)';
+        }
+        
+        function onMouseLeave() {
+            floating.style.transform='';
+        }
+        
+        floating.addEventListener('click', onClick); 
+        floating.addEventListener('mouseenter', onMouseEnter); 
+        floating.addEventListener('mouseleave', onMouseLeave); 
+        
+        function randomGentle(){ 
+            if(Math.random()<0.4){ 
+                const ga=['animate-pulse','animate-bounce']; 
+                const a=ga[Math.floor(Math.random()*ga.length)]; 
+                floating.classList.add(a); 
+                setTimeout(()=>floating.classList.remove(a),1000); 
+            } 
+        }
+        
+        function scheduleNext(){ 
+            clearTimeout(nextTimeoutId);
+            const delay=8000+Math.random()*4000; 
+            nextTimeoutId = setTimeout(()=>{ 
+                randomGentle(); 
+                scheduleNext(); 
+            }, delay); 
+        }
+        
+        function scheduleTooltip(){ 
+            clearTimeout(tooltipTimeoutId);
+            const delay=6000+Math.random()*4000; 
+            tooltipTimeoutId = setTimeout(()=>{ 
+                updateTooltip(); 
+                scheduleTooltip(); 
+            }, delay); 
+        }
+        
+        scheduleNext(); 
+        scheduleTooltip();
+        
+        // Register cleanup for memory leak prevention
+        registerCleanup(() => {
+            if (floating) {
+                floating.removeEventListener('click', onClick);
+                floating.removeEventListener('mouseenter', onMouseEnter);
+                floating.removeEventListener('mouseleave', onMouseLeave);
+            }
+            clearTimeout(nextTimeoutId);
+            clearTimeout(tooltipTimeoutId);
+        });
     }
 
     // Boot with enhanced initialization
@@ -1020,6 +1154,7 @@
                     autoDetectBtn.addEventListener('click', () => {
                         if (window.smartAPIManager && typeof window.smartAPIManager.manualDetect === 'function') {
                             window.smartAPIManager.manualDetect();
+                            if (window.SimpleToast) window.SimpleToast.show('Provider auto-detected and saved', 'success');
                         } else {
                             showError('API auto-detect not available.');
                         }
@@ -1029,7 +1164,7 @@
                 console.warn('Header button wiring failed', err);
             }
 
-            // Disable API key saving if secure storage not initialized
+            // Disable API key saving if secure storage not initialized and wire save toast
             try {
                 const saveAndTestBtn = document.getElementById('save-and-test-btn');
                 const apiInput = document.getElementById('api-key-setting');
@@ -1038,6 +1173,11 @@
                         saveAndTestBtn.disabled = true;
                         saveAndTestBtn.title = 'Secure storage unavailable - cannot save API key locally';
                         if (apiInput) apiInput.setAttribute('placeholder', 'Secure storage required to save API key');
+                    } else {
+                        saveAndTestBtn.addEventListener('click', () => {
+                            // SettingsManager handles the save; we show feedback
+                            if (window.SimpleToast) window.SimpleToast.success('Settings saved');
+                        });
                     }
                 }
             } catch (err) {
@@ -1046,6 +1186,48 @@
         } catch (error) {
             console.error('❌ UI Bootstrap initialization failed:', error);
             showError('Some UI components failed to initialize. Please refresh the page.');
+        }
+
+        // Bottom panel resizer wiring
+        try {
+            const panel = document.getElementById('bottom-panel');
+            const resizer = document.querySelector('.bottom-resizer');
+            const STORAGE_KEY = 'bottom_panel_height';
+            if (panel && resizer) {
+                // Restore saved height
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) panel.style.height = saved;
+
+                let dragging = false;
+                let startY = 0;
+                let startH = 0;
+
+                const onMove = (e) => {
+                    if (!dragging) return;
+                    const dy = startY - e.clientY; // dragging up increases height
+                    const newH = Math.max(120, Math.min(600, startH + dy));
+                    panel.style.height = newH + 'px';
+                };
+                const onUp = () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    localStorage.setItem(STORAGE_KEY, panel.style.height);
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onUp);
+                    document.body.style.cursor = '';
+                };
+                const startDrag = (e) => {
+                    dragging = true;
+                    startY = e.clientY;
+                    startH = panel.getBoundingClientRect().height;
+                    window.addEventListener('mousemove', onMove);
+                    window.addEventListener('mouseup', onUp);
+                    document.body.style.cursor = 'ns-resize';
+                };
+                resizer.addEventListener('mousedown', startDrag);
+            }
+        } catch (err) {
+            console.warn('Bottom panel resizer failed to initialize', err);
         }
     });
 

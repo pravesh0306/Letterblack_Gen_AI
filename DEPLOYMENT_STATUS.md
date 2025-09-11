@@ -1,20 +1,19 @@
 # LetterBlack Gen AI - Adobe After Effects Extension Deployment
 
-## Deployment Status: ✅ COMPLETED
+## Deployment Status: ✅ COMPLETED - September 12, 2025
 
-The LetterBlack Gen AI extension has been successfully deployed to Adobe After Effects using the official npm script method!
+The LetterBlack Gen AI extension has been successfully deployed to Adobe After Effects with all recent enhancements!
 
-### 📦 Deployment Method Used
-**NPM Scripts** (Recommended method from documentation):
-```bash
-npm run install-extension    # Build and deploy
-npm run enable-cep-debug    # Enable debug mode
-npm run uninstall-extension # Remove extension (if needed)
-```
+### 📦 Deployment Details
+- **Method:** deploy-to-aep.bat script
+- **Files Deployed:** 178 files (from 135 source files)
+- **Build Status:** ✅ SUCCESS
+- **CEP Debug Mode:** ✅ ENABLED (CSXS.11 & CSXS.12)
+- **Enhancement Status:** ✅ ALL HIGH PRIORITY FIXES INCLUDED
 
 ### 📍 Deployment Location
 ```
-C:\Users\prave\AppData\Roaming\Adobe\CEP\extensions\com.letterblack.genai\
+%APPDATA%\Adobe\CEP\extensions\com.letterblack.genai\
 ```
 
 ### 🚀 How to Access the Extension

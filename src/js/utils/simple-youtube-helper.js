@@ -128,15 +128,37 @@ Return:
      * Extract YouTube video ID from various URL formats
      */
     extractVideoId(url) {
+        // Enhanced patterns supporting Shorts, embedded, mobile, and playlist URLs
         const patterns = [
+            // Standard watch URLs
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-            /youtube\.com\/v\/([^&\n?#]+)/
+            // Legacy video URLs
+            /youtube\.com\/v\/([^&\n?#]+)/,
+            // YouTube Shorts
+            /youtube\.com\/shorts\/([^&\n?#]+)/,
+            // Mobile URLs (m.youtube.com)
+            /m\.youtube\.com\/watch\?v=([^&\n?#]+)/,
+            // Embedded URLs with additional parameters
+            /youtube\.com\/embed\/([^&\n?#]+)/,
+            // Gaming URLs
+            /gaming\.youtube\.com\/watch\?v=([^&\n?#]+)/,
+            // Music URLs
+            /music\.youtube\.com\/watch\?v=([^&\n?#]+)/,
+            // Playlist URLs (extract first video)
+            /youtube\.com\/playlist\?list=([^&\n?#]+)/,
+            // Attribution links
+            /youtube\.com\/attribution_link\?.*v%3D([^&\n?#%]+)/
         ];
         
         for (const pattern of patterns) {
             const match = url.match(pattern);
-            if (match) return match[1];
+            if (match) {
+                console.log('🎬 Extracted video ID:', match[1], 'from pattern:', pattern);
+                return match[1];
+            }
         }
+        
+        console.warn('⚠️ No video ID found for URL:', url);
         return null;
     }
 

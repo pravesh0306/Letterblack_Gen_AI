@@ -45,6 +45,13 @@
   transform: translateY(1px);
 }
 
+/* Disabled state clarity */
+.composer-btn[disabled], .toolbar-btn[disabled], .header-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Bottom panel tabs */
 .bottom-panel .tab-btn.active{
   background: rgba(255,255,255,0.08);

@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
             bottomPanel.classList.toggle('collapsed');
             const isCollapsed = bottomPanel.classList.contains('collapsed');
             toggleButton.setAttribute('title', isCollapsed ? 'Show Script Library' : 'Hide Script Library');
+            toggleButton.setAttribute('aria-expanded', String(!isCollapsed));
         });
     }
 

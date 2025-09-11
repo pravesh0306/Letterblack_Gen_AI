@@ -67,6 +67,25 @@
     display: none;
 }
 
+/* Hide non-essential indicators per UX */
+#context-indicator,
+#effects-indicator {
+    display: none;
+}
+
+/* Resizer bar below header */
+.bottom-resizer {
+    height: 6px;
+    cursor: ns-resize;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.06), transparent);
+}
+
+/* Rotate custom img icon when collapsed */
+.bottom-panel.collapsed .bottom-panel-toggle img {
+    transform: rotate(180deg);
+    transition: transform var(--transition-slow);
+}
+
 /* ===== TAB SYSTEM ===== */
 .tab-btn {
     background-color: transparent;

@@ -11,7 +11,7 @@ class LocalFileStorageManager {
         this.maxStorageSize = 100 * 1024 * 1024; // 100MB default
         this.supportedFormats = {
             images: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'],
-            videos: ['.mp4', '.mov', '.avi', '.mkv', '.webm'],
+            videos: ['.mp4', '.mov', '.avi', '.mkv'],
             audio: ['.mp3', '.wav', '.aac', '.flac', '.ogg'],
             documents: ['.pdf', '.txt', '.md', '.json', '.csv', '.xml'],
             code: ['.js', '.ts', '.jsx', '.tsx', '.css', '.html', '.py', '.cpp'],

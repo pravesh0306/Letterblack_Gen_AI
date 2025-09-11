@@ -282,4 +282,8 @@ class ChatMigrationHelper {
 
 // Export and create global instance
 window.chatMigrationHelper = new ChatMigrationHelper();
-module.exports = ChatMigrationHelper;
+
+// Browser-compatible export
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ChatMigrationHelper;
+}

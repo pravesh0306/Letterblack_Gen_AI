@@ -130,7 +130,7 @@ class AIModule {
 
     async handleYouTubeLinks(message) {
         const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/g;
-        const videoFileRegex = /\.(?:mp4|mov|avi|mkv|webm|m4v)$/i;
+        const videoFileRegex = /\.(?:mp4|mov|avi|mkv|m4v)$/i;
         
         // Check for YouTube URLs
         const youtubeMatches = message.match(youtubeRegex);
