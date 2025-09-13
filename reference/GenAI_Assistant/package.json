@@ -1,0 +1,19 @@
+{
+  "name": "ae-gen-ai-assist",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Adobe After Effects CEP AI Assistant Extension",
+  "scripts": {
+    "lint": "eslint . --ext .js,.jsx --ignore-path .gitignore",
+    "format": "prettier . --write",
+  "build": "echo Build step placeholder (add bundler if needed)",
+  "package": "node scripts/package-cep.js",
+  "version:bump": "node scripts/version-bump.js"
+  ,"test": "node tests/settings-manager.test.js && node tests/prompt-builder.test.js"
+  ,"release": "node scripts/release.js"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3"
+  }
+}

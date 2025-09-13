@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload Test - After Effects AI Extension</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1e1e1e;
+            color: #cccccc;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .test-section {
+            background: #2d2d2d;
+            border: 1px solid #3e3e3e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .test-section h2 {
+            color: #4fc3f7;
+            margin-top: 0;
+        }
+
+        /* File Upload Styles */
+        .upload-zone {
+            border: 2px dashed #666;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-zone:hover {
+            border-color: #4fc3f7;
+            background: rgba(79, 195, 247, 0.1);
+        }
+
+        .upload-zone.drag-over {
+            border-color: #4fc3f7;
+            background: rgba(79, 195, 247, 0.2);
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .upload-button {
+            background: #4fc3f7;
+            color: #1e1e1e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .upload-button:hover {
+            background: #29b6f6;
+        }
+
+        /* Preview Styles */
+        .preview-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .image-info {
+            background: #333;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Monaco', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        .base64-preview {
+            background: #222;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Monaco', monospace;
+            font-size: 11px;
+            max-height: 100px;
+            overflow-y: auto;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+
+        /* Test Controls */
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .test-btn {
+            background: #66bb6a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .test-btn:hover {
+            background: #4caf50;
+        }
+
+        .test-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        /* Status Messages */
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .status.info {
+            background: rgba(79, 195, 247, 0.2);
+            color: #4fc3f7;
+            border: 1px solid #4fc3f7;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            border-top-color: #4fc3f7;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image Upload Test - After Effects AI Extension</h1>
+        <p>This is a safe testing environment for image upload functionality. No changes to working extension.</p>
+
+        <!-- File Upload Test -->
+        <div class="test-section">
+            <h2>1. File Upload Interface Test</h2>
+            <div class="upload-zone" id="uploadZone">
+                <div>📁 Click here or drag & drop an image</div>
+                <div style="margin-top: 10px; font-size: 14px; color: #999;">
+                    Supported: JPG, PNG, GIF, WebP (Max 5MB)
+                </div>
+                <input type="file" id="imageInput" class="upload-input" accept="image/*">
+                <button type="button" class="upload-button" onclick="document.getElementById('imageInput').click()">
+                    Choose File
+                </button>
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+                <h3>Image Preview:</h3>
+                <img id="previewImage" class="preview-image" alt="Preview">
+                
+                <div class="image-info" id="imageInfo">
+                    <!-- Image info will be populated here -->
+                </div>
+
+                <div class="test-controls">
+                    <button class="test-btn" id="validateBtn" onclick="validateImage()">Validate Format</button>
+                    <button class="test-btn" id="encodeBtn" onclick="encodeToBase64()">Encode Base64</button>
+                    <button class="test-btn" id="resizeBtn" onclick="testResize()">Test Resize</button>
+                    <button class="test-btn" id="clearBtn" onclick="clearImage()">Clear</button>
+                </div>
+
+                <div class="base64-preview" id="base64Preview" style="display: none;">
+                    <!-- Base64 will be shown here -->
+                </div>
+            </div>
+
+            <div id="statusMessages">
+                <!-- Status messages will appear here -->
+            </div>
+        </div>
+
+        <!-- Vision API Test -->
+        <div class="test-section">
+            <h2>2. Vision API Test (Simulated)</h2>
+            <p>This section will test API integration once an image is loaded.</p>
+            
+            <div class="test-controls">
+                <button class="test-btn" id="testGeminiVision" onclick="testGeminiVision()" disabled>
+                    Test Gemini Vision
+                </button>
+                <button class="test-btn" id="testGPTVision" onclick="testGPTVision()" disabled>
+                    Test GPT-4V
+                </button>
+                <button class="test-btn" id="testClaudeVision" onclick="testClaudeVision()" disabled>
+                    Test Claude Vision
+                </button>
+                <button class="test-btn" id="runRealAPITest" onclick="runRealVisionAPITest()" disabled style="background: #ff9800;">
+                    🔬 Run Real API Test
+                </button>
+            </div>
+
+            <div id="visionResults" style="margin-top: 15px;">
+                <!-- Vision API results will appear here -->
+            </div>
+        </div>
+
+        <!-- Integration Test -->
+        <div class="test-section">
+            <h2>3. After Effects Context Test</h2>
+            <p>Test how images work with AE project context.</p>
+            
+            <div class="test-controls">
+                <button class="test-btn" id="testAEIntegration" onclick="testAEIntegration()" disabled>
+                    Test AE Integration
+                </button>
+                <button class="test-btn" id="testContextMerge" onclick="testContextMerge()" disabled>
+                    Test Context Merge
+                </button>
+            </div>
+
+            <div id="integrationResults" style="margin-top: 15px;">
+                <!-- Integration results will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="test-image-handler.js"></script>
+    <script src="test-ai-vision.js"></script>
+</body>
+</html>

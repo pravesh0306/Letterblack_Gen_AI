@@ -1,0 +1,420 @@
+/* Settings & Dropdowns Module - VS Code Style */
+
+/* Dropdown Containers */
+.workflow-menu-dropdown,
+.settings-dropdown {
+	position: relative;
+	display: inline-block;
+}
+
+/* VS Code Style Dropdown Panels */
+.workflow-menu-panel,
+.settings-panel {
+	position: absolute;
+	top: calc(100% + 1px);
+	right: 0;
+	background: var(--vscode-bg-tertiary);
+	border: 1px solid var(--vscode-border);
+	border-radius: var(--vscode-border-radius);
+	box-shadow: var(--vscode-shadow-widget);
+	z-index: 1000;
+	min-width: 280px;
+	max-width: 400px;
+	max-height: 70vh;
+	overflow-y: auto;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-4px);
+	transition: var(--vscode-transition);
+	font-size: 13px;
+}
+
+.workflow-menu-panel.active,
+.settings-panel.active {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.settings-panel {
+	width: 360px;
+}
+
+.workflow-menu-content,
+.settings-content {
+	padding: 8px;
+}
+
+/* VS Code Style Sections */
+.menu-section,
+.settings-section {
+	margin-bottom: 8px;
+	padding: 12px;
+	background: var(--vscode-bg-secondary);
+	border: 1px solid var(--vscode-border);
+	border-radius: var(--vscode-border-radius);
+}
+
+.menu-section:last-child,
+.settings-section:last-child {
+	margin-bottom: 0;
+}
+
+/* Setting Groups */
+.setting-group {
+	margin-bottom: 12px;
+}
+
+.setting-group:last-child {
+	margin-bottom: 0;
+}
+
+.setting-group label {
+	display: block;
+	color: var(--vscode-text-primary);
+	font-size: 13px;
+	margin-bottom: 4px;
+	font-weight: 400;
+}
+
+.menu-section h4,
+.settings-section h4 {
+	margin: 0 0 8px 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-text-primary);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+/* VS Code Style Form Controls */
+.compact-input,
+.compact-select,
+.compact-textarea {
+	width: 100%;
+	background: var(--vscode-bg-primary);
+	border: 1px solid var(--vscode-border);
+	border-radius: var(--vscode-border-radius);
+	padding: 4px 8px;
+	color: var(--vscode-text-primary);
+	font-size: 13px;
+	font-family: inherit;
+	transition: var(--vscode-transition);
+	margin-bottom: 6px;
+	height: var(--vscode-input-height);
+}
+
+.compact-textarea {
+	height: auto;
+	min-height: 60px;
+	resize: vertical;
+	font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+.compact-input:focus,
+.compact-select:focus,
+.compact-textarea:focus {
+	outline: none;
+	border-color: #007acc;
+	box-shadow: 0 0 0 1px #007acc;
+/* VS Code Style Help Text */
+.settings-help {
+	color: var(--vscode-text-muted);
+	font-size: 11px;
+	margin-top: 4px;
+	display: block;
+}
+
+.settings-help.auto-load-hint {
+	color: var(--text-muted);
+	opacity: 0.8;
+	font-style: italic;
+}
+
+/* VS Code Style Buttons */
+.compact-button {
+	background: var(--vscode-button-secondary-bg);
+	border: 1px solid var(--vscode-border);
+	border-radius: var(--vscode-border-radius);
+	padding: 4px 12px;
+	color: var(--vscode-text-primary);
+	font-size: 13px;
+	font-weight: 400;
+	cursor: pointer;
+	transition: var(--vscode-transition);
+	height: var(--vscode-button-height);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 60px;
+}
+
+.compact-button:hover {
+	background: var(--vscode-button-secondary-hover);
+}
+
+.compact-button.primary {
+	background: var(--vscode-button-primary-bg);
+	border-color: var(--vscode-button-primary-bg);
+	color: white;
+}
+
+.compact-button.primary:hover {
+	background: var(--vscode-button-primary-hover);
+	border-color: var(--vscode-button-primary-hover);
+}
+
+/* Settings Actions */
+.settings-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 16px;
+	padding-top: 12px;
+	border-top: 1px solid var(--vscode-border);
+	flex-wrap: wrap;
+}
+
+.settings-actions .compact-button.primary {
+	flex: 1;
+	min-width: 140px;
+	font-weight: 500;
+}
+
+.settings-actions .compact-button.secondary {
+	min-width: 100px;
+}
+
+/* Checkbox Labels */
+.checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--vscode-text-primary);
+	font-size: 13px;
+	margin-bottom: 6px;
+	cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+	margin: 0;
+	accent-color: var(--vscode-border-focus);
+}
+
+/* Workflow History */
+.workflow-history-list {
+	margin-bottom: 8px;
+}
+
+.workflow-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 8px;
+	background: var(--vscode-bg-secondary);
+	border: 1px solid var(--vscode-border);
+	border-radius: var(--vscode-border-radius);
+	margin-bottom: 4px;
+	font-size: 12px;
+}
+
+.workflow-name {
+	color: var(--vscode-text-primary);
+	flex: 1;
+}
+
+.workflow-time {
+	color: var(--vscode-text-muted);
+	font-size: 11px;
+}
+
+.workflow-status {
+	padding: 2px 6px;
+	border-radius: 2px;
+	font-size: 10px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+
+.workflow-status.paused {
+	background: var(--vscode-warning);
+	color: var(--vscode-bg-primary);
+}
+
+/* Template Indicator */
+.template-indicator {
+	padding: 4px 8px;
+	background: var(--vscode-bg-secondary);
+	border: 1px solid var(--vscode-border);
+	border-radius: var(--vscode-border-radius);
+	color: var(--vscode-text-muted);
+	font-size: 12px;
+	margin-bottom: 6px;
+}
+
+/* Menu Button */
+.menu-btn {
+	width: 100%;
+	background: var(--vscode-bg-secondary);
+	border: 1px solid var(--vscode-border);
+	border-radius: var(--vscode-border-radius);
+	padding: 6px 12px;
+	color: var(--vscode-text-primary);
+	font-size: 12px;
+	cursor: pointer;
+	transition: var(--vscode-transition);
+}
+
+.menu-btn:hover {
+	background: var(--vscode-bg-hover);
+}
+
+/* Monitor Interval */
+.monitor-interval {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 6px;
+}
+
+.monitor-interval label {
+	color: var(--vscode-text-primary);
+	font-size: 13px;
+	white-space: nowrap;
+}
+
+/* Utility Classes */
+.hidden {
+	display: none !important;
+}
+
+.settings-link {
+	color: var(--vscode-text-link);
+	text-decoration: none;
+}
+
+.settings-link:hover {
+	text-decoration: underline;
+}
+
+/* Gemini Specific Settings */
+.gemini-settings {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid var(--vscode-border);
+}
+
+.gemini-settings.show {
+	display: block;
+}
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+/* === Preferences Tab Styling === */
+.preferences-container {
+    padding: 16px;
+    max-width: 100%;
+}
+
+.preferences-container h3 {
+    color: var(--vscode-text-primary);
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#preferences-content {
+    background: var(--vscode-bg-secondary);
+    border: 1px solid var(--vscode-border);
+    border-radius: var(--vscode-border-radius);
+    padding: 12px;
+    margin-bottom: 20px;
+}
+
+.preferences-info {
+    color: var(--vscode-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.diagnostics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.diagnostic-item {
+    display: flex;
+    align-items: center;
+}
+
+.diagnostic-results {
+    background: var(--vscode-bg-secondary);
+    border: 1px solid var(--vscode-border);
+    border-radius: var(--vscode-border-radius);
+    padding: 12px;
+    min-height: 60px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--vscode-text-secondary);
+}
+
+.diagnostic-result {
+    color: var(--vscode-text-primary);
+    line-height: 1.5;
+}
+
+.diagnostic-result strong {
+    color: var(--vscode-text-accent);
+}
+
+/* Button Styling for Diagnostics */
+.btn {
+    background: var(--vscode-button-bg);
+    color: var(--vscode-button-text);
+    border: 1px solid var(--vscode-button-border);
+    border-radius: var(--vscode-border-radius);
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--vscode-transition);
+    width: 100%;
+}
+
+.btn:hover {
+    background: var(--vscode-button-bg-hover);
+}
+
+.btn-primary {
+    background: var(--vscode-button-primary-bg);
+    color: var(--vscode-button-primary-text);
+    border-color: var(--vscode-button-primary-border);
+}
+
+.btn-primary:hover {
+    background: var(--vscode-button-primary-bg-hover);
+}
+
+.btn-secondary {
+    background: var(--vscode-button-secondary-bg);
+    color: var(--vscode-button-secondary-text);
+    border-color: var(--vscode-button-secondary-border);
+}
+
+.btn-secondary:hover {
+    background: var(--vscode-button-secondary-bg-hover);
+}
+
+.btn-info {
+    background: var(--vscode-info-bg);
+    color: var(--vscode-info-text);
+    border-color: var(--vscode-info-border);
+}
+
+.btn-info:hover {
+    background: var(--vscode-info-bg-hover);
+}
+

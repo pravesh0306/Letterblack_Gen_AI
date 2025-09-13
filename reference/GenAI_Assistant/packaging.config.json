@@ -1,0 +1,19 @@
+{
+  "name": "Gen_AI_Assist",
+  "versionFile": "CSXS/manifest.xml",
+  "include": [
+    "index.html",
+    "CSXS/manifest.xml",
+    "assets/**/*",
+    "css/**/*",
+    "js/**/*",
+    "Reusable_Mascot_System/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".git",
+    "scripts",
+    "test-image-upload"
+  ]
+}

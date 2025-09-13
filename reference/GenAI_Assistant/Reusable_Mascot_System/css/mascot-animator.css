@@ -1,0 +1,398 @@
+/**
+ * Mascot Animator CSS - Standalone Styles
+ * 
+ * Use this file if you prefer to include styles separately
+ * or customize the mascot animations with your own CSS.
+ */
+
+/* Mascot Animator Base Styles */
+.mascot-welcome-container,
+.mascot-thinking-container,
+.mascot-loading-container,
+.mascot-notification-container {
+    position: fixed;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Positioning Classes */
+.position-bottom-right { bottom: 16px; right: 16px; }
+.position-bottom-left { bottom: 16px; left: 16px; }
+.position-top-right { top: 16px; right: 16px; }
+.position-top-left { top: 16px; left: 16px; }
+.position-center { 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+}
+
+/* Mascot Images */
+.mascot-welcome-image,
+.mascot-thinking-image,
+.mascot-loading-image {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.mascot-notification-image {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Speech Bubbles */
+.mascot-speech-bubble {
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    max-width: 200px;
+    word-wrap: break-word;
+    white-space: normal;
+    position: relative;
+}
+
+/* Speech bubble tail (optional) */
+.mascot-speech-bubble::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid #2d2d30;
+}
+
+.bubble-dark {
+    background: #2d2d30;
+    color: #ffffff;
+    border: 1px solid #3c3c3c;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.bubble-light {
+    background: #ffffff;
+    color: #333333;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.bubble-light::before {
+    border-right-color: #ffffff;
+}
+
+/* Messages */
+.mascot-welcome-message,
+.mascot-thinking-message,
+.mascot-loading-text {
+    color: #cccccc;
+    font-size: 12px;
+    margin-top: 8px;
+    text-align: center;
+    max-width: 200px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Welcome Animation */
+.mascot-welcome-container {
+    animation: mascotWelcomeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.mascot-welcome-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Thinking Animation */
+.mascot-thinking-container {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid #3c3c3c;
+    border-radius: 12px;
+    padding: 16px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.mascot-thinking-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.mascot-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Notification Styles */
+.mascot-notification-container {
+    background: rgba(45, 45, 48, 0.95);
+    border: 1px solid #3c3c3c;
+    border-radius: 8px;
+    padding: 12px;
+    max-width: 300px;
+    animation: mascotSlideIn 0.3s ease-out;
+    pointer-events: auto;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.mascot-notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mascot-notification-text {
+    flex: 1;
+}
+
+.mascot-notification-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.mascot-notification-message {
+    font-size: 11px;
+    color: #cccccc;
+    line-height: 1.3;
+}
+
+/* Notification Types */
+.type-success { 
+    border-left: 4px solid #4caf50; 
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+}
+.type-warning { 
+    border-left: 4px solid #ff9800;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.2);
+}
+.type-error { 
+    border-left: 4px solid #f44336;
+    box-shadow: 0 4px 16px rgba(244, 67, 54, 0.2);
+}
+.type-info { 
+    border-left: 4px solid #2196f3;
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.2);
+}
+
+/* Loading Container */
+.mascot-loading-container {
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid #3c3c3c;
+    border-radius: 12px;
+    padding: 20px;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    pointer-events: auto;
+}
+
+.mascot-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Progress Bar */
+.mascot-progress-bar {
+    width: 200px;
+    height: 6px;
+    background: #3c3c3c;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 12px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.mascot-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #007acc, #00d4ff);
+    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+
+/* Breathing animation for mascot images */
+@keyframes mascotBreathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.mascot-welcome-image,
+.mascot-thinking-image,
+.mascot-loading-image {
+    animation: mascotBreathe 3s ease-in-out infinite;
+}
+
+/* Entrance Animations */
+@keyframes mascotWelcomeIn {
+    0% { 
+        opacity: 0; 
+        transform: translateY(30px) scale(0.8); 
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(-5px) scale(1.05);
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+@keyframes mascotFadeOutScale {
+    0% { 
+        opacity: 1; 
+        transform: scale(1); 
+    }
+    100% { 
+        opacity: 0; 
+        transform: scale(0.8) translateY(20px); 
+    }
+}
+
+@keyframes mascotSlideIn {
+    0% { 
+        opacity: 0; 
+        transform: translateX(30px) scale(0.9); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateX(0) scale(1); 
+    }
+}
+
+@keyframes mascotSlideOut {
+    0% { 
+        opacity: 1; 
+        transform: translateX(0) scale(1); 
+    }
+    100% { 
+        opacity: 0; 
+        transform: translateX(30px) scale(0.9); 
+    }
+}
+
+/* Floating animation for speech bubbles */
+@keyframes mascotFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+}
+
+.mascot-speech-bubble {
+    animation: mascotFloat 2s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mascot-welcome-container,
+    .mascot-thinking-container,
+    .mascot-notification-container {
+        max-width: calc(100vw - 32px);
+        margin: 0 16px;
+    }
+    
+    .mascot-speech-bubble {
+        max-width: 150px;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+    
+    .mascot-welcome-image,
+    .mascot-thinking-image,
+    .mascot-loading-image {
+        width: 72px;
+        height: 72px;
+    }
+    
+    .position-bottom-right,
+    .position-bottom-left {
+        bottom: 20px;
+    }
+    
+    .position-bottom-right { right: 8px; }
+    .position-bottom-left { left: 8px; }
+}
+
+@media (max-width: 480px) {
+    .mascot-welcome-image,
+    .mascot-thinking-image,
+    .mascot-loading-image {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .mascot-progress-bar {
+        width: 150px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .bubble-dark {
+        background: #000000;
+        border: 2px solid #ffffff;
+    }
+    
+    .bubble-light {
+        background: #ffffff;
+        border: 2px solid #000000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .mascot-welcome-image,
+    .mascot-thinking-image,
+    .mascot-loading-image {
+        animation: none;
+    }
+    
+    .mascot-speech-bubble {
+        animation: none;
+    }
+    
+    .mascot-welcome-container {
+        animation: none;
+    }
+    
+    .mascot-progress-fill {
+        transition: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .mascot-welcome-container,
+    .mascot-thinking-container,
+    .mascot-loading-container,
+    .mascot-notification-container {
+        display: none !important;
+    }
+}
