@@ -1,0 +1,172 @@
+/* ============================================
+   TEST CODE BLOCKS CSS - EXTRACTED FROM WORKING EXTENSION
+   ============================================ */
+
+/* Test Results Area */
+.test-results {
+    margin: 20px 0;
+    padding: 16px;
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    border-radius: 8px;
+}
+
+.test-results h3 {
+    margin: 0 0 12px 0;
+    color: #9cdcfe;
+    font-size: 16px;
+}
+
+#test-log {
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    color: #cccccc;
+    line-height: 1.6;
+}
+
+.test-success {
+    color: #4ec9b0;
+}
+
+.test-error {
+    color: #f44747;
+}
+
+.test-info {
+    color: #9cdcfe;
+}
+
+/* Code Block Styles - COPIED FROM WORKING EXTENSION */
+.message .code-block-container {
+    margin: 12px 0;
+    border: 1px solid #3e3e42;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.message .code-header {
+    background: linear-gradient(135deg, #007acc 0%, #005a9e 100%);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.message .code-language {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.message .code-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+    opacity: 0.9;
+    flex: 1;
+    margin-left: 16px;
+}
+
+.message .code-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.message .code-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 60px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.message .code-btn.copy-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.message .code-btn.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.message .code-btn.apply-btn {
+    background: #28a745;
+    color: white;
+}
+
+.message .code-btn.apply-btn:hover {
+    background: #218838;
+}
+
+.message .code-content {
+    padding: 0;
+    background: #1e1e1e;
+}
+
+.message .code-content pre {
+    margin: 0;
+    padding: 16px;
+    background: transparent;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'SF Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+}
+
+.message .code-content code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-family: inherit;
+}
+
+/* Button Success Animation */
+.code-btn.success {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+.code-btn.success i:before {
+    content: "\f00c"; /* checkmark */
+}
+
+/* Chat Container Styles to match existing */
+.chat-container {
+    max-width: 100%;
+    padding: 20px;
+}
+
+.chat-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #2d2d30;
+    border-radius: 8px;
+    border: 1px solid #3e3e42;
+}
+
+.chat-header h2 {
+    margin: 0 0 8px 0;
+    color: #ffffff;
+    font-size: 20px;
+}
+
+.chat-header p {
+    margin: 0;
+    color: #9cdcfe;
+    font-size: 14px;
+}

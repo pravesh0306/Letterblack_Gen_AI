@@ -5,7 +5,7 @@ class AIModule {
     constructor() {
         if (window.AIProviders) {
             this.apiProviders = new window.AIProviders();
-            console.log('🤖 AI Module initialized with real providers');
+            logger.log('🤖 AI Module initialized with real providers');
         } else {
             this.apiProviders = null;
             console.error('❌ AIProviders not available - NO FAKE RESPONSES WILL BE GIVEN');
@@ -35,24 +35,24 @@ class AIModule {
         // Initialize performance cache
         if (window.PerformanceCache) {
             this.performanceCache = new window.PerformanceCache();
-            console.log('🚀 Performance cache initialized');
+            logger.log('🚀 Performance cache initialized');
         }
         
         // Initialize enhanced chat memory
         if (window.EnhancedChatMemory) {
             this.enhancedChatMemory = new window.EnhancedChatMemory();
-            console.log('🧠 Enhanced chat memory initialized');
+            logger.log('🧠 Enhanced chat memory initialized');
         }
         
         // Initialize utility modules
         if (window.YouTubeTutorialHelper) {
             this.youtubeTutorialHelper = new window.YouTubeTutorialHelper();
-            console.log('🎬 YouTube Tutorial Helper initialized');
+            logger.log('🎬 YouTube Tutorial Helper initialized');
         }
         
         if (window.BrowserVideoTranscriber) {
             this.browserVideoTranscriber = new window.BrowserVideoTranscriber();
-            console.log('📹 Browser Video Transcriber initialized');
+            logger.log('📹 Browser Video Transcriber initialized');
         }
     }
 
@@ -61,33 +61,33 @@ class AIModule {
      * Sets up dependencies and prepares for operation
      */
     async init(container) {
-        console.log('🤖 Initializing AI Module...');
+    logger.log('🤖 Initializing AI Module...');
         if (container) {
             container.innerHTML = '<div class="module-status">AI Module Loaded.<br>Ready to generate scripts and analyze context.</div>';
         }
         // ...existing initialization logic...
         try {
             if (!this.apiProviders) {
-                console.warn('⚠️ AI Providers not available - module will have limited functionality');
+                logger.warn('⚠️ AI Providers not available - module will have limited functionality');
                 return false;
             }
             if (window.ChatMemory) {
                 this.setChatMemory(new window.ChatMemory());
-                console.log('💭 Chat memory initialized');
+                logger.log('💭 Chat memory initialized');
             }
             if (window.SettingsManager) {
                 this.settingsManager = window.SettingsManager;
-                console.log('⚙️ Settings manager connected');
+                logger.log('⚙️ Settings manager connected');
             }
             if (typeof CSInterface !== 'undefined') {
                 try {
                     const projectContext = await this.getProjectContext();
-                    console.log('📁 Project context loaded:', projectContext ? 'Available' : 'None');
+                    logger.log('📁 Project context loaded:', projectContext ? 'Available' : 'None');
                 } catch (error) {
-                    console.warn('⚠️ Could not load project context:', error.message);
+                    logger.warn('⚠️ Could not load project context:', error.message);
                 }
             }
-            console.log('✅ AI Module initialization complete');
+            logger.log('✅ AI Module initialization complete');
             return true;
             
         } catch (error) {
@@ -101,19 +101,19 @@ class AIModule {
         this.chatMemory = chatMemory;
         if (window.EffectsPresetsModule) {
             this.effectsModule = new window.EffectsPresetsModule(chatMemory);
-            console.log('🎨 Effects & Presets module initialized with chat memory');
+            logger.log('🎨 Effects & Presets module initialized with chat memory');
         }
         
         // Initialize layer analysis module
         if (window.LayerAnalysisModule) {
             this.layerAnalysis = new window.LayerAnalysisModule();
-            console.log('🔍 Layer Analysis module initialized');
+            logger.log('🔍 Layer Analysis module initialized');
         }
 
         // Initialize Advanced SDK Integration
         if (window.AdvancedSDKIntegration) {
             this.advancedSDK = new window.AdvancedSDKIntegration();
-            console.log('🚀 Advanced SDK Integration initialized');
+            logger.log('🚀 Advanced SDK Integration initialized');
             
             // Listen for project changes to trigger AI context updates
             window.addEventListener('aeProjectChange', (event) => {
@@ -123,7 +123,7 @@ class AIModule {
     }
 
     async sendMessage(message) {
-        console.log('📤 AI Module: Received message:', message);
+    logger.log('📤 AI Module: Received message:', message);
         
         throw new Error('sendMessage is deprecated. Use generateResponse instead.');
     }
@@ -139,7 +139,7 @@ class AIModule {
             if (this.loggerSystem) {
                 this.loggerSystem.info('YouTube link detected, processing with enhanced modules');
             } else {
-                console.log('🎬 YouTube link detected, processing with enhanced modules...');
+                logger.log('🎬 YouTube link detected, processing with enhanced modules...');
             }
 
             // Use YouTube Tutorial Helper if available
@@ -155,7 +155,7 @@ class AIModule {
                         return tutorialResponse;
                     }
                 } catch (error) {
-                    console.warn('YouTube Tutorial Helper error:', error);
+                    logger.warn('YouTube Tutorial Helper error:', error);
                     if (this.loggerSystem) {
                         this.loggerSystem.warn('YouTube Tutorial Helper error', error);
                     }
@@ -189,7 +189,7 @@ class AIModule {
                         return response;
                     }
                 } catch (error) {
-                    console.warn('Browser Video Transcriber error:', error);
+                    logger.warn('Browser Video Transcriber error:', error);
                     if (this.loggerSystem) {
                         this.loggerSystem.warn('Browser Video Transcriber error', error);
                     }

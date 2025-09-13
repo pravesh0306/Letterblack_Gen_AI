@@ -56,7 +56,6 @@
                 <button id="ai-status-btn" class="header-btn" title="AI Status Dashboard">
                     <i class="fa-solid fa-robot status-indicator"></i>
                 </button>
-                <button id="mascot-debug-btn" class="header-btn mascot-debug-btn" title="Test Mascot Visibility">TEST</button>
                 <!-- CRITICAL CACHE DELETION BUTTON -->
                 <button id="delete-cache-btn" type="button" class="delete-cache-btn" title="Delete Cache & Force Reload">DELETE CACHE</button>
                 <button id="command-menu-trigger" class="header-btn" title="Command Palette (Ctrl+K)">
@@ -138,7 +137,7 @@
                 
                 <div class="composer">
                     <div class="composer-main">
-                        <textarea id="chat-input" class="composer-input" placeholder="Send a message..." rows="1" maxlength="1000"></textarea>
+                        <textarea id="chat-input" class="composer-input" placeholder="Send a message..." rows="1" maxlength="10000"></textarea>
                         <div class="composer-actions">
                             <button id="voice-input-btn" class="composer-btn voice-btn" title="Voice to Text">
                                 <i class="fa-solid fa-microphone"></i>
@@ -492,6 +491,7 @@
     </div>
     
     <!-- Core JavaScript Files - Load in correct order -->
+        <script src="js/utils/production-logger.js"></script>
     <script src="js/core/error-handler.js"></script>
     <script src="js/core/input-validator.js"></script>
     <script src="js/core/memory-manager.js"></script>

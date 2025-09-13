@@ -117,31 +117,7 @@ class LegacyChatDisabler {
     }
   }
 
-  /**
-   * Override old function calls with warnings
-   */
-  overrideOldFunctions() {
-    // Create warnings for common old functions
-    const deprecatedFunctions = {
-      'getChatHistory': () => {
-        console.warn("🚫 getChatHistory() is deprecated - use chatStore.getConversationList()");
-        return [];
-      },
-      'saveChatHistory': () => {
-        console.warn("🚫 saveChatHistory() is deprecated - use chatStore.appendMessage()");
-      },
-      'clearChatHistory': () => {
-        console.warn("🚫 clearChatHistory() is deprecated - use chatStore.clearAll()");
-      }
-    };
-
-    Object.keys(deprecatedFunctions).forEach(funcName => {
-      if (window[funcName]) {
-        window[funcName] = deprecatedFunctions[funcName];
-        this.disabledComponents.push(`global.${funcName}`);
-      }
-    });
-  }
+  // Deprecated legacy chat functions removed. Use chatStore methods instead.
 
   /**
    * Provide migration information to users
